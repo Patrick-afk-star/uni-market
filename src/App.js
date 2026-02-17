@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   addDoc,
   collection,
+  doc,
   onSnapshot,
   orderBy,
   query,
@@ -52,6 +53,14 @@ const universities = [
   "University of Technology and Arts of Byumba",
   "University of Tourism Technology and Business Studies",
   "Vatel School Rwanda",
+];
+
+const rwandaProvinces = [
+  "Kigali City",
+  "Northern Province",
+  "Southern Province",
+  "Eastern Province",
+  "Western Province",
 ];
 
 const initialProducts = [
@@ -570,12 +579,19 @@ export default function App() {
   const [orderId, setOrderId] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
+  const [checkoutFullName, setCheckoutFullName] = useState("");
+  const [checkoutMeetingPoint, setCheckoutMeetingPoint] = useState("");
+  const [checkoutNotice, setCheckoutNotice] = useState("");
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [confirmationError, setConfirmationError] = useState("");
   const [listingSubmitted, setListingSubmitted] = useState(false);
   const [listingError, setListingError] = useState("");
   const [listingData, setListingData] = useState({
     publisherType: "student",
+    businessName: "",
+    businessProvince: "Kigali City",
+    businessExactLocation: "",
+    businessEmail: "",
     name: "",
     category: "",
     price: "",
@@ -587,6 +603,7 @@ export default function App() {
     sellerName: "",
     sellerPhone: "",
     sellerResponse: "Under 1 hour",
+    sellerLanguages: "Kinyarwanda, English",
   });
   const [businessSubscription, setBusinessSubscription] = useState(() => {
     const stored = localStorage.getItem("unimarket_business_subscription");
@@ -713,6 +730,10 @@ export default function App() {
   const [dealsHeroSelection, setDealsHeroSelection] = useState({});
   const [dealsHeroUrlDraft, setDealsHeroUrlDraft] = useState("");
   const [dealsHeroUploadError, setDealsHeroUploadError] = useState("");
+  const [dealPurchaseRequests, setDealPurchaseRequests] = useState([]);
+  const [sellerOrderRequests, setSellerOrderRequests] = useState([]);
+  const sellerOrderSeenRef = useRef(new Set());
+  const hasLoadedSellerOrdersRef = useRef(false);
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
   const [adminLoginData, setAdminLoginData] = useState({
     email: "",
@@ -724,6 +745,34 @@ export default function App() {
     password: adminConfig.password,
   }));
   const [adminSection, setAdminSection] = useState("overview");
+  const [businessDealRequests, setBusinessDealRequests] = useState([]);
+  const [adminDealNotice, setAdminDealNotice] = useState("");
+  const [adminPaymentConfig, setAdminPaymentConfig] = useState(() => {
+    const stored = localStorage.getItem("unimarket_admin_payment_config");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed.methods) && parsed.methods.length > 0) {
+          return parsed;
+        }
+      } catch {}
+    }
+    return {
+      methods: [
+        "MTN MoMo",
+        "Airtel Money",
+        "Visa / Mastercard",
+        "Bank Transfer",
+      ],
+      payoutAccount: "MTN MoMo: +250 794 426 200",
+    };
+  });
+  const [adminPaymentMethodsDraft, setAdminPaymentMethodsDraft] = useState(
+    adminPaymentConfig.methods.join(", ")
+  );
+  const [adminPayoutAccountDraft, setAdminPayoutAccountDraft] = useState(
+    adminPaymentConfig.payoutAccount || ""
+  );
   const [analyticsRange, setAnalyticsRange] = useState("7d");
   const [customRange, setCustomRange] = useState({ from: "", to: "" });
   const [universityFilter, setUniversityFilter] = useState("All");
@@ -741,6 +790,16 @@ export default function App() {
   const [themeMode, setThemeMode] = useState("system");
   const [detailProduct, setDetailProduct] = useState(null);
   const [detailImageIndex, setDetailImageIndex] = useState(0);
+  const [pendingSellerRating, setPendingSellerRating] = useState(0);
+  const [sellerRatings, setSellerRatings] = useState(() => {
+    const stored = localStorage.getItem("unimarket_seller_ratings");
+    if (!stored) return {};
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return {};
+    }
+  });
 
   useEffect(() => {
     const productsRef = collection(db, "products");
@@ -762,6 +821,88 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!authUser?.uid) {
+      setSellerOrderRequests([]);
+      sellerOrderSeenRef.current = new Set();
+      hasLoadedSellerOrdersRef.current = false;
+      return;
+    }
+
+    const ordersRef = collection(db, "productOrderRequests");
+    const q = query(ordersRef, where("sellerOwnerId", "==", authUser.uid));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const items = snapshot.docs
+        .map((itemDoc) => ({ id: itemDoc.id, ...itemDoc.data() }))
+        .sort((a, b) => {
+          const aSec = a?.createdAt?.seconds || 0;
+          const bSec = b?.createdAt?.seconds || 0;
+          return bSec - aSec;
+        });
+
+      setSellerOrderRequests(items.filter((item) => item.status !== "rejected"));
+
+      const ids = new Set(items.map((item) => item.id));
+      if (!hasLoadedSellerOrdersRef.current) {
+        sellerOrderSeenRef.current = ids;
+        hasLoadedSellerOrdersRef.current = true;
+        return;
+      }
+
+      const newPending = items.filter(
+        (item) => !sellerOrderSeenRef.current.has(item.id) && item.status === "pending"
+      );
+      sellerOrderSeenRef.current = ids;
+
+      if (newPending.length > 0) {
+        const count = newPending.length;
+        const toastId = Date.now();
+        setProfileToasts((prev) => [
+          ...prev,
+          {
+            id: toastId,
+            message: `${count} new order request${count > 1 ? "s" : ""} received.`,
+          },
+        ]);
+        window.setTimeout(() => {
+          setProfileToasts((prev) => prev.filter((toast) => toast.id !== toastId));
+        }, 4000);
+
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("UniMarket seller alert", {
+            body: `${count} new order request${count > 1 ? "s" : ""} for your listing.`,
+          });
+        }
+      }
+    });
+
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {});
+    }
+
+    return () => unsubscribe();
+  }, [authUser?.uid]);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setDealPurchaseRequests([]);
+      return;
+    }
+    const requestsRef = collection(db, "dealPurchaseRequests");
+    const q = query(requestsRef, where("status", "==", "pending"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const items = snapshot.docs
+        .map((itemDoc) => ({ id: itemDoc.id, ...itemDoc.data() }))
+        .sort((a, b) => {
+          const aSec = a?.createdAt?.seconds || 0;
+          const bSec = b?.createdAt?.seconds || 0;
+          return bSec - aSec;
+        });
+      setDealPurchaseRequests(items);
+    });
+    return () => unsubscribe();
+  }, [isAdmin]);
+
+  useEffect(() => {
     if (!isAdmin) {
       setVerificationRequests([]);
       return;
@@ -771,6 +912,26 @@ export default function App() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setVerificationRequests(items);
+    });
+    return () => unsubscribe();
+  }, [isAdmin]);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setBusinessDealRequests([]);
+      return;
+    }
+    const requestsRef = collection(db, "businessDealRequests");
+    const q = query(requestsRef, where("status", "==", "pending"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const items = snapshot.docs
+        .map((itemDoc) => ({ id: itemDoc.id, ...itemDoc.data() }))
+        .sort((a, b) => {
+          const aSec = a?.createdAt?.seconds || 0;
+          const bSec = b?.createdAt?.seconds || 0;
+          return bSec - aSec;
+        });
+      setBusinessDealRequests(items);
     });
     return () => unsubscribe();
   }, [isAdmin]);
@@ -853,6 +1014,13 @@ export default function App() {
     );
   }, [selectedUniversity, products]);
 
+  const businessPaymentMethods = useMemo(() => {
+    const methods = Array.isArray(adminPaymentConfig.methods)
+      ? adminPaymentConfig.methods
+      : [];
+    return methods.filter(Boolean);
+  }, [adminPaymentConfig]);
+
   const activeBusinessSubscription = useMemo(() => {
     if (!businessSubscription?.expiresAt) return null;
     const expiresAt = new Date(businessSubscription.expiresAt).getTime();
@@ -877,21 +1045,67 @@ export default function App() {
     setOrderId("");
     setContactEmail("");
     setContactPhone("");
+    setDeliveryMethod(product?.delivery || "Campus pickup");
+    setCheckoutFullName("");
+    setCheckoutMeetingPoint("");
+    setCheckoutNotice("");
     setConfirmationSent(false);
     setConfirmationError("");
   };
 
   const closeCheckout = () => {
     setCheckoutProduct(null);
+    setCheckoutNotice("");
   };
 
   const openDetails = (product) => {
     setDetailProduct(product);
     setDetailImageIndex(0);
+    setPendingSellerRating(0);
   };
 
   const closeDetails = () => {
     setDetailProduct(null);
+  };
+
+  const getSellerStats = (product) => {
+    const sellerName = product?.seller?.name || "Verified seller";
+    const sellerListings = products.filter(
+      (item) => (item?.seller?.name || "Verified seller") === sellerName
+    ).length;
+    const current = sellerRatings[sellerName];
+    const baseRating = Number(product?.rating || 4.6);
+    return {
+      listings: sellerListings,
+      rating: Number(current?.avg || baseRating).toFixed(1),
+      ratingCount: Number(current?.count || 1),
+      university: product?.university || "Campus seller",
+    };
+  };
+
+  const submitSellerRating = (product) => {
+    if (!product || pendingSellerRating < 1 || pendingSellerRating > 5) return;
+    const sellerName = product?.seller?.name || "Verified seller";
+    setSellerRatings((prev) => {
+      const current = prev[sellerName] || { avg: Number(product?.rating || 4.6), count: 1 };
+      const nextCount = current.count + 1;
+      const nextAvg = (current.avg * current.count + pendingSellerRating) / nextCount;
+      return {
+        ...prev,
+        [sellerName]: {
+          avg: Number(nextAvg.toFixed(2)),
+          count: nextCount,
+        },
+      };
+    });
+    const toastId = Date.now();
+    setProfileToasts((prev) => [
+      ...prev,
+      { id: toastId, message: "Seller rating submitted." },
+    ]);
+    window.setTimeout(() => {
+      setProfileToasts((prev) => prev.filter((toast) => toast.id !== toastId));
+    }, 2500);
   };
 
   const getDetailMedia = (product) => {
@@ -903,7 +1117,67 @@ export default function App() {
     return imageList.map((url) => ({ url, type: "image" }));
   };
 
-  const confirmOrder = () => {
+  const confirmOrder = async () => {
+    if (!checkoutProduct) return;
+
+    if (!checkoutFullName.trim()) {
+      setConfirmationError("Enter your full name.");
+      return;
+    }
+
+    if (!contactPhone.trim() || !isValidPhone(contactPhone)) {
+      setConfirmationError("Enter a valid Rwanda phone number.");
+      return;
+    }
+
+    if (checkoutProduct.sourceType === "deal") {
+      try {
+        await addDoc(collection(db, "dealPurchaseRequests"), {
+          status: "pending",
+          dealId: checkoutProduct.dealId || null,
+          dealTitle: checkoutProduct.name,
+          dealImage: checkoutProduct.image || "",
+          buyerId: authUser?.uid || "guest",
+          buyerEmail: authUser?.email || contactEmail || "",
+          buyerName: checkoutFullName || "Not provided",
+          buyerPhone: contactPhone || "",
+          meetingPoint: checkoutMeetingPoint || "",
+          quantity,
+          paymentMethod,
+          deliveryMethod,
+          createdAt: serverTimestamp(),
+        });
+        setCheckoutNotice("Deal request sent to admin. You will be contacted shortly.");
+      } catch {
+        setConfirmationError("Could not send deal request. Try again.");
+        return;
+      }
+    } else {
+      try {
+        await addDoc(collection(db, "productOrderRequests"), {
+          status: "pending",
+          productId: checkoutProduct.id || null,
+          productName: checkoutProduct.name,
+          productImage: checkoutProduct.image || "",
+          sellerOwnerId: checkoutProduct.ownerId || "guest",
+          sellerName: checkoutProduct?.seller?.name || "Seller",
+          sellerPhone: checkoutProduct?.seller?.phone || "",
+          buyerId: authUser?.uid || "guest",
+          buyerEmail: authUser?.email || contactEmail || "",
+          buyerName: checkoutFullName,
+          buyerPhone: contactPhone,
+          meetingPoint: checkoutMeetingPoint || "",
+          quantity,
+          paymentMethod,
+          deliveryMethod,
+          createdAt: serverTimestamp(),
+        });
+      } catch {
+        setConfirmationError("Could not send your order to seller. Try again.");
+        return;
+      }
+    }
+
     const randomId = `UM-${Math.floor(100000 + Math.random() * 900000)}`;
     setOrderId(randomId);
     setOrderConfirmed(true);
@@ -994,52 +1268,41 @@ export default function App() {
 
   const submitListing = async (event) => {
     event.preventDefault();
-    if (listingData.publisherType === "business" && !activeBusinessSubscription) {
-      setListingError(
-        "Business accounts require an active subscription (weekly or monthly) before publishing."
-      );
-      setListingSubmitted(false);
-      return;
-    }
+
     if (listingData.sellerPhone && !isValidPhone(listingData.sellerPhone)) {
       setListingError("Use a valid Rwanda phone number for the seller.");
       setListingSubmitted(false);
       return;
     }
+
     setListingError("");
-    const newId = products.length
-      ? Math.max(...products.map((item) => item.id)) + 1
-      : 1;
     const placeholderImage =
       "https://images.unsplash.com/photo-1523473827533-2a64d0f9f66d?auto=format&fit=crop&w=900&q=80";
 
     const newProduct = {
-      id: newId,
       name: listingData.name,
       price: listingData.price.includes("RWF")
         ? listingData.price
         : `${listingData.price} RWF`,
       location: getLocationFromUniversity(listingData.university),
       rating: 4.6,
-      tag: listingData.publisherType === "business" ? "Business" : "New",
+      tag: "New",
       university: listingData.university,
       image: placeholderImage,
       media: [],
-      publisherType: listingData.publisherType,
+      publisherType: "student",
+      category: listingData.category,
+      condition: listingData.condition,
+      payment: listingData.payment,
+      delivery: listingData.delivery,
+      description: listingData.description,
       seller: {
         name: listingData.sellerName || "Verified seller",
         phone: listingData.sellerPhone || "Not provided",
         responseTime: listingData.sellerResponse,
+        languages: listingData.sellerLanguages || "Kinyarwanda, English",
       },
       ownerId: authUser?.uid || "guest",
-      businessBundleId:
-        listingData.publisherType === "business"
-          ? activeBusinessSubscription?.id || null
-          : null,
-      businessSubscriptionExpiresAt:
-        listingData.publisherType === "business"
-          ? activeBusinessSubscription?.expiresAt || null
-          : null,
       createdAt: serverTimestamp(),
     };
 
@@ -1064,14 +1327,18 @@ export default function App() {
         image: mainMedia ? mainMedia.url : placeholderImage,
       });
       setProducts((prev) => [{ ...newProduct, id: docRef.id }, ...prev]);
+      setListingSubmitted(true);
     } catch {
-      setListingError("Upload failed. Please try again.");
+      setListingError("Submit failed. Please try again.");
       return;
     }
 
-    setListingSubmitted(true);
     setListingData({
       publisherType: "student",
+      businessName: "",
+      businessProvince: "Kigali City",
+      businessExactLocation: "",
+      businessEmail: "",
       name: "",
       category: "",
       price: "",
@@ -1086,6 +1353,7 @@ export default function App() {
       sellerName: "",
       sellerPhone: "",
       sellerResponse: "Under 1 hour",
+      sellerLanguages: "Kinyarwanda, English",
     });
     setListingImages([]);
     setMainImageIndex(0);
@@ -1099,6 +1367,7 @@ export default function App() {
     setMainImageIndex(0);
     setListingData((prev) => ({
       ...prev,
+      publisherType: "student",
       university:
         selectedUniversity !== "All"
           ? selectedUniversity
@@ -1275,6 +1544,24 @@ export default function App() {
     }
   };
 
+  const openDealCheckout = (deal) => {
+    const fallbackImage = dealsCarouselImages[0] || "";
+    openCheckout({
+      id: `deal-checkout-${deal.id || Date.now()}`,
+      dealId: deal.id || null,
+      sourceType: "deal",
+      name: deal.title || "Campus deal",
+      price: deal.price || "25,000 RWF",
+      university: "Deals Zone",
+      image: deal.imageUrl || fallbackImage,
+      seller: {
+        name: "UniMarket Deals Desk",
+        phone: "+250 794 426 200",
+        responseTime: "Under 1 hour",
+      },
+    });
+  };
+
   const resendCode = () => {
     setResendNotice("Verification code resent.");
     setTimeout(() => setResendNotice(""), 2500);
@@ -1438,6 +1725,99 @@ export default function App() {
         (deal.id || index) === targetId ? { ...deal, active: deal.active === false ? true : false } : deal
       )
     );
+  };
+
+  const saveAdminPaymentConfig = () => {
+    const methods = adminPaymentMethodsDraft
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+    setAdminPaymentConfig({
+      methods: methods.length > 0 ? methods : ["MTN MoMo", "Airtel Money"],
+      payoutAccount: adminPayoutAccountDraft.trim(),
+    });
+    setAdminDealNotice("Payment methods updated.");
+    window.setTimeout(() => setAdminDealNotice(""), 2500);
+  };
+
+  const approveBusinessDealRequest = async (request) => {
+    try {
+      if (!request?.id || !request?.productDraft) return;
+      await addDoc(collection(db, "products"), {
+        ...request.productDraft,
+        tag: "Business",
+        createdAt: serverTimestamp(),
+      });
+      await updateDoc(doc(db, "businessDealRequests", request.id), {
+        status: "approved",
+        reviewedAt: serverTimestamp(),
+        reviewedBy: adminConfig.email,
+      });
+      setAdminDealNotice("Business request approved and published.");
+      window.setTimeout(() => setAdminDealNotice(""), 2500);
+    } catch {
+      setAdminDealNotice("Failed to approve request.");
+    }
+  };
+
+  const rejectBusinessDealRequest = async (request) => {
+    try {
+      if (!request?.id) return;
+      await updateDoc(doc(db, "businessDealRequests", request.id), {
+        status: "rejected",
+        reviewedAt: serverTimestamp(),
+        reviewedBy: adminConfig.email,
+      });
+      setAdminDealNotice("Business request rejected.");
+      window.setTimeout(() => setAdminDealNotice(""), 2500);
+    } catch {
+      setAdminDealNotice("Failed to reject request.");
+    }
+  };
+
+  const markDealRequestStatus = async (requestId, status) => {
+    try {
+      await updateDoc(doc(db, "dealPurchaseRequests", requestId), {
+        status,
+        reviewedAt: serverTimestamp(),
+        reviewedBy: adminConfig.email,
+      });
+    } catch {
+      setAdminDealNotice("Failed to update deal request status.");
+      window.setTimeout(() => setAdminDealNotice(""), 2500);
+    }
+  };
+
+  const markSellerOrderStatus = async (requestId, status) => {
+    try {
+      await updateDoc(doc(db, "productOrderRequests", requestId), {
+        status,
+        sellerReviewedAt: serverTimestamp(),
+      });
+      const toastId = Date.now();
+      setProfileToasts((prev) => [
+        ...prev,
+        {
+          id: toastId,
+          message: `Order marked as ${status}.`,
+        },
+      ]);
+      window.setTimeout(() => {
+        setProfileToasts((prev) => prev.filter((toast) => toast.id !== toastId));
+      }, 2500);
+    } catch {
+      const toastId = Date.now();
+      setProfileToasts((prev) => [
+        ...prev,
+        {
+          id: toastId,
+          message: "Failed to update order status.",
+        },
+      ]);
+      window.setTimeout(() => {
+        setProfileToasts((prev) => prev.filter((toast) => toast.id !== toastId));
+      }, 2500);
+    }
   };
 
   const openAdminLogin = () => {
@@ -3071,6 +3451,61 @@ export default function App() {
       </div>
 
       <div className="admin-card-v2 admin-card-full">
+        <span>Deal purchase requests</span>
+        <strong>Student checkout requests</strong>
+        {dealPurchaseRequests.length === 0 ? (
+          <p className="section-subtitle">No pending deal purchase requests.</p>
+        ) : (
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Deal</th>
+                  <th>Buyer</th>
+                  <th>Payment</th>
+                  <th>Quantity</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dealPurchaseRequests.map((request) => (
+                  <tr key={request.id}>
+                    <td>
+                      <strong>{request.dealTitle || "Deal"}</strong>
+                    </td>
+                    <td>
+                      <strong>{request.buyerName || "Unknown"}</strong>
+                      <div className="section-subtitle">{request.buyerPhone || request.buyerEmail || "No contact"}</div>
+                    </td>
+                    <td>{request.paymentMethod || "-"}</td>
+                    <td>{request.quantity || 1}</td>
+                    <td>
+                      <div className="admin-row-actions">
+                        <button
+                          className="primary-button"
+                          type="button"
+                          onClick={() => markDealRequestStatus(request.id, "approved")}
+                        >
+                          Approve
+                        </button>
+                        <button
+                          className="ghost-button danger"
+                          type="button"
+                          onClick={() => markDealRequestStatus(request.id, "rejected")}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="admin-card-v2 admin-card-full">
         <span>All deals</span>
         <strong>Manage</strong>
         <div className="admin-table-wrap">
@@ -3503,16 +3938,16 @@ export default function App() {
             </div>
             <div className="hero-stats">
               <div>
-                <div className="stat-number">4.9/5</div>
-                <div className="stat-label">Average rating</div>
+                <div className="stat-number">{products.length.toLocaleString("en-US")}+</div>
+                <div className="stat-label">Live listings</div>
               </div>
               <div>
-                <div className="stat-number">2,600+</div>
-                <div className="stat-label">Active listings</div>
+                <div className="stat-number">{analyticsData.onlineUsersNow.toLocaleString("en-US")}</div>
+                <div className="stat-label">Users online now</div>
               </div>
               <div>
-                <div className="stat-number">90 min</div>
-                <div className="stat-label">Avg. sell time</div>
+                <div className="stat-number">{deals.filter((deal) => deal.active !== false).length}</div>
+                <div className="stat-label">Active deals</div>
               </div>
             </div>
           </div>
@@ -3575,7 +4010,7 @@ export default function App() {
         </div>
       </section>
 
-      <section className="section deals" id="deals">
+      <section className="deals-billboard" aria-label="Deals slideshow">
         <div className="deals-motion-layer" aria-hidden="true">
           <div className="deals-bg-carousel">
             {dealsCarouselImages.map((image, index) => (
@@ -3592,124 +4027,80 @@ export default function App() {
           <span className="orb orb-b" />
           <span className="orb orb-c" />
         </div>
-        <div className="container deals-grid">
-          <article>
+      </section>
+
+      <section className="section deals-market" id="deals">
+        <div className="container section-header">
+          <div>
             <p className="section-kicker">Deals</p>
-            <h2>Campus bundles with student pricing</h2>
+            <h2>Choose Your Deal</h2>
             <p className="section-subtitle">
-              The background rotates through featured deal images and selected
-              products. Admin controls what shows.
+              Pick any highlighted deal and place your request just like a normal checkout.
             </p>
-            <div className="deal-list">
-              {deals
-                .filter((deal) => deal.active !== false)
-                .slice(0, 6)
-                .map((deal) => (
-                  <div key={deal.id || deal.title} className={deal.featured ? "active" : ""}>
-                    <h4>
-                      {deal.title}{" "}
-                      {deal.featured ? (
-                        <span className="status-badge pending">Featured</span>
-                      ) : null}
-                    </h4>
-                    <p>{deal.detail || "Limited-time campus bundle."}</p>
-                  </div>
-                ))}
-            </div>
-            <div className="admin-inline-controls">
-              <button className="primary-button" type="button">
-                Browse deals
-              </button>
-              <button
-                className="ghost-button"
-                type="button"
-                onClick={() => {
-                  if (isAdmin) {
-                    setCurrentView("admin");
-                    setAdminSection("deals");
-                    window.scrollTo(0, 0);
-                  } else {
-                    openAdminLogin();
-                  }
-                }}
-              >
-                Admin: manage deals
-              </button>
-            </div>
-          </article>
-          <article className="deal-card">
-            <p className="chip">Spotlight</p>
-            <h3>{spotlightDeal?.title || "Featured deal"}</h3>
-            <p>{spotlightDeal?.detail || "Set a featured deal in Admin → Deals."}</p>
-            <div className="deal-timer">
-              <div>
-                <span>08</span>
-                <small>Hours</small>
-              </div>
-              <div>
-                <span>24</span>
-                <small>Minutes</small>
-              </div>
-              <div>
-                <span>52</span>
-                <small>Seconds</small>
-              </div>
-            </div>
-            {spotlightDeal?.imageUrl ? (
-              <a className="secondary-button" href={spotlightDeal.imageUrl} target="_blank" rel="noreferrer">
-                View deal image
-              </a>
-            ) : (
-              <button className="secondary-button" type="button">
-                View details
-              </button>
-            )}
-          </article>
+          </div>
+          <button className="secondary-button" type="button">
+            Browse deals
+          </button>
+        </div>
+
+        <div className="container deals-catalog">
+          {deals
+            .filter((deal) => deal.active !== false)
+            .map((deal) => (
+              <article key={deal.id || deal.title} className="deal-option-card">
+                <div className="deal-option-media">
+                  <img
+                    src={deal.imageUrl || dealsCarouselImages[0] || ""}
+                    alt={deal.title}
+                    loading="lazy"
+                  />
+                  {deal.featured ? <span className="status-badge pending">Featured</span> : null}
+                </div>
+                <div className="deal-option-copy">
+                  <h3>{deal.title}</h3>
+                  <p>{deal.detail || "Limited-time campus bundle."}</p>
+                </div>
+                <div className="deal-option-actions">
+                  <button
+                    className="primary-button"
+                    type="button"
+                    onClick={() => openDealCheckout(deal)}
+                  >
+                    Buy this deal
+                  </button>
+                  <button
+                    className="ghost-button"
+                    type="button"
+                    onClick={() =>
+                      openWhatsApp({
+                        name: deal.title || "Campus deal",
+                        seller: { phone: "+250 794 426 200" },
+                      })
+                    }
+                  >
+                    Ask on WhatsApp
+                  </button>
+                </div>
+              </article>
+            ))}
         </div>
       </section>
 
-      <section className="section" id="categories">
+      <section className="section featured" id="featured">
         <div className="container">
           <div className="section-header">
             <div>
-              <p className="section-kicker">Categories</p>
-              <h2>Shop by student needs</h2>
+              <p className="section-kicker">Featured Listings</p>
+              <h2>Latest student products</h2>
               <p className="section-subtitle">
-                From tech to hostel essentials, find what matters most this
-                semester.
+                Browse verified campus listings and buy safely.
               </p>
             </div>
-            <button className="ghost-button" type="button">
-              View all
-            </button>
-          </div>
-          <div className="category-grid">
-            {categories.map((category) => (
-              <div className="category-card" key={category.title}>
-                <div className="category-icon">{category.title[0]}</div>
-                <div>
-                  <h3>{category.title}</h3>
-                  <p>{category.count} listings</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section universities" id="universities">
-        <div className="container universities-grid">
-          <div>
-            <p className="section-kicker">Your campus</p>
-            <h2>Choose your university</h2>
-            <p className="section-subtitle">
-              Filter listings and get pickup options that match your campus.
-            </p>
-            <div className="university-select">
+            <div className="listing-controls">
               <select
-                aria-label="Select your university"
                 value={selectedUniversity}
                 onChange={(event) => setSelectedUniversity(event.target.value)}
+                aria-label="Filter by university"
               >
                 <option value="All">All universities</option>
                 {universities.map((school) => (
@@ -3718,81 +4109,72 @@ export default function App() {
                   </option>
                 ))}
               </select>
-              <span className="selection-chip">
-                Showing: {selectedUniversity}
-              </span>
+              <button
+                className="ghost-button"
+                type="button"
+                onClick={() => setSelectedUniversity("All")}
+              >
+                Reset
+              </button>
             </div>
           </div>
-          <div className="university-card">
-            <h3>Campus perks</h3>
-            <ul>
-              <li>Verified student badges for trusted listings</li>
-              <li>Pickup points near your lecture halls</li>
-              <li>Deal alerts for your campus community</li>
-            </ul>
-          </div>
-        </div>
-      </section>
 
-          <section className="section featured" id="featured">
-            <div className="container">
-              <div className="section-header">
-                <div>
-                  <p className="section-kicker">Featured</p>
-                  <h2>Handpicked for high value</h2>
-                  <p className="section-subtitle">
-                    Verified sellers and items in top condition with fair campus
-                    pricing.
-                  </p>
-                </div>
-                <button className="primary-button" type="button">
-                  See more
-                </button>
-              </div>
-              <div className="product-grid">
-                {products.map((product) => (
-                  <article className="product-card" key={product.id}>
-                <div className="product-image">
-                  <img src={product.image} alt={product.name} />
-                  <span className="product-tag">{product.tag}</span>
-                </div>
-                <div className="product-body">
-                  <h3>{product.name}</h3>
-                  <div className="product-meta">
-                    <span className="price">{product.price}</span>
-                    <span className="rating">â˜… {product.rating}</span>
-                  </div>
-                  <p>{product.location}</p>
-                  <p className="product-campus">{product.university}</p>
-                  <button
-                    className="secondary-button"
-                    type="button"
-                    onClick={() => openDetails(product)}
-                  >
-                    View details
-                  </button>
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => openCheckout(product)}
-                  >
-                    Buy now
-                  </button>
-                  <button
-                    className="whatsapp-button"
-                    type="button"
-                    onClick={() => openWhatsApp(product)}
-                  >
-                    WhatsApp seller
-                  </button>
-                </div>
-                  </article>
-                ))}
-              </div>
-          {filteredProducts.length === 0 && (
+          <div className="active-filter-bar">
+            <span className="selection-chip">
+              Showing {filteredProducts.length} listing{filteredProducts.length === 1 ? "" : "s"}
+            </span>
+          </div>
+
+          {filteredProducts.length === 0 ? (
             <div className="empty-state">
-              <h3>No listings for this campus yet.</h3>
-              <p>Try another university or list the first item.</p>
+              <strong>No listings in this campus filter yet.</strong>
+              <p>Try another university or reset filters.</p>
+            </div>
+          ) : (
+            <div className="product-grid">
+              {filteredProducts.map((product) => (
+                <article key={product.id} className="product-card">
+                  <div className="product-image">
+                    <img src={product.image} alt={product.name} loading="lazy" />
+                    <span className={`product-tag ${product.tag === "Sold" ? "sold" : ""}`}>
+                      {product.tag || "New"}
+                    </span>
+                  </div>
+                  <div className="product-body">
+                    <h3>{product.name}</h3>
+                    <p className="product-campus">{product.university}</p>
+                    <div className="product-meta">
+                      <span className="price">{product.price}</span>
+                      <span className="rating">? {product.rating || 4.6}</span>
+                    </div>
+                    <p>{product.location}</p>
+                    <div className="deal-option-actions">
+                      <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={() => openDetails(product)}
+                      >
+                        View details
+                      </button>
+                      <button
+                        className="primary-button"
+                        type="button"
+                        onClick={() => openCheckout(product)}
+                      >
+                        Buy now
+                      </button>
+                    </div>
+                    <button
+                      className="whatsapp-button"
+                      type="button"
+                      onClick={() => openWhatsApp(product)}
+                      disabled={!product?.seller?.phone}
+                    >
+                      WhatsApp seller
+                    </button>
+                  </div>
+                </article>
+              ))}
             </div>
           )}
         </div>
@@ -4255,6 +4637,51 @@ export default function App() {
               </div>
             </div>
             <div className="profile-activity">
+              <h4>Incoming order requests</h4>
+              <div className="profile-list">
+                {sellerOrderRequests.length === 0 ? (
+                  <div>
+                    <span>No incoming orders yet</span>
+                    <strong>Waiting</strong>
+                  </div>
+                ) : (
+                  sellerOrderRequests.slice(0, 8).map((request) => (
+                    <div key={request.id}>
+                      <span>
+                        {request.productName || "Product"} - {request.buyerName || "Buyer"}
+                        {request.buyerPhone ? ` (${request.buyerPhone})` : ""}
+                        {request.buyerEmail ? ` | ${request.buyerEmail}` : ""}
+                      </span>
+                      <strong>{request.status || "pending"}</strong>
+                      <small>
+                        {request.meetingPoint
+                          ? `Meeting: ${request.meetingPoint}`
+                          : "Meeting point not provided"}
+                      </small>
+                      {request.status === "pending" ? (
+                        <div className="order-request-actions">
+                          <button
+                            className="primary-button"
+                            type="button"
+                            onClick={() => markSellerOrderStatus(request.id, "approved")}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className="ghost-button danger"
+                            type="button"
+                            onClick={() => markSellerOrderStatus(request.id, "rejected")}
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+            <div className="profile-activity">
               <h4>Recent listings</h4>
               <div className="profile-list">
                 {products.slice(0, 3).map((item) => (
@@ -4394,26 +4821,13 @@ export default function App() {
                           )
                         )}
                       </div>
-                    </div>
-                    <div>
-                      <h4>Delivery option</h4>
+                    </div>                    <div>
+                      <h4>Delivery option (set by seller)</h4>
                       <div className="radio-group">
-                        {["Campus pickup", "Dorm delivery", "Meet in public spot"].map(
-                          (method) => (
-                            <label key={method} className="radio-card">
-                              <input
-                                type="radio"
-                                name="delivery"
-                                value={method}
-                                checked={deliveryMethod === method}
-                                onChange={(event) =>
-                                  setDeliveryMethod(event.target.value)
-                                }
-                              />
-                              <span>{method}</span>
-                            </label>
-                          )
-                        )}
+                        <label className="radio-card" title="Seller-selected delivery">
+                          <input type="radio" name="delivery" checked readOnly />
+                          <span>{deliveryMethod || "Campus pickup"}</span>
+                        </label>
                       </div>
                     </div>
                     <div>
@@ -4463,9 +4877,9 @@ export default function App() {
                     </div>
                   )}
                   <div className="checkout-form">
-                    <input type="text" placeholder="Full name" />
-                    <input type="tel" placeholder="Phone number" />
-                    <input type="text" placeholder="Meeting point or dorm" />
+                    <input type="text" placeholder="Full name" value={checkoutFullName} onChange={(event) => setCheckoutFullName(event.target.value)} />
+                    <input type="tel" placeholder="Phone number" value={contactPhone} onChange={(event) => setContactPhone(event.target.value)} />
+                    <input type="text" placeholder="Meeting point or dorm" value={checkoutMeetingPoint} onChange={(event) => setCheckoutMeetingPoint(event.target.value)} />
                     <button
                       className="primary-button"
                       type="button"
@@ -4477,6 +4891,9 @@ export default function App() {
                       By confirming, you agree to meet safely on campus or use secure
                       MoMo escrow.
                     </p>
+                    {checkoutNotice ? (
+                      <p className="signin-note">{checkoutNotice}</p>
+                    ) : null}
                   </div>
                 </>
               ) : (
@@ -4672,7 +5089,7 @@ export default function App() {
                   <span>{detailProduct.location}</span>
                 </div>
                 <div className="seller-card">
-                  <h4>Seller details</h4>
+                  <h4>Seller profile</h4>
                   <div>
                     <span>Name</span>
                     <strong>{detailProduct.seller?.name || "Verified seller"}</strong>
@@ -4684,6 +5101,40 @@ export default function App() {
                   <div>
                     <span>Response time</span>
                     <strong>{detailProduct.seller?.responseTime || "1-2 hours"}</strong>
+                  </div>
+                  <div>
+                    <span>Languages</span>
+                    <strong>{detailProduct.seller?.languages || "Kinyarwanda, English"}</strong>
+                  </div>
+                  <div>
+                    <span>Rating</span>
+                    <strong>{getSellerStats(detailProduct).rating}/5 ({getSellerStats(detailProduct).ratingCount})</strong>
+                  </div>
+                  <div>
+                    <span>Listings</span>
+                    <strong>{getSellerStats(detailProduct).listings}</strong>
+                  </div>
+                  <div className="seller-rate-box">
+                    <span>Rate this seller</span>
+                    <div className="seller-rate-actions">
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <button
+                          key={value}
+                          className={`ghost-button ${pendingSellerRating === value ? "active" : ""}`}
+                          type="button"
+                          onClick={() => setPendingSellerRating(value)}
+                        >
+                          {value}?
+                        </button>
+                      ))}
+                      <button
+                        className="primary-button"
+                        type="button"
+                        onClick={() => submitSellerRating(detailProduct)}
+                      >
+                        Submit
+                      </button>
+                    </div>
                   </div>
                 </div>
                 <div className="details-meta">
@@ -4777,99 +5228,10 @@ export default function App() {
                 <div className="listing-form-header">
                   <h3>Item details</h3>
                   <span className="chip">Seller dashboard</span>
-                </div>
-                <div className="listing-field">
-                  <label>Publisher type</label>
-                  <div className="radio-group">
-                    <label className="radio-card">
-                      <input
-                        type="radio"
-                        name="publisherType"
-                        value="student"
-                        checked={listingData.publisherType === "student"}
-                        onChange={handleListingChange}
-                      />
-                      <span>Student seller</span>
-                    </label>
-                    <label className="radio-card">
-                      <input
-                        type="radio"
-                        name="publisherType"
-                        value="business"
-                        checked={listingData.publisherType === "business"}
-                        onChange={handleListingChange}
-                      />
-                      <span>Business owner (non-student)</span>
-                    </label>
-                  </div>
-                  {listingData.publisherType === "business" && (
-                    <div className="admin-card-v2 admin-top-gap">
-                      <span>Business subscription required</span>
-                      <strong>
-                        {activeBusinessSubscription
-                          ? `${activeBusinessSubscription.name} active`
-                          : "No active subscription"}
-                      </strong>
-                      <p className="section-subtitle">
-                        Weekly plan is $1, monthly plan is $5. Choose a bundle
-                        and activate before publishing.
-                      </p>
-                      <div className="admin-form-grid">
-                        <div className="listing-field">
-                          <label htmlFor="business-bundle">Choose bundle</label>
-                          <select
-                            id="business-bundle"
-                            value={selectedBusinessBundle}
-                            onChange={(event) =>
-                              setSelectedBusinessBundle(event.target.value)
-                            }
-                          >
-                            {businessBundles.map((bundle) => (
-                              <option key={bundle.id} value={bundle.id}>
-                                {bundle.name} - ${bundle.priceUsd}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="listing-field">
-                          <label>&nbsp;</label>
-                          <button
-                            className="primary-button"
-                            type="button"
-                            onClick={activateBusinessSubscription}
-                          >
-                            Activate subscription
-                          </button>
-                        </div>
-                      </div>
-                      <div className="admin-stack">
-                        {businessBundles.map((bundle) => (
-                          <div className="admin-list-item" key={bundle.id}>
-                            <div>
-                              <strong>
-                                {bundle.name} - ${bundle.priceUsd}
-                              </strong>
-                              <span>{bundle.description}</span>
-                            </div>
-                            <span className="status-badge pending">
-                              {bundle.durationDays} days
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      {activeBusinessSubscription?.expiresAt ? (
-                        <p className="section-subtitle">
-                          Expires:{" "}
-                          {new Date(
-                            activeBusinessSubscription.expiresAt
-                          ).toLocaleDateString("en-US")}
-                        </p>
-                      ) : null}
-                      {subscriptionNotice ? (
-                        <p className="signin-note">{subscriptionNotice}</p>
-                      ) : null}
-                    </div>
-                  )}
+                </div>                <div className="listing-field">
+                  <p className="section-subtitle">
+                    Student listings only. Business owner posting is currently disabled.
+                  </p>
                 </div>
                 <div className="listing-field">
                   <label htmlFor="listing-name">Item title</label>
@@ -4929,8 +5291,7 @@ export default function App() {
                       <option value="Used - fair">Used - fair</option>
                     </select>
                   </div>
-                </div>
-                <div className="listing-split">
+                </div>                <div className="listing-split">
                   <div className="listing-field">
                     <label htmlFor="listing-university">University</label>
                     <select
@@ -4954,10 +5315,16 @@ export default function App() {
                       value={listingData.payment}
                       onChange={handleListingChange}
                     >
-                      <option value="MTN MoMo">MTN MoMo</option>
-                      <option value="Airtel Money">Airtel Money</option>
-                      <option value="Bank Transfer">Bank Transfer</option>
-                      <option value="Face-to-face">Face-to-face</option>
+                      {[
+                        "MTN MoMo",
+                        "Airtel Money",
+                        "Bank Transfer",
+                        "Face-to-face",
+                      ].map((method) => (
+                        <option key={method} value={method}>
+                          {method}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -5013,6 +5380,13 @@ export default function App() {
                     <option value="Same day">Same day</option>
                     <option value="Within 24 hours">Within 24 hours</option>
                   </select>
+                  <input
+                    name="sellerLanguages"
+                    type="text"
+                    placeholder="Seller languages (e.g. Kinyarwanda, English)"
+                    value={listingData.sellerLanguages}
+                    onChange={handleListingChange}
+                  />
                 </div>
                 <div className="listing-field">
                   <label htmlFor="listing-images">Product photos</label>
@@ -5082,8 +5456,7 @@ export default function App() {
                   <div className="listing-success">
                     <strong>Listing submitted!</strong>
                     <p>
-                      Your item is now pending verification and will appear on your
-                      campus feed soon.
+                      Your item is now published and visible on the campus feed.
                     </p>
                   </div>
                 )}
