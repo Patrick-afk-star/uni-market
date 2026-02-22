@@ -163,10 +163,10 @@ export default function Hero() {
                   type="text"
                   placeholder="Search for laptops, textbooks, furniture..."
                   aria-label="Search products"
-                  className="flex-1 min-w-[220px] px-4 py-3.5 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
+                  className="flex-1 min-w-55 px-4 py-3.5 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
                 />
                 <button
-                  className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-[18px] py-[11px] font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform duration-200 cursor-pointer"
+                  className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform duration-200 cursor-pointer"
                   type="button"
                 >
                   Search
@@ -230,7 +230,7 @@ export default function Hero() {
                 ))}
               </div>
               <button
-                className="w-full mt-4 bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-[18px] py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform"
+                className="w-full mt-4 bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform"
                 type="button"
                 onClick={() => {
                   if (currentView !== "home") {
@@ -268,7 +268,7 @@ export default function Hero() {
                 semester.
               </p>
             </div>
-            <button className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-[18px] py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform">
+            <button className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm hover:-translate-y-px transition-transform">
               View all
             </button>
           </div>
@@ -307,7 +307,7 @@ export default function Hero() {
             <div className="flex flex-wrap gap-3 mt-4 items-center">
               <select
                 aria-label="Select your university"
-                className="flex-1 min-w-[220px] px-3.5 py-3 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
+                className="flex-1 min-w-55 px-3.5 py-3 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
               >
                 <option value="All">All universities</option>
                 {universities.map((school) => (
@@ -339,14 +339,14 @@ export default function Hero() {
       >
         {/* Animated background orbs */}
         <div
-          className="absolute w-56 h-56 left-[-70px] top-[28%] rounded-full pointer-events-none animate-[featuredFloat_12s_ease-in-out_infinite]"
+          className="absolute w-56 h-56 -left-17.5 top-[28%] rounded-full pointer-events-none animate-[featuredFloat_12s_ease-in-out_infinite]"
           style={{
             background:
               "radial-gradient(circle, rgba(42,166,127,0.14), transparent 70%)",
           }}
         />
         <div
-          className="absolute w-44 h-44 right-[-50px] top-[16%] rounded-full pointer-events-none animate-[featuredFloat_14s_ease-in-out_infinite_reverse]"
+          className="absolute w-44 h-44 -right-12.5 top-[16%] rounded-full pointer-events-none animate-[featuredFloat_14s_ease-in-out_infinite_reverse]"
           style={{
             background:
               "radial-gradient(circle, rgba(216,162,74,0.16), transparent 70%)",
@@ -366,7 +366,7 @@ export default function Hero() {
                 pricing.
               </p>
             </div>
-            <button className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-[18px] py-[11px] font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform">
+            <button className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform">
               See more
             </button>
           </div>
@@ -377,7 +377,7 @@ export default function Hero() {
                 className="bg-[#ffffff] dark:bg-[#151816] rounded-2xl overflow-hidden shadow-[0_18px_35px_rgba(20,12,8,0.08)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 hover:-translate-y-1 hover:shadow-[0_24px_40px_rgba(20,12,8,0.12)] transition-transform relative group"
               >
                 {/* Sheen effect on hover */}
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[cardSheen_1.05s_ease] dark:via-white/10" />
+                <div className="absolute inset-0 pointer-events-none bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[cardSheen_1.05s_ease] dark:via-white/10" />
                 <div className="relative h-44">
                   <img
                     src={product.image}
@@ -406,9 +406,8 @@ export default function Hero() {
                   </p>
                   <div className="relative inline-flex w-fit">
                     <button
-                      className="bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-[18px] py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
                       type="button"
-                      onClick={() => openDetails(product)}
                     >
                       View details
                     </button>
@@ -419,11 +418,8 @@ export default function Hero() {
                   </div>
                   <div className="relative inline-flex w-fit">
                     <button
-                      className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-[18px] py-[11px] font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
                       type="button"
-                      onClick={() =>
-                        requireStudent(() => openCheckout(product))
-                      }
                     >
                       Buy now
                     </button>
@@ -436,7 +432,6 @@ export default function Hero() {
                     <button
                       className="bg-[#25d366] text-[#0f1b12] rounded-full px-3.5 py-2.5 font-semibold text-xs hover:brightness-95 disabled:opacity-60 disabled:cursor-not-allowed"
                       type="button"
-                      onClick={() => openWhatsApp(product)}
                     >
                       WhatsApp seller
                     </button>
@@ -465,9 +460,9 @@ export default function Hero() {
       <section className="py-14 relative overflow-hidden" id="deals">
         {/* Background gradient orbs */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute w-44 h-44 left-[-40px] top-5 rounded-full animate-[floatOrb_10s_ease-in-out_infinite] bg-[radial-gradient(circle,rgba(216,162,74,0.5),transparent_70%)]" />
-          <div className="absolute w-56 h-56 right-[-60px] top-[30%] rounded-full animate-[floatOrb_10s_ease-in-out_infinite_1.2s] bg-[radial-gradient(circle,rgba(42,166,127,0.38),transparent_70%)]" />
-          <div className="absolute w-40 h-40 left-[35%] bottom-[-50px] rounded-full animate-[floatOrb_10s_ease-in-out_infinite_2.1s] bg-[radial-gradient(circle,rgba(74,166,207,0.32),transparent_70%)]" />
+          <div className="absolute w-44 h-44 -left-10 top-5 rounded-full animate-[floatOrb_10s_ease-in-out_infinite] bg-[radial-gradient(circle,rgba(216,162,74,0.5),transparent_70%)]" />
+          <div className="absolute w-56 h-56 -right-15 top-[30%] rounded-full animate-[floatOrb_10s_ease-in-out_infinite_1.2s] bg-[radial-gradient(circle,rgba(42,166,127,0.38),transparent_70%)]" />
+          <div className="absolute w-40 h-40 left-[35%] -bottom-12.5 rounded-full animate-[floatOrb_10s_ease-in-out_infinite_2.1s] bg-[radial-gradient(circle,rgba(74,166,207,0.32),transparent_70%)]" />
         </div>
         <div className="max-w-6xl mx-auto w-[92vw] relative z-10 grid md:grid-cols-2 gap-6 items-center">
           <article>
@@ -494,7 +489,7 @@ export default function Hero() {
                 </div>
               ))}
             </div>
-            <button className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-[18px] py-[11px] font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform">
+            <button className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform">
               Claim your deal
             </button>
           </article>
@@ -507,20 +502,20 @@ export default function Hero() {
               Save up to 35% on electronics before Friday.
             </p>
             <div className="flex gap-3 mt-4">
-              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-[70px]">
+              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-17.5">
                 <span className="block text-lg font-bold">08</span>
                 <small className="text-white/70 text-xs">Hours</small>
               </div>
-              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-[70px]">
+              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-17.5">
                 <span className="block text-lg font-bold">24</span>
                 <small className="text-white/70 text-xs">Minutes</small>
               </div>
-              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-[70px]">
+              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-17.5">
                 <span className="block text-lg font-bold">52</span>
                 <small className="text-white/70 text-xs">Seconds</small>
               </div>
             </div>
-            <button className="w-full mt-4 bg-transparent text-white border border-white/20 rounded-full px-[18px] py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform">
+            <button className="w-full mt-4 bg-transparent text-white border border-white/20 rounded-full px-4.5 py-2.75 font-semibold text-sm hover:-translate-y-px transition-transform">
               Shop electronics
             </button>
           </article>
@@ -543,7 +538,7 @@ export default function Hero() {
                 exchange on campus.
               </p>
             </div>
-            <button className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-[18px] py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform">
+            <button className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm hover:-translate-y-px transition-transform">
               Payment help
             </button>
           </div>
@@ -681,9 +676,9 @@ export default function Hero() {
             <input
               type="email"
               placeholder="Your email address"
-              className="flex-1 min-w-[200px] px-3.5 py-3 rounded-full border border-white/20 bg-white/20 text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-white"
+              className="flex-1 min-w-50 px-3.5 py-3 rounded-full border border-white/20 bg-white/20 text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-white"
             />
-            <button className="bg-white text-[#0f6b4f] rounded-full px-[18px] py-[11px] font-semibold text-sm shadow-lg hover:-translate-y-px transition-transform">
+            <button className="bg-white text-[#0f6b4f] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-lg hover:-translate-y-px transition-transform">
               Subscribe
             </button>
           </div>
@@ -757,7 +752,7 @@ export default function Hero() {
               <button className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform">
                 Contact support
               </button>
-              <button className="bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-[18px] py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform">
+              <button className="bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm hover:-translate-y-px transition-transform">
                 Report an issue
               </button>
             </div>
