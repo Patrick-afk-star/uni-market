@@ -1,4 +1,5 @@
 import AuthNav from "../../components/auth/AuthNav";
+import "../globals.css";
 
 export default function AuthLayout({
   children,
