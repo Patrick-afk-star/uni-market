@@ -114,7 +114,7 @@ export default function SignupForm() {
             Join the student marketplace
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-3 space-y-2.5">
+          <form onSubmit={handleSubmit} className="mt-4 space-y-3">
             {/* Name field with icon */}
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5f5b52] dark:text-[#b7b1a6]">
@@ -265,7 +265,7 @@ export default function SignupForm() {
             </button>
           </form>
 
-          <div className="relative my-3">
+          <div className="relative my-3.5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-[rgba(18,20,18,0.12)] dark:border-white/10"></div>
             </div>

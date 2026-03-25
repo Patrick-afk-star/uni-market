@@ -97,9 +97,9 @@ export default function LoginForm() {
             Sign in to continue to UniMarket
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-3 space-y-2.5">
+          <form onSubmit={handleSubmit} className="mt-4 space-y-3">
             {/* Email field with icon */}
-            <div className="relative mb-4 mt-4">
+            <div className="relative mb-3 mt-3">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5f5b52] dark:text-[#b7b1a6]">
                 <svg
                   width="18"
@@ -128,7 +128,7 @@ export default function LoginForm() {
             </div>
 
             {/* Password field with icon */}
-            <div className="relative mb-4">
+            <div className="relative mb-3">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5f5b52] dark:text-[#b7b1a6]">
                 <svg
                   width="18"
@@ -156,8 +156,8 @@ export default function LoginForm() {
               </label>
             </div>
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
+            <div className="flex items-center justify-between pt-0.5">
+              <label className="hidden md:flex items-center gap-2 text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
                 <input
                   type="checkbox"
                   checked={rememberMe}
@@ -183,7 +183,7 @@ export default function LoginForm() {
             </button>
           </form>
 
-          <div className="relative my-3">
+          <div className="relative my-3.5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-[rgba(18,20,18,0.12)] dark:border-white/10"></div>
             </div>
