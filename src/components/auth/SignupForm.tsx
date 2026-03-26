@@ -2,6 +2,8 @@
 
 import { useState, SubmitEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function SignupForm() {
   const [name, setName] = useState("");
@@ -9,24 +11,71 @@ export default function SignupForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
-    console.log("Signup", {
-      name,
-      email,
-      password,
-      confirmPassword,
-      agreeTerms,
-    });
+
+    if (!agreeTerms) {
+      toast.error("Please agree to the terms and privacy policy");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email,
+          password,
+          first_name: name.split(" ")[0],
+          last_name: name.split(" ").slice(1).join(" "),
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Signup failed");
+      }
+
+      toast.success("Account created! Please verify your email.");
+      router.push("/verify-email");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Signup failed. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGoogleSignup = () => {
-    console.log("Sign up with Google");
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const redirectUri = `${window.location.origin}/api/auth/google/callback`;
+
+    if (!clientId) {
+      toast.error("Google OAuth is not configured");
+      return;
+    }
+
+    const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    authUrl.searchParams.set("client_id", clientId);
+    authUrl.searchParams.set("redirect_uri", redirectUri);
+    authUrl.searchParams.set("response_type", "code");
+    authUrl.searchParams.set("scope", "openid email profile");
+    authUrl.searchParams.set("access_type", "offline");
+    authUrl.searchParams.set("prompt", "consent");
+
+    window.location.href = authUrl.toString();
   };
 
   return (
@@ -65,7 +114,7 @@ export default function SignupForm() {
             Join the student marketplace
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-3 space-y-2.5">
+          <form onSubmit={handleSubmit} className="mt-4 space-y-3">
             {/* Name field with icon */}
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#5f5b52] dark:text-[#b7b1a6]">
@@ -209,13 +258,14 @@ export default function SignupForm() {
 
             <button
               type="submit"
-              className="w-full bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4 py-2 text-sm font-semibold shadow-[0_8px_20px_rgba(15,107,79,0.25)] hover:shadow-[0_12px_20px_rgba(28,110,93,0.25)] hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#d8a24a] focus:ring-offset-2 dark:focus:ring-offset-[#151816]"
+              disabled={isLoading}
+              className="w-full bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4 py-2 text-sm font-semibold shadow-[0_8px_20px_rgba(15,107,79,0.25)] hover:shadow-[0_12px_20px_rgba(28,110,93,0.25)] hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#d8a24a] focus:ring-offset-2 dark:focus:ring-offset-[#151816] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create account
+              {isLoading ? "Creating account..." : "Create account"}
             </button>
           </form>
 
-          <div className="relative my-3">
+          <div className="relative my-3.5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-[rgba(18,20,18,0.12)] dark:border-white/10"></div>
             </div>
@@ -229,7 +279,8 @@ export default function SignupForm() {
           <button
             type="button"
             onClick={handleGoogleSignup}
-            className="w-full flex items-center justify-center gap-2 bg-white dark:bg-[#121412] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4 py-2 text-sm text-[#121412] dark:text-[#f4f2ee] font-medium hover:bg-gray-50 hover:cursor-pointer dark:hover:bg-[#1a1d1b] transition-colors focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
+            disabled={isLoading}
+            className="w-full flex items-center justify-center gap-2 bg-white dark:bg-[#121412] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4 py-2 text-sm text-[#121412] dark:text-[#f4f2ee] font-medium hover:bg-gray-50 hover:cursor-pointer dark:hover:bg-[#1a1d1b] transition-colors focus:outline-none focus:ring-2 focus:ring-[#d8a24a] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg width="16" height="16" viewBox="0 0 24 24">
               <path
