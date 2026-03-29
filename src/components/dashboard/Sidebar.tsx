@@ -70,7 +70,7 @@ export function Sidebar({
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-[260px] bg-background border-r border-white/[0.06] flex flex-col z-50">
       {/* Logo */}
-      <div className="p-5 border-b border-white/[0.06]">
+      <div className="px-5 py-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
           <span
             className="w-12 h-12 rounded-2xl grid place-items-center shadow-[0_10px_24px_rgba(15,107,79,0.25)]"
@@ -111,10 +111,10 @@ export function Sidebar({
 
       {/* Mode Switch */}
       <div className="p-4">
-        <div className="relative flex bg-[#22debc]/10 rounded-xl p-1">
+        <div className="relative flex bg-[#bb740a]/10 rounded-xl p-1">
           <div
             ref={modeIndicatorRef}
-            className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-[#22debc] rounded-lg transition-all duration-250 ease-out"
+            className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-[#bb740a] rounded-lg transition-all duration-250 ease-out"
             style={{
               left: viewMode === 'sell' ? '4px' : 'calc(50%)',
             }}
@@ -122,7 +122,7 @@ export function Sidebar({
           <button
             onClick={() => handleModeChange('sell')}
             className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
-              viewMode === 'sell' ? 'text-black' : 'text-muted-foreground hover:text-foreground rounded-xl'
+              viewMode === 'sell' ? 'text-white' : 'text-muted-foreground hover:text-foreground rounded-xl'
             }`}
           >
             <Plus className="w-4 h-4" />
@@ -131,7 +131,7 @@ export function Sidebar({
           <button
             onClick={() => handleModeChange('buy')}
             className={`relative z-10 flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-colors cursor-pointer ${
-              viewMode === 'buy' ? 'text-black' : 'text-muted-foreground hover:text-foreground rounded-xl'
+              viewMode === 'buy' ? 'text-white' : 'text-muted-foreground hover:text-foreground rounded-xl'
             }`}
           >
             <Search className="w-4 h-4" />
@@ -161,15 +161,15 @@ export function Sidebar({
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group cursor-pointer ${
                 isActive
                   ? 'bg-[#1a1a1a] text-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-[#22debc]/10'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10'
               }`}
             >
               <Icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${
-                isActive ? 'text-primary' : ''
+                isActive ? 'text-[#bb740a]' : ''
               }`} />
               <span className="flex-1 text-left">{item.label}</span>
               {isActive && (
-                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#bb740a]" />
               )}
             </button>
           );
@@ -178,10 +178,10 @@ export function Sidebar({
 
       {/* User Card */}
       <div className="p-4 border-t border-white/[0.06]">
-        <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#121212] hover:bg-[#22debc]/10 transition-colors cursor-pointer border border-[#121212]">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#121212] hover:bg-[#bb740a]/10 transition-colors cursor-pointer border border-[#121212]">
           <Avatar className="w-10 h-10">
             <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
-            <AvatarFallback className="bg-[#22debc]/20 text-[#22debc]">
+            <AvatarFallback className="bg-[#bb740a]/20 text-[#bb740a]">
               <User className="w-4 h-4" />
             </AvatarFallback>
           </Avatar>

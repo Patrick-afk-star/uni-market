@@ -38,7 +38,7 @@ export function BuyView({
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Filter bar animation
+      // Filter bar animation - only on initial mount
       if (filterBarRef.current) {
         gsap.fromTo(
           filterBarRef.current,
@@ -46,8 +46,14 @@ export function BuyView({
           { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
         );
       }
+    });
 
-      // Grid cards stagger animation
+    return () => ctx.revert();
+  }, []);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Grid cards stagger animation only
       if (gridRef.current) {
         const cards = gridRef.current.querySelectorAll('.product-card');
         gsap.fromTo(
@@ -140,25 +146,25 @@ export function BuyView({
       {/* Filter Bar */}
       <div
         ref={filterBarRef}
-        className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#121212] border border-white/[0.06]"
+        className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#0f0f0f] border border-white/[0.06]"
       >
         {/* Category Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="h-10 px-4 rounded-xl border-white/10 bg-secondary hover:bg-secondary/80 text-foreground"
+              className="h-10 px-4 rounded-xl border border-white/[0.06] bg-[#0f0f0f] hover:bg-[#0f0f0f]/80 text-foreground cursor-pointer"
             >
               {selectedCategory}
               <ChevronDown className="w-4 h-4 ml-2" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 bg-[#121212] border border-[#121212]">
+          <DropdownMenuContent className="w-48 bg-[#121212] border border-white/[0.06]">
             {categories.map((category) => (
               <DropdownMenuItem
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`${selectedCategory === category ? 'bg-[#22debc]/10' : ''} hover:bg-[#22debc]/10 cursor-pointer`}
+                className={`cursor-pointer hover:bg-[#1a1a1a] ${selectedCategory === category ? 'bg-[#1a1a1a]' : ''}`}
               >
                 {category}
               </DropdownMenuItem>
@@ -173,7 +179,7 @@ export function BuyView({
             placeholder="Min"
             value={priceRange.min}
             onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
-            className="w-24 h-10 rounded-xl bg-secondary border-white/10 text-sm"
+            className="w-24 h-10 rounded-xl bg-[#0f0f0f] border border-white/[0.06] text-sm focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:text-muted-foreground"
           />
           <span className="text-muted-foreground">-</span>
           <Input
@@ -181,7 +187,7 @@ export function BuyView({
             placeholder="Max"
             value={priceRange.max}
             onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
-            className="w-24 h-10 rounded-xl bg-secondary border-white/10 text-sm"
+            className="w-24 h-10 rounded-xl bg-[#0f0f0f] border border-white/[0.06] text-sm focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:text-muted-foreground"
           />
         </div>
 
@@ -191,10 +197,10 @@ export function BuyView({
             <button
               key={condition}
               onClick={() => toggleCondition(condition as Condition)}
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
                 selectedConditions.includes(condition as Condition)
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary text-muted-foreground hover:text-foreground border border-white/[0.06]'
+                  ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
+                  : 'bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]'
               }`}
             >
               {condition}
@@ -209,19 +215,19 @@ export function BuyView({
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="h-10 px-4 rounded-xl border-white/10 bg-secondary hover:bg-secondary/80 text-foreground"
+              className="h-10 px-4 rounded-xl border border-white/[0.06] bg-[#0f0f0f] hover:bg-[#0f0f0f]/80 text-foreground cursor-pointer"
             >
               <Filter className="w-4 h-4 mr-2" />
               {sortBy}
               <ChevronDown className="w-4 h-4 ml-2" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 bg-[#121212] border border-[#121212]">
+          <DropdownMenuContent className="w-48 bg-[#121212] border border-white/[0.06]">
             {['Relevance', 'Newest', 'Price: Low to High', 'Price: High to Low'].map((sort) => (
               <DropdownMenuItem
                 key={sort}
                 onClick={() => setSortBy(sort)}
-                className={`${sortBy === sort ? 'bg-[#22debc]/10' : ''} hover:bg-[#22debc]/10 cursor-pointer`}
+                className={`cursor-pointer hover:bg-[#1a1a1a] ${sortBy === sort ? 'bg-[#1a1a1a]' : ''}`}
               >
                 {sort}
               </DropdownMenuItem>
@@ -380,7 +386,7 @@ function ProductCard({
           </Badge>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center justify-between text-xs text-[#8f8f8f]">
           <span className="flex items-center gap-1">
             <MapPin className="w-3 h-3" />
             {product.location}
@@ -396,7 +402,7 @@ function ProductCard({
               alt={product.seller.name}
               className="w-6 h-6 rounded-full object-cover"
             />
-            <span className="text-xs text-muted-foreground truncate max-w-[80px]">
+            <span className="text-xs text-[#8f8f8f] truncate max-w-[80px]">
               {product.seller.name}
             </span>
           </div>

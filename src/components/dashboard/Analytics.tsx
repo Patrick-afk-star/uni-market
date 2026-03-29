@@ -30,7 +30,7 @@ const stats = [
     trend: 'up',
     icon: DollarSign,
     color: 'text-primary',
-    bgColor: 'bg-primary/10',
+    bgColor: 'bg-[#102323]',
   },
   {
     title: 'Conversion Rate',
@@ -100,7 +100,7 @@ export function Analytics() {
           const TrendIcon = stat.trend === 'up' ? ArrowUpRight : ArrowDownRight;
           
           return (
-            <Card key={stat.title} className="stat-card bg-[#121212] border-[#121212]">
+            <Card key={stat.title} className="stat-card bg-[#0f0f0f] border-white/[0.06]">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   {stat.title}
@@ -116,7 +116,7 @@ export function Analytics() {
                 }`}>
                   <TrendIcon className="w-3 h-3" />
                   <span>{stat.change}</span>
-                  <span className="text-muted-foreground ml-1">vs last month</span>
+                  <span className="text-[#939393] ml-1">vs last month</span>
                 </div>
               </CardContent>
             </Card>
@@ -127,7 +127,7 @@ export function Analytics() {
       {/* Charts & Activity */}
       <div ref={chartsRef} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Views Chart Placeholder */}
-        <Card className="lg:col-span-2 bg-[#121212] border-[#121212]">
+        <Card className="lg:col-span-2 bg-[#0f0f0f] border-white/[0.06]">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-foreground">
               Views Over Time
@@ -138,10 +138,10 @@ export function Analytics() {
               {[40, 65, 45, 80, 55, 90, 70, 85, 60, 75, 95, 88].map((height, i) => (
                 <div
                   key={i}
-                  className="flex-1 bg-primary/20 rounded-t-lg relative group cursor-pointer hover:bg-primary/40 transition-colors"
+                  className="flex-1 bg-[#123a32] rounded-t-lg relative group cursor-pointer hover:bg-[#123a32]/80 transition-colors"
                   style={{ height: `${height}%` }}
                 >
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-card px-2 py-1 rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity border border-white/[0.06]">
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#0f0f0f] px-2 py-1 rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity border border-white/[0.06]">
                     {height * 12}
                   </div>
                 </div>
@@ -165,7 +165,7 @@ export function Analytics() {
         </Card>
 
         {/* Recent Activity */}
-        <Card className="bg-[#121212] border-[#121212]">
+        <Card className="bg-[#0f0f0f] border-white/[0.06]">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-foreground">
               Recent Activity
@@ -177,7 +177,7 @@ export function Analytics() {
                 key={index}
                 className="flex items-start gap-3 pb-4 border-b border-white/[0.06] last:border-0 last:pb-0"
               >
-                <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-[#102323] flex items-center justify-center flex-shrink-0">
                   <TrendingUp className="w-4 h-4 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -186,7 +186,7 @@ export function Analytics() {
                   <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
                 </div>
                 {activity.count > 1 && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-xs bg-[#102323]">
                     +{activity.count}
                   </Badge>
                 )}

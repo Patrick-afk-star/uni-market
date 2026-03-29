@@ -138,8 +138,8 @@ export function SellView({ onPublish }: SellViewProps) {
                 onClick={() => handleCategorySelect(category as Category)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                   selectedCategory === category
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-secondary text-muted-foreground hover:text-foreground border border-white/[0.06]'
+                    ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
+                    : 'bg-[#0f0f0f] text-primary-foreground hover:text-foreground border border-white/[0.06]'
                 }`}
               >
                 {category}
@@ -155,7 +155,7 @@ export function SellView({ onPublish }: SellViewProps) {
             onClick={handleImageUpload}
             className="border-2 border-dashed border-white/[0.14] rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-secondary/30 transition-all duration-200"
           >
-            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
+            <div className="bg-[#1a1a1a] w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
               <Upload className="w-5 h-5 text-muted-foreground" />
             </div>
             <div className="text-center">
@@ -193,7 +193,7 @@ export function SellView({ onPublish }: SellViewProps) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., Calculus Early Transcendentals 8th Ed"
-            className="h-12 rounded-xl bg-secondary border-white/10 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="bg-[#0f0f0f] h-12 rounded-xl border border-white/[0.06] focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20"
           />
         </div>
 
@@ -206,7 +206,7 @@ export function SellView({ onPublish }: SellViewProps) {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="0"
-              className="h-12 rounded-xl bg-secondary border-white/10 focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="h-12 rounded-xl bg-[#0f0f0f] border border-white/[0.06] focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20"
             />
           </div>
           <div className="space-y-3">
@@ -218,8 +218,8 @@ export function SellView({ onPublish }: SellViewProps) {
                   onClick={() => handleConditionSelect(condition as Condition)}
                   className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                     selectedCondition === condition
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-muted-foreground hover:text-foreground border border-white/[0.06]'
+                      ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
+                      : 'bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]'
                   }`}
                 >
                   {condition}
@@ -237,7 +237,7 @@ export function SellView({ onPublish }: SellViewProps) {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe the item, course code, or pickup notes..."
             rows={5}
-            className="rounded-xl bg-secondary border-white/10 focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none"
+            className="rounded-xl bg-[#0f0f0f] border border-white/[0.06] focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 resize-none"
           />
         </div>
 
@@ -248,7 +248,7 @@ export function SellView({ onPublish }: SellViewProps) {
             <select
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl bg-secondary border border-white/10 text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+              className="w-full h-12 px-4 rounded-xl bg-[#0f0f0f] border border-white/[0.06] text-foreground focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 outline-none"
             >
               <option value="">Select campus</option>
               {campuses.map((campus) => (
@@ -267,8 +267,8 @@ export function SellView({ onPublish }: SellViewProps) {
                   onClick={() => handleDealTypeToggle(dealType as DealType)}
                   className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                     selectedDealTypes.includes(dealType as DealType)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-muted-foreground hover:text-foreground border border-white/[0.06]'
+                      ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
+                      : 'bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]'
                   }`}
                 >
                   {dealType}
@@ -282,14 +282,14 @@ export function SellView({ onPublish }: SellViewProps) {
         <div className="composer-panel flex gap-3 pt-4">
           <Button
             variant="outline"
-            className="flex-1 h-12 rounded-xl border-white/10 hover:bg-secondary transition-all duration-200"
+            className="cursor-pointer flex-1 h-12 rounded-xl border-white/10 hover:bg-[#1a1a1a] transition-all duration-200"
           >
             Save draft
           </Button>
           <Button
             onClick={handlePublish}
             disabled={!isFormValid || isPublishing}
-            className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer flex-1 h-12 rounded-xl bg-[#bb740a] hover:bg-[#bb740a]/90 text-white font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isPublishing ? 'Publishing...' : 'Publish listing'}
           </Button>
@@ -300,14 +300,14 @@ export function SellView({ onPublish }: SellViewProps) {
       <div className="w-[420px] p-7 hidden lg:block">
         <div
           ref={previewRef}
-          className="sticky top-24 bg-[#121212] rounded-2xl p-5 card-shadow border border-[#121212]"
+          className="sticky top-24 bg-[#0f0f0f] rounded-2xl p-5 card-shadow border border-[#121212]"
         >
           <p className="text-xs font-space font-medium text-muted-foreground uppercase tracking-wider mb-4">
             Live Preview
           </p>
 
           {/* Preview Image */}
-          <div className="aspect-square rounded-xl bg-secondary overflow-hidden mb-4">
+          <div className="aspect-square rounded-xl bg-[#1a1a1a] overflow-hidden mb-4">
             {images.length > 0 ? (
               <img
                 src={images[0]}
@@ -373,7 +373,7 @@ export function SellView({ onPublish }: SellViewProps) {
             {/* CTA Button */}
             <Button
               disabled
-              className="w-full h-11 rounded-xl bg-secondary text-muted-foreground cursor-not-allowed"
+              className="w-full h-11 rounded-xl bg-[#151515] text-muted-foreground cursor-not-allowed"
             >
               Message seller
             </Button>

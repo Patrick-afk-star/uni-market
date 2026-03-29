@@ -57,8 +57,8 @@ export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified 
               onBlur={() => setIsFocused(false)}
               className={`pl-11 pr-4 h-11 rounded-full bg-[#121212] border transition-all duration-200 ${
                 isFocused
-                  ? 'border-[#22debc] ring-2 ring-[#22debc]/20'
-                  : 'border-white/[0.06] hover:border-[#22debc]/30'
+                  ? 'border-[#bb740a] ring-2 ring-[#bb740a]/20'
+                  : 'border-white/[0.06] hover:border-[#bb740a]/30'
               }`}
             />
           </div>
@@ -80,20 +80,20 @@ export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified 
               <Button
                 variant="ghost"
                 size="icon"
-                className="cursor-pointer relative w-10 h-10 rounded-xl hover:bg-[#22debc]/10 transition-colors"
+                className="cursor-pointer relative w-10 h-10 rounded-xl hover:bg-[#bb740a]/10 transition-colors"
               >
                 <MessageSquare className="w-5 h-5 text-muted-foreground" />
-                <Badge className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 flex items-center justify-center text-[10px] bg-[#22debc] text-black">
+                <Badge className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 flex items-center justify-center text-[10px] bg-[#bb740a] text-white">
                   3
                 </Badge>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-72 bg-[#121212] border border-[#121212]">
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#22debc]/10">
+              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#bb740a]/10">
                 <span className="font-medium">New message from Sarah</span>
                 <span className="text-xs text-muted-foreground">Is the laptop still available?</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#22debc]/10">
+              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#bb740a]/10">
                 <span className="font-medium">Price offer from David</span>
                 <span className="text-xs text-muted-foreground">Would you take 20,000 for the textbook?</span>
               </DropdownMenuItem>
@@ -106,18 +106,18 @@ export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified 
               <Button
                 variant="ghost"
                 size="icon"
-                className="cursor-pointer relative w-10 h-10 rounded-xl hover:bg-[#22debc]/10 transition-colors"
+                className="cursor-pointer relative w-10 h-10 rounded-xl hover:bg-[#bb740a]/10 transition-colors"
               >
                 <Bell className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-[#22debc]" />
+                <span className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-[#bb740a]" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-72 bg-[#121212] border border-[#121212]">
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#22debc]/10">
+              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#bb740a]/10">
                 <span className="font-medium">Listing viewed 50 times</span>
                 <span className="text-xs text-muted-foreground">Your MacBook Pro is getting attention!</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#22debc]/10">
+              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#bb740a]/10">
                 <span className="font-medium">New follower</span>
                 <span className="text-xs text-muted-foreground">Marie started following your listings</span>
               </DropdownMenuItem>
@@ -127,7 +127,7 @@ export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified 
           {/* Create Button */}
           <Button
             onClick={onCreateClick}
-            className="h-10 cursor-pointer px-4 rounded-xl bg-[#22debc] hover:bg-[#22debc]/90 text-black font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#22debc]/20"
+            className="h-10 cursor-pointer px-4 rounded-xl bg-[#bb740a] hover:bg-[#bb740a]/90 text-white font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#bb740a]/20"
           >
             <Plus className="h-4" />
             Create

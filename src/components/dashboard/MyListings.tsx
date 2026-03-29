@@ -134,16 +134,16 @@ export function MyListings() {
                 </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer hover:bg-[#1a1a1a]">
                       <MoreHorizontal className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                  <DropdownMenuContent align="end" className="bg-[#121212] border border-white/[0.06]">
+                    <DropdownMenuItem className="cursor-pointer hover:bg-[#1a1a1a]">
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleToggleStatus(listing.id)}>
+                    <DropdownMenuItem onClick={() => handleToggleStatus(listing.id)} className="cursor-pointer hover:bg-[#1a1a1a]">
                       {listing.status === 'published' ? (
                         <>
                           <Pause className="w-4 h-4 mr-2" />
@@ -158,7 +158,7 @@ export function MyListings() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleDelete(listing.id)}
-                      className="text-destructive"
+                      className="text-destructive cursor-pointer hover:bg-[#1a1a1a]"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete

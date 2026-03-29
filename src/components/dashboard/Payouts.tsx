@@ -111,7 +111,7 @@ export function Payouts() {
             <div className="text-2xl font-bold text-foreground">
               RWF {totalBalance.toLocaleString()}
             </div>
-            <Button className="mt-4 w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button className="cursor-pointer mt-4 w-full bg-[#bb740a] hover:bg-[#bb740a]/90 text-white text-primary-foreground">
               Withdraw
             </Button>
           </CardContent>
@@ -164,15 +164,15 @@ export function Payouts() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4 p-4 rounded-xl bg-secondary">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+          <div className="bg-[#1a1a1a] flex items-center gap-4 p-4 rounded-xl bg-secondary">
+            <div className="w-12 h-12 rounded-xl bg-[#1a2d2c] flex items-center justify-center">
               <Building2 className="w-6 h-6 text-primary" />
             </div>
             <div className="flex-1">
               <p className="font-medium text-foreground">Bank of Kigali</p>
               <p className="text-sm text-muted-foreground">**** **** **** 4521</p>
             </div>
-            <Badge className="bg-primary/20 text-primary border-0">Default</Badge>
+            <Badge className="bg-[#194139] text-primary border-0">Default</Badge>
             <Button variant="ghost" size="sm" className="rounded-lg">
               Edit
             </Button>
@@ -197,7 +197,7 @@ export function Payouts() {
               {transactions.map((transaction) => (
                 <div
                   key={transaction.id}
-                  className="flex items-center justify-between p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+                  className="bg-[#141414] flex items-center justify-between p-4 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div
