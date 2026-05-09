@@ -12,7 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ScrollArea } from './ui/scroll-area';
 
 interface Message {
   id: string;
