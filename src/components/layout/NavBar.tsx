@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   return (
@@ -77,13 +77,13 @@ export default function Navbar() {
               className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm cursor-pointer transition-transform duration-200 hover:-translate-y-px"
               type="button"
             >
-              <Link href="/login">Sign in</Link>
+              <Link to="/login">Sign in</Link>
             </button>
             <button
               className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm cursor-pointer transition-transform duration-200 hover:-translate-y-px"
               type="button"
             >
-              <Link href="/signup">Sign up</Link>
+              <Link to="/signup">Sign up</Link>
             </button>
 
             {/*<button
