@@ -1,15 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router-dom";
 
 export default function AuthNav() {
-  const pathname = usePathname();
+  const location = useLocation();
+  const pathname = location.pathname;
 
   return (
     <nav className="flex justify-center space-x-8 mb-8 bg-red-500">
       <Link
-        href="/login"
+        to="/login"
         className={`text-sm font-medium transition-colors hover:text-primary ${
           pathname === "/login"
             ? "text-primary border-b-2 border-primary pb-1"
@@ -19,7 +19,7 @@ export default function AuthNav() {
         Login
       </Link>
       <Link
-        href="/signup"
+        to="/signup"
         className={`text-sm font-medium transition-colors hover:text-primary ${
           pathname === "/signup"
             ? "text-primary border-b-2 border-primary pb-1"

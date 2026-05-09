@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, SubmitEvent } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function LoginForm() {
@@ -10,7 +9,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,7 +30,7 @@ export default function LoginForm() {
 
       // const data = await response.json();
       toast.success("Logged in successfully");
-      router.push("/dashboard");
+      navigate("/dashboard");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Login failed. Please try again."
@@ -167,7 +166,7 @@ export default function LoginForm() {
                 Remember me
               </label>
               <Link
-                href="/forgot-password"
+                to="/forgot-password"
                 className="text-xs text-[#0f6b4f] dark:text-[#2aa67f] hover:underline focus:outline-none focus:ring-2 focus:ring-[#d8a24a] rounded"
               >
                 Forgot password?
@@ -224,7 +223,7 @@ export default function LoginForm() {
           <p className="text-center text-xs text-[#5f5b52] dark:text-[#b7b1a6] mt-3">
             Don't have an account?{" "}
             <Link
-              href="/signup"
+              to="/signup"
               className="text-[#0f6b4f] dark:text-[#2aa67f] font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-[#d8a24a] rounded"
             >
               Sign up
@@ -235,14 +234,14 @@ export default function LoginForm() {
         <p className="text-center text-xs text-[#5f5b52] dark:text-[#b7b1a6] mt-2">
           By continuing, you agree to UniMarket's{" "}
           <Link
-            href="/terms"
+            to="/terms"
             className="underline hover:text-[#121412] dark:hover:text-[#f4f2ee]"
           >
             Terms
           </Link>{" "}
           and{" "}
           <Link
-            href="/privacy"
+            to="/privacy"
             className="underline hover:text-[#121412] dark:hover:text-[#f4f2ee]"
           >
             Privacy Policy

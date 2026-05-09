@@ -233,18 +233,9 @@ export default function Hero() {
                 className="w-full mt-4 bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform"
                 type="button"
                 onClick={() => {
-                  if (currentView !== "home") {
-                    setCurrentView("home");
-                    setTimeout(() => {
-                      document
-                        .getElementById("featured")
-                        ?.scrollIntoView({ behavior: "smooth" });
-                    }, 0);
-                  } else {
-                    document
-                      .getElementById("featured")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }
+                  document
+                    .getElementById("featured")
+                    ?.scrollIntoView({ behavior: "smooth" });
                 }}
               >
                 Browse all listings

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, SubmitEvent } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 export default function SignupForm() {
@@ -12,7 +11,7 @@ export default function SignupForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,7 +47,7 @@ export default function SignupForm() {
       }
 
       toast.success("Account created! Please verify your email.");
-      router.push("/verify-email");
+      navigate("/verify-email");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Signup failed. Please try again."
@@ -242,14 +241,14 @@ export default function SignupForm() {
               />
               I agree to the{" "}
               <Link
-                href="/terms"
+                to="/terms"
                 className="text-[#0f6b4f] dark:text-[#2aa67f] underline"
               >
                 Terms
               </Link>{" "}
               and{" "}
               <Link
-                href="/privacy"
+                to="/privacy"
                 className="text-[#0f6b4f] dark:text-[#2aa67f] underline"
               >
                 Privacy Policy
@@ -309,7 +308,7 @@ export default function SignupForm() {
           >
             Already have an account?{" "}
             <Link
-              href="/login"
+              to="/login"
               className="text-[#0f6b4f] dark:text-[#2aa67f] font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-[#d8a24a] rounded"
             >
               Log in
@@ -320,14 +319,14 @@ export default function SignupForm() {
         <p className="text-center text-xs text-[#5f5b52] dark:text-[#b7b1a6] mt-2">
           By signing up, you agree to UniMarket{"'s "}
           <Link
-            href="/terms"
+            to="/terms"
             className="underline hover:text-[#121412] dark:hover:text-[#f4f2ee]"
           >
             Terms
           </Link>{" "}
           and{" "}
           <Link
-            href="/privacy"
+            to="/privacy"
             className="underline hover:text-[#121412] dark:hover:text-[#f4f2ee]"
           >
             Privacy Policy

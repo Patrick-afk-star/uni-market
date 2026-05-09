@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 import { Header } from '@/components/dashboard/Header';
 import { VerificationModal } from '@/components/dashboard/VerificationModal';
@@ -10,13 +10,10 @@ import type { ViewMode, SellSubView, BuySubView } from '@/types';
 import { Toaster } from '@/components/dashboard/ui/sonner';
 import { toast } from 'sonner';
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const router = useRouter();
-  const pathname = usePathname();
+export default function DashboardLayout() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pathname = location.pathname;
   const [searchQuery, setSearchQuery] = useState('');
   const [showVerification, setShowVerification] = useState(false);
   const [pendingAction, setPendingAction] = useState<'sell' | 'message' | null>(null);
@@ -64,7 +61,7 @@ export default function DashboardLayout({
       setShowVerification(true);
       return;
     }
-    router.push(mode === 'sell' ? '/dashboard/create' : '/dashboard/browse');
+    navigate(mode === 'sell' ? '/dashboard/create' : '/dashboard/browse');
   };
 
   const handleSellSubViewChange = (view: SellSubView) => {
@@ -74,7 +71,7 @@ export default function DashboardLayout({
       analytics: '/dashboard/analytics',
       payouts: '/dashboard/payouts',
     };
-    router.push(routes[view]);
+    navigate(routes[view]);
   };
 
   const handleBuySubViewChange = (view: BuySubView) => {
@@ -84,7 +81,7 @@ export default function DashboardLayout({
       messages: '/dashboard/messages',
       orders: '/dashboard/orders',
     };
-    router.push(routes[view]);
+    navigate(routes[view]);
   };
 
   const handleCreateClick = () => {
@@ -93,7 +90,7 @@ export default function DashboardLayout({
       setShowVerification(true);
       return;
     }
-    router.push('/dashboard/create');
+    navigate('/dashboard/create');
   };
 
   const handleVerificationSubmit = (idImage: string) => {
@@ -170,7 +167,7 @@ export default function DashboardLayout({
                   Verify Now
                 </button>
                 <button
-                  onClick={() => router.push('/dashboard/browse')}
+                  onClick={() => navigate('/dashboard/browse')}
                   className="px-6 py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-medium transition-all duration-200"
                 >
                   Browse Instead
@@ -201,14 +198,14 @@ export default function DashboardLayout({
                 We&apos;re reviewing your ID. This usually takes just a few minutes. You&apos;ll be able to sell once approved.
               </p>
               <button
-                onClick={() => router.push('/dashboard/browse')}
+                onClick={() => navigate('/dashboard/browse')}
                 className="px-6 py-3 rounded-xl bg-secondary hover:bg-secondary/80 text-foreground font-medium transition-all duration-200"
               >
                 Browse Listings
               </button>
             </div>
           ) : (
-            children
+            <Outlet />
           )}
         </main>
       </div>
