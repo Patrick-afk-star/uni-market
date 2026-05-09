@@ -55,7 +55,7 @@ export default function Hero() {
       location: "UR Huye",
       university: "UR - Huye",
       image:
-        "https://images.unsplash.com/photo-1518455021219-a3d637e0b604?auto=format&fit=crop&w=800&q=80",
+        "https://plus.unsplash.com/premium_photo-1711051475117-f3a4d3ff6778?auto=format&fit=crop&w=800&q=80",
       tag: "Solid wood",
     },
     {
@@ -163,7 +163,7 @@ export default function Hero() {
                   type="text"
                   placeholder="Search for laptops, textbooks, furniture..."
                   aria-label="Search products"
-                  className="flex-1 min-w-55 px-4 py-3.5 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
+                  className="flex-1 min-w-[14rem] px-4 py-3.5 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
                 />
                 <button
                   className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform duration-200 cursor-pointer"
@@ -298,7 +298,7 @@ export default function Hero() {
             <div className="flex flex-wrap gap-3 mt-4 items-center">
               <select
                 aria-label="Select your university"
-                className="flex-1 min-w-55 px-3.5 py-3 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
+                className="flex-1 min-w-[14rem] px-3.5 py-3 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
               >
                 <option value="All">All universities</option>
                 {universities.map((school) => (
@@ -493,15 +493,15 @@ export default function Hero() {
               Save up to 35% on electronics before Friday.
             </p>
             <div className="flex gap-3 mt-4">
-              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-17.5">
+              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-[70px]">
                 <span className="block text-lg font-bold">08</span>
                 <small className="text-white/70 text-xs">Hours</small>
               </div>
-              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-17.5">
+              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-[70px]">
                 <span className="block text-lg font-bold">24</span>
                 <small className="text-white/70 text-xs">Minutes</small>
               </div>
-              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-17.5">
+              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-[70px]">
                 <span className="block text-lg font-bold">52</span>
                 <small className="text-white/70 text-xs">Seconds</small>
               </div>
@@ -566,11 +566,10 @@ export default function Hero() {
                 </p>
                 {method.tag && (
                   <span
-                    className={`inline-block mt-2 text-xs px-2.5 py-1 rounded-full font-semibold ${
-                      method.tag === "Most used"
+                    className={`inline-block mt-2 text-xs px-2.5 py-1 rounded-full font-semibold ${method.tag === "Most used"
                         ? "bg-[rgba(28,110,93,0.12)] text-[#0a4e39] dark:text-[#1f7c5f]"
                         : "bg-[rgba(241,179,92,0.3)] text-[#7a4a10]"
-                    }`}
+                      }`}
                   >
                     {method.tag}
                   </span>
@@ -650,7 +649,7 @@ export default function Hero() {
 
       {/* Newsletter */}
       <section className="py-16" id="support">
-        <div className="max-w-6xl mx-auto w-[92vw] bg-[#0f6b4f] dark:bg-[#2aa67f] p-8 rounded-3xl grid md:grid-cols-2 gap-5 items-center">
+        <div className="max-w-6xl mx-auto w-[92vw] bg-[#0f6b4f] dark:bg-[#2aa67f] p-6 md:p-8 rounded-3xl grid md:grid-cols-2 gap-5 items-center">
           <div>
             <p className="uppercase tracking-widest text-xs text-white/80">
               Stay in the loop
@@ -667,7 +666,7 @@ export default function Hero() {
             <input
               type="email"
               placeholder="Your email address"
-              className="flex-1 min-w-50 px-3.5 py-3 rounded-full border border-white/20 bg-white/20 text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-white"
+              className="flex-1 min-w-[12rem] px-3.5 py-3 rounded-full border border-white/20 bg-white/20 text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-white"
             />
             <button className="bg-white text-[#0f6b4f] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-lg hover:-translate-y-px transition-transform">
               Subscribe
