@@ -1,6 +1,5 @@
 "use client";
-
-
+import { ShoppingCart, Eye, MessageCircle } from "lucide-react";
 export default function Hero() {
   // <section className="">
   //   <div className="container grid-cols-2">
@@ -395,41 +394,42 @@ export default function Hero() {
                   <p className="text-xs text-[#8a847b] dark:text-[#b7b1a6]/80">
                     {product.university}
                   </p>
-                  <div className="relative inline-flex w-fit">
-                    <button
-                      className="bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
-                      type="button"
-                    >
-                      View details
-                    </button>
-
-                    <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-[#111311] dark:bg-[#f4f2ee] text-white dark:text-[#121412] text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      Verify your student account to view details.
-                    </span>
-                  </div>
-                  <div className="relative inline-flex w-fit">
-                    <button
-                      className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
-                      type="button"
-                    >
-                      Buy now
-                    </button>
-
-                    <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-[#111311] dark:bg-[#f4f2ee] text-white dark:text-[#121412] text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      Verify your student account to purchase.
-                    </span>
-                  </div>
-                  <div className="relative inline-flex w-fit">
-                    <button
-                      className="bg-[#25d366] text-[#0f1b12] rounded-full px-3.5 py-2.5 font-semibold text-xs hover:brightness-95 disabled:opacity-60 disabled:cursor-not-allowed"
-                      type="button"
-                    >
-                      WhatsApp seller
-                    </button>
-
-                    <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-[#111311] dark:bg-[#f4f2ee] text-white dark:text-[#121412] text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      Verify your student account to contact the seller.
-                    </span>
+                  <div className="flex flex-col gap-2 mt-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="relative w-full group/btn">
+                        <button
+                          className="w-full flex items-center justify-center gap-1.5 bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-xl px-3 py-2 font-semibold text-xs hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
+                          type="button"
+                        >
+                          <Eye size={14} /> View
+                        </button>
+                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[#111311] dark:bg-[#f4f2ee] text-white dark:text-[#121412] text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none z-10">
+                          Verify to view
+                        </span>
+                      </div>
+                      <div className="relative w-full group/btn">
+                        <button
+                          className="w-full flex items-center justify-center gap-1.5 bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-xl px-3 py-2 font-semibold text-xs shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
+                          type="button"
+                        >
+                          <ShoppingCart size={14} /> Buy
+                        </button>
+                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[#111311] dark:bg-[#f4f2ee] text-white dark:text-[#121412] text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none z-10">
+                          Verify to buy
+                        </span>
+                      </div>
+                    </div>
+                    <div className="relative w-full group/btn">
+                      <button
+                        className="w-full flex items-center justify-center gap-1.5 bg-[#25d366] text-[#0f1b12] rounded-xl px-3 py-2 font-semibold text-xs hover:brightness-95 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                        type="button"
+                      >
+                        <MessageCircle size={14} /> WhatsApp seller
+                      </button>
+                      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[#111311] dark:bg-[#f4f2ee] text-white dark:text-[#121412] text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none z-10">
+                        Verify to contact
+                      </span>
+                    </div>
                   </div>
                 </div>
               </article>
