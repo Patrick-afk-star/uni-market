@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import { Search, Bell, MessageSquare, Plus, Shield } from 'lucide-react';
+import { Search, Bell, MessageSquare, Plus, Shield, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -16,9 +16,10 @@ interface HeaderProps {
   setSearchQuery: (query: string) => void;
   onCreateClick: () => void;
   isVerified: boolean;
+  onMenuClick?: () => void;
 }
 
-export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified }: HeaderProps) {
+export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified, onMenuClick }: HeaderProps) {
   const [isFocused, setIsFocused] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
@@ -38,11 +39,21 @@ export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified 
       ref={headerRef}
       className="sticky top-0 z-40 h-[72px] bg-background/80 backdrop-blur-xl border-b border-white/[0.06]"
     >
-      <div className="h-full flex items-center justify-between px-7">
+      <div className="h-full flex items-center justify-between px-4 md:px-7 gap-2 md:gap-4">
+        {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMenuClick}
+          className="md:hidden shrink-0 cursor-pointer w-10 h-10 rounded-xl hover:bg-[#bb740a]/10"
+        >
+          <Menu className="w-5 h-5 text-foreground" />
+        </Button>
+
         {/* Search Bar */}
         <div
           ref={searchRef}
-          className={`relative w-full max-w-md transition-all duration-200 ${
+          className={`relative w-full max-w-md transition-all duration-200 hidden sm:block ${
             isFocused ? 'glow-accent' : ''
           }`}
         >
@@ -130,7 +141,7 @@ export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified 
             className="h-10 cursor-pointer px-4 rounded-xl bg-[#bb740a] hover:bg-[#bb740a]/90 text-white font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#bb740a]/20"
           >
             <Plus className="h-4" />
-            Create
+            <span className="hidden sm:inline">Create</span>
           </Button>
         </div>
       </div>

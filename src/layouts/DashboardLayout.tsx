@@ -16,6 +16,7 @@ export default function DashboardLayout() {
   const pathname = location.pathname;
   const [searchQuery, setSearchQuery] = useState('');
   const [showVerification, setShowVerification] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<'sell' | 'message' | null>(null);
 
   const {
@@ -62,6 +63,7 @@ export default function DashboardLayout() {
       return;
     }
     navigate(mode === 'sell' ? '/dashboard/create' : '/dashboard/browse');
+    setIsSidebarOpen(false);
   };
 
   const handleSellSubViewChange = (view: SellSubView) => {
@@ -72,6 +74,7 @@ export default function DashboardLayout() {
       payouts: '/dashboard/payouts',
     };
     navigate(routes[view]);
+    setIsSidebarOpen(false);
   };
 
   const handleBuySubViewChange = (view: BuySubView) => {
@@ -82,6 +85,7 @@ export default function DashboardLayout() {
       orders: '/dashboard/orders',
     };
     navigate(routes[view]);
+    setIsSidebarOpen(false);
   };
 
   const handleCreateClick = () => {
@@ -111,6 +115,14 @@ export default function DashboardLayout() {
       {/* Grain Overlay */}
       <div className="grain-overlay" />
 
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <Sidebar
         viewMode={viewMode}
@@ -119,16 +131,19 @@ export default function DashboardLayout() {
         setSellSubView={handleSellSubViewChange}
         buySubView={buySubView}
         setBuySubView={handleBuySubViewChange}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
       />
 
       {/* Main Content */}
-      <div className="ml-[260px] min-h-screen flex flex-col">
+      <div className="md:ml-[260px] min-h-screen flex flex-col transition-all duration-300">
         {/* Header */}
         <Header
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onCreateClick={handleCreateClick}
           isVerified={isVerified}
+          onMenuClick={() => setIsSidebarOpen(true)}
         />
 
         {/* Content Area */}
