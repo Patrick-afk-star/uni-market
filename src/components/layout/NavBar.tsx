@@ -23,7 +23,7 @@ export default function Navbar() {
                 <defs>
                   <linearGradient id="umLeaf" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0%" stopColor="#2aa67f" />
-                    <stop offset="100%" stopColor="#0f6b4f" />
+                    <stop offset="100%" stopColor="#d8a24a" />
                   </linearGradient>
                 </defs>
                 <circle cx="32" cy="32" r="30" fill="#0f1411" />
@@ -114,7 +114,7 @@ export default function Navbar() {
             </nav>
             <div className="flex flex-col gap-2.5 mt-2">
               <Link to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5">Sign in</Link>
-              <Link to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-[#0f6b4f] dark:bg-[#2aa67f] text-white border border-transparent rounded-full px-4.5 py-2.75 font-semibold text-sm transition-colors hover:brightness-110">Sign up</Link>
+              <Link to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] border border-transparent rounded-full px-4.5 py-2.75 font-semibold text-sm transition-colors hover:brightness-110">Sign up</Link>
             </div>
           </div>
         )}

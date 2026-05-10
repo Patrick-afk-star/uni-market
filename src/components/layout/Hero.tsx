@@ -165,7 +165,7 @@ export default function Hero() {
                   className="flex-1 min-w-[14rem] px-4 py-3.5 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
                 />
                 <button
-                  className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform duration-200 cursor-pointer"
+                  className="bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform duration-200 cursor-pointer"
                   type="button"
                 >
                   Search
@@ -356,7 +356,7 @@ export default function Hero() {
                 pricing.
               </p>
             </div>
-            <button className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform">
+            <button className="bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform">
               See more
             </button>
           </div>
@@ -409,7 +409,7 @@ export default function Hero() {
                       </div>
                       <div className="relative w-full group/btn">
                         <button
-                          className="w-full flex items-center justify-center gap-1.5 bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-xl px-3 py-2 font-semibold text-xs shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="w-full flex items-center justify-center gap-1.5 bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-xl px-3 py-2 font-semibold text-xs shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
                           type="button"
                         >
                           <ShoppingCart size={14} /> Buy
@@ -480,7 +480,7 @@ export default function Hero() {
                 </div>
               ))}
             </div>
-            <button className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform">
+            <button className="bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform">
               Claim your deal
             </button>
           </article>
@@ -567,8 +567,8 @@ export default function Hero() {
                 {method.tag && (
                   <span
                     className={`inline-block mt-2 text-xs px-2.5 py-1 rounded-full font-semibold ${method.tag === "Most used"
-                        ? "bg-[rgba(28,110,93,0.12)] text-[#0a4e39] dark:text-[#1f7c5f]"
-                        : "bg-[rgba(241,179,92,0.3)] text-[#7a4a10]"
+                      ? "bg-[rgba(28,110,93,0.12)] text-[#0a4e39] dark:text-[#1f7c5f]"
+                      : "bg-[rgba(241,179,92,0.3)] text-[#7a4a10]"
                       }`}
                   >
                     {method.tag}
@@ -649,15 +649,15 @@ export default function Hero() {
 
       {/* Newsletter */}
       <section className="py-16" id="support">
-        <div className="max-w-6xl mx-auto w-[92vw] bg-[#0f6b4f] dark:bg-[#2aa67f] p-6 md:p-8 rounded-3xl grid md:grid-cols-2 gap-5 items-center">
+        <div className="max-w-6xl mx-auto w-[92vw] bg-[#d8a24a] dark:bg-[#e4b363] p-6 md:p-8 rounded-3xl grid md:grid-cols-2 gap-5 items-center">
           <div>
-            <p className="uppercase tracking-widest text-xs text-white/80">
+            <p className="uppercase tracking-widest text-xs text-[#121412]/80">
               Stay in the loop
             </p>
-            <h2 className="text-3xl font-bold text-white mt-1">
+            <h2 className="text-3xl font-bold text-[#121412] mt-1">
               Get weekly drops and student deals
             </h2>
-            <p className="text-white/80 mt-2">
+            <p className="text-[#121412]/80 mt-2">
               Join our newsletter for the latest campus discounts and verified
               listings.
             </p>
@@ -668,7 +668,7 @@ export default function Hero() {
               placeholder="Your email address"
               className="flex-1 min-w-[12rem] px-3.5 py-3 rounded-full border border-white/20 bg-white/20 text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-white"
             />
-            <button className="bg-white text-[#0f6b4f] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-lg hover:-translate-y-px transition-transform">
+            <button className="bg-white text-[#d8a24a] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-lg hover:-translate-y-px transition-transform">
               Subscribe
             </button>
           </div>
@@ -739,7 +739,7 @@ export default function Hero() {
               selling.
             </p>
             <div className="flex flex-wrap gap-3 mt-4">
-              <button className="bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(15,107,79,0.25)] hover:shadow-[0_14px_24px_rgba(28,110,93,0.25)] hover:-translate-y-px transition-transform">
+              <button className="bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform">
                 Contact support
               </button>
               <button className="bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm hover:-translate-y-px transition-transform">

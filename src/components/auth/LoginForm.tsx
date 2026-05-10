@@ -82,7 +82,7 @@ export default function LoginForm() {
                 <defs>
                   <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
                     <stop offset="0%" stopColor="#2aa67f" />
-                    <stop offset="100%" stopColor="#0f6b4f" />
+                    <stop offset="100%" stopColor="#d8a24a" />
                   </linearGradient>
                 </defs>
               </svg>
@@ -161,13 +161,13 @@ export default function LoginForm() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded border-[rgba(18,20,18,0.12)] dark:border-white/10 text-[#0f6b4f] dark:text-[#2aa67f] focus:ring-[#d8a24a]"
+                  className="rounded border-[rgba(18,20,18,0.12)] dark:border-white/10 text-[#d8a24a] dark:text-[#e4b363] focus:ring-[#d8a24a]"
                 />
                 Remember me
               </label>
               <Link
                 to="/forgot-password"
-                className="text-xs text-[#0f6b4f] dark:text-[#2aa67f] hover:underline focus:outline-none focus:ring-2 focus:ring-[#d8a24a] rounded"
+                className="text-xs text-[#d8a24a] dark:text-[#e4b363] hover:underline focus:outline-none focus:ring-2 focus:ring-[#d8a24a] rounded"
               >
                 Forgot password?
               </Link>
@@ -176,7 +176,7 @@ export default function LoginForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#0f6b4f] dark:bg-[#2aa67f] text-white rounded-full px-4 py-2.5 text-sm font-semibold shadow-[0_8px_20px_rgba(15,107,79,0.25)] hover:shadow-[0_12px_20px_rgba(28,110,93,0.25)] hover:cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#d8a24a] focus:ring-offset-2 dark:focus:ring-offset-[#151816] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4 py-2.5 text-sm font-semibold shadow-[0_8px_20px_rgba(216,162,74,0.25)] hover:shadow-[0_12px_20px_rgba(216,162,74,0.3)] hover:cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#d8a24a] focus:ring-offset-2 dark:focus:ring-offset-[#151816] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </button>
@@ -224,7 +224,7 @@ export default function LoginForm() {
             Don't have an account?{" "}
             <Link
               to="/signup"
-              className="text-[#0f6b4f] dark:text-[#2aa67f] font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-[#d8a24a] rounded"
+              className="text-[#d8a24a] dark:text-[#e4b363] font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-[#d8a24a] rounded"
             >
               Sign up
             </Link>
