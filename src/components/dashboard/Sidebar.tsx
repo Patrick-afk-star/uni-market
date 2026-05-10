@@ -9,7 +9,8 @@ import {
   Heart, 
   MessageSquare, 
   ShoppingBag,
-  User
+  User,
+  X
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { currentUser } from '@/data/user';
@@ -22,6 +23,8 @@ interface SidebarProps {
   setSellSubView: (view: SellSubView) => void;
   buySubView: BuySubView;
   setBuySubView: (view: BuySubView) => void;
+  isOpen?: boolean;
+  setIsOpen?: (isOpen: boolean) => void;
 }
 
 export function Sidebar({ 
@@ -31,6 +34,8 @@ export function Sidebar({
   setSellSubView,
   buySubView,
   setBuySubView,
+  isOpen,
+  setIsOpen,
 }: SidebarProps) {
   const navRef = useRef<HTMLDivElement>(null);
   const modeIndicatorRef = useRef<HTMLDivElement>(null);
@@ -68,7 +73,11 @@ export function Sidebar({
   const navItems = viewMode === 'sell' ? sellNavItems : buyNavItems;
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-[260px] bg-background border-r border-white/[0.06] flex flex-col z-50">
+    <aside 
+      className={`fixed left-0 top-0 bottom-0 w-[260px] bg-background border-r border-white/[0.06] flex flex-col z-50 transition-transform duration-300 ease-in-out ${
+        isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}
+    >
       {/* Logo */}
       <div className="px-5 py-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
@@ -107,6 +116,14 @@ export function Sidebar({
             <p className="text-xs text-muted-foreground">Student marketplace</p>
           </div>
         </div>
+        {setIsOpen && (
+          <button 
+            onClick={() => setIsOpen(false)}
+            className="md:hidden absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground bg-background/50 rounded-lg"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Mode Switch */}
