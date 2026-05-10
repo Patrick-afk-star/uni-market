@@ -84,7 +84,7 @@ export function Sidebar({
               <defs>
                 <linearGradient id="umLeaf" x1="0" y1="0" x2="1" y2="1">
                   <stop offset="0%" stopColor="#2aa67f" />
-                  <stop offset="100%" stopColor="#0f6b4f" />
+                  <stop offset="100%" stopColor="#d8a24a" />
                 </linearGradient>
               </defs>
               <circle cx="32" cy="32" r="30" fill="#0f1411" />
