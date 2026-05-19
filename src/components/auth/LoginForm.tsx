@@ -1,48 +1,41 @@
 "use client";
 
-import { useState, SubmitEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  // const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
 
-  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
+  // Redirect to the page the user was trying to reach, or fall back to /dashboard
+  const from = (location.state as { from?: Location })?.from?.pathname ?? "/dashboard";
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || "Login failed");
-      }
-
-      // const data = await response.json();
-      toast.success("Logged in successfully");
-      navigate("/dashboard");
+      await login(email, password);
+      toast.success("Welcome back!");
+      navigate(from, { replace: true });
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Login failed. Please try again."
-      );
+      const errorMessage = error instanceof Error ? error.message : "Login failed. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/api/auth/google/callback`;
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const redirectUri = `${window.location.origin}/auth/google/callback`;
 
     if (!clientId) {
       toast.error("Google OAuth is not configured");
@@ -63,7 +56,7 @@ export default function LoginForm() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#f4f5f2] dark:bg-[#0d0f0e] bg-[radial-gradient(circle_at_15%_20%,rgba(216,162,74,0.16)_0%,transparent_55%),radial-gradient(circle_at_85%_0%,rgba(42,166,127,0.18)_0%,transparent_50%)]">
       <div className="w-full max-w-sm">
-        <div className="bg-white dark:bg-[#151816] rounded-2xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.4)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 p-5">
+        <div className="bg-white dark:bg-[#151816] rounded-2xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.4)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 px-5 py-8">
           {/* Logo */}
           <div className="flex justify-center mb-3">
             <div className="w-9 h-9 rounded-xl bg-[#0f1411] flex items-center justify-center shadow-[0_8px_20px_rgba(15,107,79,0.25)]">
@@ -155,8 +148,8 @@ export default function LoginForm() {
               </label>
             </div>
 
-            <div className="flex items-center justify-between pt-0.5">
-              <label className="hidden md:flex items-center gap-2 text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
+            <div className="flex items-center justify-end pt-0.5">
+              {/* <label className="hidden md:flex items-center gap-2 text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
                 <input
                   type="checkbox"
                   checked={rememberMe}
@@ -164,7 +157,7 @@ export default function LoginForm() {
                   className="rounded border-[rgba(18,20,18,0.12)] dark:border-white/10 text-[#d8a24a] dark:text-[#e4b363] focus:ring-[#d8a24a]"
                 />
                 Remember me
-              </label>
+              </label> */}
               <Link
                 to="/forgot-password"
                 className="text-xs text-[#d8a24a] dark:text-[#e4b363] hover:underline focus:outline-none focus:ring-2 focus:ring-[#d8a24a] rounded"

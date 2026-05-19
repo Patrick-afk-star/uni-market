@@ -29,15 +29,14 @@ export default function SignupForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/signup", {
+      const response = await fetch("/api/v1/auth/register/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
           email,
           password,
-          first_name: name.split(" ")[0],
-          last_name: name.split(" ").slice(1).join(" "),
+          first_name: name,
         }),
       });
 
@@ -58,8 +57,8 @@ export default function SignupForm() {
   };
 
   const handleGoogleSignup = () => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    const redirectUri = `${window.location.origin}/api/auth/google/callback`;
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const redirectUri = `${window.location.origin}/auth/google/callback`;
 
     if (!clientId) {
       toast.error("Google OAuth is not configured");
@@ -80,7 +79,7 @@ export default function SignupForm() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#f4f5f2] dark:bg-[#0d0f0e] bg-[radial-gradient(circle_at_15%_20%,rgba(216,162,74,0.16)_0%,transparent_55%),radial-gradient(circle_at_85%_0%,rgba(42,166,127,0.18)_0%,transparent_50%)]">
       <div className="w-full max-w-sm">
-        <div className="bg-white dark:bg-[#151816] rounded-2xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.4)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 p-5">
+        <div className="bg-white dark:bg-[#151816] rounded-2xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.4)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 px-5 py-8">
           {/* Logo */}
           <div className="flex justify-center mb-3">
             <div className="w-9 h-9 rounded-xl bg-[#0f1411] flex items-center justify-center shadow-[0_8px_20px_rgba(15,107,79,0.25)]">
@@ -134,12 +133,12 @@ export default function SignupForm() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Full name"
+                placeholder="First name"
                 className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-[rgba(18,20,18,0.12)] dark:border-white/10 bg-white dark:bg-[#121412] text-[#121412] dark:text-[#f4f2ee] placeholder:text-[#5f5b52]/50 dark:placeholder:text-[#b7b1a6]/50 focus:outline-none focus:ring-2 focus:ring-[#d8a24a] transition-shadow"
                 required
               />
               <label htmlFor="name" className="sr-only">
-                Full name
+                First name
               </label>
             </div>
 
