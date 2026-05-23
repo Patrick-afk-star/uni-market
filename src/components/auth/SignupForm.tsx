@@ -46,7 +46,7 @@ export default function SignupForm() {
       }
 
       toast.success("Account created! Please verify your email.");
-      navigate("/verify-email");
+      navigate("/auth/verify-email");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Signup failed. Please try again."

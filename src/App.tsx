@@ -18,6 +18,7 @@ import SignupPage from '@/pages/SignupPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import GoogleCallbackPage from '@/pages/auth/GoogleCallbackPage';
+import VerifyEmailPage from '@/pages/auth/VerifyEmailPage';
 
 // Dashboard Pages
 import DashboardPage from '@/pages/dashboard/DashboardPage';
@@ -45,8 +46,11 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/auth/password-reset/:uid/:token" element={<ResetPasswordPage />} />
             <Route path="/:uid/:token" element={<ResetPasswordPage />} />
             <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+            <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
           </Route>
 
           {/* Protected Dashboard Routes */}
