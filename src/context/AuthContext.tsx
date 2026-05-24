@@ -16,7 +16,6 @@ import type { AuthUser, LoginResponse, RefreshResponse } from "@/types";
 // ---------------------------------------------------------------------------
 
 interface AuthState {
-  /** In-memory JWT access token. Null when the user is not authenticated. */
   accessToken: string | null;
   /** Decoded user info from the login response. */
   user: AuthUser | null;
@@ -125,7 +124,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        
+
         // Prevent email enumeration
         if (res.status === 400 || res.status === 401) {
           throw new Error("Invalid email or password. Please try again.");

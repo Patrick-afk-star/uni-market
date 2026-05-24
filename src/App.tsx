@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 // Auth
 import { AuthProvider } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import GuestRoute from '@/components/auth/GuestRoute';
 
 // Layouts
 import PublicLayout from '@/layouts/PublicLayout';
@@ -37,21 +38,24 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Routes */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<HomePage />} />
-          </Route>
+          {/* Guest-only Routes */}
+          <Route element={<GuestRoute />}>
+            {/* Public Routes */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<HomePage />} />
+            </Route>
 
-          {/* Auth Routes */}
-          <Route element={<AuthLayout />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/auth/password-reset/:uid/:token" element={<ResetPasswordPage />} />
-            <Route path="/:uid/:token" element={<ResetPasswordPage />} />
-            <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
-            <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            {/* Auth Routes */}
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/auth/password-reset/:uid/:token" element={<ResetPasswordPage />} />
+              <Route path="/:uid/:token" element={<ResetPasswordPage />} />
+              <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+              <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+              <Route path="/verify-email" element={<VerifyEmailPage />} />
+            </Route>
           </Route>
 
           {/* Protected Dashboard Routes */}

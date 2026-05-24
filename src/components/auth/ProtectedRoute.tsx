@@ -11,8 +11,16 @@ export default function ProtectedRoute() {
   const { isAuthenticated, isInitializing, user } = useAuth();
   const location = useLocation();
 
-  if (isInitializing) {
-    // You can replace this with a full-screen spinner component if you prefer.
+  console.log("[ProtectedRoute] State evaluation:", {
+    isInitializing,
+    isAuthenticated,
+    user,
+    pathname: location.pathname,
+    hasCompletedProfile: user?.has_completed_profile
+  });
+
+  if (isInitializing || (isAuthenticated && !user)) {
+    // Wait for the user profile to load to prevent bypassing the onboarding check
     return null;
   }
 
@@ -21,12 +29,16 @@ export default function ProtectedRoute() {
   }
 
   // Redirect to onboarding if the user profile is incomplete
-  if (user && !user.has_completed_profile && location.pathname !== "/onboarding") {
+  const isProfileIncomplete = user && user.has_completed_profile === false;
+
+  if (isProfileIncomplete && location.pathname !== "/onboarding") {
+    console.log("[ProtectedRoute] Redirecting to /onboarding because profile is incomplete.");
     return <Navigate to="/onboarding" replace />;
   }
 
   // Prevent accessing onboarding if the user has already completed it
-  if (user && user.has_completed_profile && location.pathname === "/onboarding") {
+  if (user && user.has_completed_profile === true && location.pathname === "/onboarding") {
+    console.log("[ProtectedRoute] Redirecting to /dashboard because profile is already completed.");
     return <Navigate to="/dashboard" replace />;
   }
 

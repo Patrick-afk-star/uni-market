@@ -10,10 +10,13 @@ import {
   MessageSquare, 
   ShoppingBag,
   User,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { currentUser } from '@/data/user';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import type { ViewMode, SellSubView, BuySubView } from '@/types';
 
 interface SidebarProps {
@@ -39,6 +42,17 @@ export function Sidebar({
 }: SidebarProps) {
   const navRef = useRef<HTMLDivElement>(null);
   const modeIndicatorRef = useRef<HTMLDivElement>(null);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   useEffect(() => {
     if (navRef.current) {
@@ -193,20 +207,27 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* User Card */}
-      <div className="p-4 border-t border-white/[0.06]">
-        <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#121212] hover:bg-[#bb740a]/10 transition-colors cursor-pointer border border-[#121212]">
-          <Avatar className="w-10 h-10">
-            <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+      {/* User Card & Logout */}
+      <div className="p-4 border-t border-white/[0.06] flex items-center gap-2">
+        <div className="flex-1 flex items-center gap-3 p-2.5 rounded-2xl bg-[#121212] border border-white/[0.03] min-w-0 shadow-[inset_0_1px_2px_rgba(255,255,255,0.02)]">
+          <Avatar className="w-9 h-9 shrink-0">
+            <AvatarImage src={currentUser.avatar} alt={user?.first_name || currentUser.name} />
             <AvatarFallback className="bg-[#bb740a]/20 text-[#bb740a]">
               <User className="w-4 h-4" />
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{currentUser.name}</p>
-            <p className="text-xs text-[#959595]">{currentUser.role}</p>
+            <p className="text-xs font-semibold text-foreground truncate">{user?.first_name || currentUser.name}</p>
+            <p className="text-[10px] text-[#959595] truncate">{user?.email || currentUser.role}</p>
           </div>
         </div>
+        <button
+          onClick={handleLogout}
+          className="p-3 rounded-2xl bg-[#121212] border border-white/[0.03] hover:border-red-500/20 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 cursor-pointer shadow-lg flex items-center justify-center shrink-0 w-11 h-11"
+          title="Sign Out"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </aside>
   );

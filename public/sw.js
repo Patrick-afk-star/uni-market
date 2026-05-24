@@ -43,8 +43,18 @@ self.addEventListener("fetch", (event) => {
   // Only cache GET requests
   if (event.request.method !== "GET") return;
 
-  // Skip API calls or auth callbacks
-  if (event.request.url.includes("/api/") || event.request.url.includes("/auth/")) {
+  const url = new URL(event.request.url);
+
+  // Skip API calls, auth callbacks, and Vite Dev Server / HMR requests
+  if (
+    url.pathname.startsWith("/api/") ||
+    url.pathname.startsWith("/auth/") ||
+    url.pathname.startsWith("/@") ||
+    url.pathname.startsWith("/node_modules/") ||
+    url.search.includes("t=") ||
+    url.search.includes("import") ||
+    url.protocol === "chrome-extension:"
+  ) {
     return;
   }
 
