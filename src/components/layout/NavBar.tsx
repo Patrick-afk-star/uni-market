@@ -93,8 +93,8 @@ export default function Navbar() {
 
           {/* Mobile Menu Toggle */}
           <div className="lg:hidden flex items-center shrink-0">
-            <button 
-              onClick={() => setIsMenuOpen(!isMenuOpen)} 
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 -mr-2 text-[#5f5b52] dark:text-[#b7b1a6] focus:outline-none"
               aria-label="Toggle menu"
             >

@@ -1,0 +1,28 @@
+{
+  "name": "UniMarket Student Marketplace",
+  "short_name": "UniMarket",
+  "description": "The premium, responsive marketplace built for students.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0f0e",
+  "theme_color": "#0d0f0e",
+  "categories": [
+    "shopping",
+    "education"
+  ],
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
