@@ -19,6 +19,7 @@ import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import GoogleCallbackPage from '@/pages/auth/GoogleCallbackPage';
 import VerifyEmailPage from '@/pages/auth/VerifyEmailPage';
+import OnboardingPage from '@/pages/auth/OnboardingPage';
 
 // Dashboard Pages
 import DashboardPage from '@/pages/dashboard/DashboardPage';
@@ -55,6 +56,7 @@ export default function App() {
 
           {/* Protected Dashboard Routes */}
           <Route element={<ProtectedRoute />}>
+            <Route path="/onboarding" element={<OnboardingPage />} />
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/dashboard/browse" element={<BrowsePage />} />

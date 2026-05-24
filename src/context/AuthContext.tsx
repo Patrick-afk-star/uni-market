@@ -47,6 +47,8 @@ interface AuthContextValue extends AuthState {
   ) => Promise<void>;
   /** Raw setter for edge-cases (e.g. OAuth callbacks that already have a token). */
   setAccessToken: (token: string | null) => void;
+  /** POST /api/v1/profiles/complete — completes user onboarding. */
+  completeProfile: (universityId: string) => Promise<void>;
 }
 
 
@@ -85,9 +87,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const data: RefreshResponse = await res.json();
         setAccessToken(data.access_token);
 
-        // Optionally fetch user profile here if the backend doesn't return it
-        // in the refresh response. For now we leave `user` as null until a
-        // full login is performed. You can add a /me endpoint call here.
+        // Fetch user profile standard endpoint to fully restore the session details
+        try {
+          const resUser = await fetch("/api/v1/auth/user/", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${data.access_token}`,
+            },
+          });
+          if (resUser.ok) {
+            const userData = await resUser.json();
+            setUser(userData);
+          }
+        } catch (err) {
+          console.warn("Silent refresh: failed to retrieve user profile details.", err);
+        }
       } catch {
         // Network error or server down – treat as logged out
       } finally {
@@ -230,6 +245,40 @@ export function AuthProvider({ children }: AuthProviderProps) {
     []
   );
 
+  // ── completeProfile ──────────────────────────────────────────────────────
+  const completeProfile = useCallback(
+    async (universityId: string): Promise<void> => {
+      if (!accessToken) throw new Error("No access token found");
+      const res = await fetch("/api/v1/profiles/complete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          account_type: "student",
+          university_id: universityId,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        const message = err?.detail ?? "Failed to complete onboarding.";
+        throw new Error(message);
+      }
+
+      // Update local state
+      setUser((prevUser) => {
+        if (!prevUser) return null;
+        return {
+          ...prevUser,
+          has_completed_profile: true,
+        };
+      });
+    },
+    [accessToken]
+  );
+
   // ── value ────────────────────────────────────────────────────────────────
   const value: AuthContextValue = {
     accessToken,
@@ -242,6 +291,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     resetPassword,
     resetPasswordConfirm,
     setAccessToken,
+    completeProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

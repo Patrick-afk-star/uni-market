@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
  * nothing so authenticated users never see a flash of the login page.
  */
 export default function ProtectedRoute() {
-  const { isAuthenticated, isInitializing } = useAuth();
+  const { isAuthenticated, isInitializing, user } = useAuth();
   const location = useLocation();
 
   if (isInitializing) {
@@ -18,6 +18,16 @@ export default function ProtectedRoute() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Redirect to onboarding if the user profile is incomplete
+  if (user && !user.has_completed_profile && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // Prevent accessing onboarding if the user has already completed it
+  if (user && user.has_completed_profile && location.pathname === "/onboarding") {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Outlet />;

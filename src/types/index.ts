@@ -1,18 +1,20 @@
 // ─── Auth ────────────────────────────────────────────────────────────────────
 export interface AuthUser {
-  pk: string;
+  id: string;
+  pk?: string;
   email: string;
   first_name: string;
-  last_name: string;
+  last_name?: string;
+  has_completed_profile?: boolean;
 }
 
 /** Shape returned by POST /backend/api/v1/auth/login */
 export interface LoginResponse {
   access: string;
-  refresh: string;
+  refresh?: string;
   user: AuthUser;
-  access_expiration: string;
-  refresh_expiration: string;
+  access_expiration?: string;
+  refresh_expiration?: string;
 }
 
 /** Shape returned by POST /backend/api/v1/auth/token/refresh */
