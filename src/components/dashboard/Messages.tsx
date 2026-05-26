@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import gsap  from 'gsap';
 import { Search, Send, MoreHorizontal, Phone, Image as ImageIcon, Smile, Check, CheckCheck, Paperclip, Star } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -101,32 +100,7 @@ export function Messages({ isVerified, onVerificationRequired, setBuySubView }: 
   const [newMessage, setNewMessage] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const sidebarRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      if (titleRef.current) {
-        gsap.fromTo(
-          titleRef.current,
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
-        );
-      }
-
-      if (sidebarRef.current) {
-        const items = sidebarRef.current.querySelectorAll('.conversation-item');
-        gsap.fromTo(
-          items,
-          { opacity: 0, x: -20 },
-          { opacity: 1, x: 0, duration: 0.4, stagger: 0.05, ease: 'power2.out', delay: 0.2 }
-        );
-      }
-    });
-
-    return () => ctx.revert();
-  }, []);
 
   useEffect(() => {
     if (selectedConversation) {
@@ -213,10 +187,10 @@ export function Messages({ isVerified, onVerificationRequired, setBuySubView }: 
       ) : (
         <>
           {/* Conversations Sidebar */}
-          <div ref={sidebarRef} className="w-[360px] border-r border-white/[0.06] flex flex-col bg-[#121212] overflow-hidden">
+          <div className="w-[360px] border-r border-white/[0.06] flex flex-col bg-[#121212] overflow-hidden">
             {/* Header */}
             <div className="p-5 border-b border-white/[0.06] flex-shrink-0 bg-[#0a0a0a]">
-              <h1 ref={titleRef} className="text-xl font-bold text-foreground mb-4">
+              <h1 className="text-xl font-bold text-foreground mb-4">
                 Messages
               </h1>
               <div className="relative">

@@ -74,7 +74,6 @@ export function Sidebar({
     { id: 'create' as SellSubView, label: 'Create', icon: Plus },
     { id: 'listings' as SellSubView, label: 'My Listings', icon: List },
     { id: 'analytics' as SellSubView, label: 'Analytics', icon: BarChart3 },
-    { id: 'payouts' as SellSubView, label: 'Payouts', icon: Wallet },
   ];
 
   const buyNavItems = [
