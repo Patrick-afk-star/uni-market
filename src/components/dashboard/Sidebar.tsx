@@ -5,7 +5,7 @@ import {
   Plus, 
   List, 
   BarChart3, 
-  Wallet, 
+  // Wallet, 
   Heart, 
   MessageSquare, 
   User,
