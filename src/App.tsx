@@ -32,6 +32,7 @@ import AnalyticsPage from '@/pages/dashboard/AnalyticsPage';
 import OrdersPage from '@/pages/dashboard/OrdersPage';
 import CreatePage from '@/pages/dashboard/CreatePage';
 import PayoutsPage from '@/pages/dashboard/PayoutsPage';
+import SettingsPage from '@/pages/dashboard/SettingsPage';
 
 export default function App() {
   return (
@@ -71,6 +72,7 @@ export default function App() {
               <Route path="/dashboard/orders" element={<OrdersPage />} />
               <Route path="/dashboard/create" element={<CreatePage />} />
               <Route path="/dashboard/payouts" element={<PayoutsPage />} />
+              <Route path="/dashboard/settings" element={<SettingsPage />} />
             </Route>
           </Route>
 

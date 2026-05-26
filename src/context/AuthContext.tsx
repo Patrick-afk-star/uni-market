@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import type { AuthUser, LoginResponse, RefreshResponse } from "@/types";
+import { getApiUrl } from "@/lib/api";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -72,7 +73,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const silentRefresh = async () => {
       try {
-        const res = await fetch("/api/v1/auth/token/refresh", {
+        const res = await fetch(getApiUrl("/api/v1/auth/token/refresh"), {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -88,7 +89,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         // Fetch user profile standard endpoint to fully restore the session details
         try {
-          const resUser = await fetch("/api/v1/auth/user/", {
+          const resUser = await fetch(getApiUrl("/api/v1/auth/user/"), {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -115,7 +116,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // ── login ────────────────────────────────────────────────────────────────
   const login = useCallback(
     async (email: string, password: string): Promise<LoginResponse> => {
-      const res = await fetch("/api/v1/auth/login", {
+      const res = await fetch(getApiUrl("/api/v1/auth/login"), {
         method: "POST",
         credentials: "include", // lets the server set the refresh cookie
         headers: { "Content-Type": "application/json" },
@@ -151,7 +152,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // ── loginWithGoogle ──────────────────────────────────────────────────────
   const loginWithGoogle = useCallback(
     async (code: string): Promise<LoginResponse> => {
-      const res = await fetch("/api/v1/auth/google", {
+      const res = await fetch(getApiUrl("/api/v1/auth/google"), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -184,7 +185,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       // Best-effort: tell the server to invalidate the refresh token cookie.
       // If the endpoint does not exist the catch silently swallows the error.
-      await fetch("/api/v1/auth/logout", {
+      await fetch(getApiUrl("/api/v1/auth/logout"), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -199,7 +200,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // ── resetPassword ────────────────────────────────────────────────────────
   const resetPassword = useCallback(async (email: string): Promise<void> => {
-    const res = await fetch("/api/v1/auth/password/reset", {
+    const res = await fetch(getApiUrl("/api/v1/auth/password/reset"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -224,7 +225,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       new_password1: string,
       new_password2: string
     ): Promise<void> => {
-      const res = await fetch("/api/v1/auth/password/reset/confirm", {
+      const res = await fetch(getApiUrl("/api/v1/auth/password/reset/confirm"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ uid, token, new_password1, new_password2 }),
@@ -248,7 +249,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const completeProfile = useCallback(
     async (universityId: string): Promise<void> => {
       if (!accessToken) throw new Error("No access token found");
-      const res = await fetch("/api/v1/profiles/complete", {
+      const res = await fetch(getApiUrl("/api/v1/profiles/complete"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

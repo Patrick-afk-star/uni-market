@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
-import { gsap } from 'gsap';
+import { useState, useEffect } from 'react';
 import { Search, MapPin, Heart, MessageSquare, Filter, ChevronDown, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,40 +31,6 @@ export function BuyView({
   const [sortBy, setSortBy] = useState<string>('Relevance');
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
   const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);
-
-  const filterBarRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Filter bar animation - only on initial mount
-      if (filterBarRef.current) {
-        gsap.fromTo(
-          filterBarRef.current,
-          { opacity: 0, y: -16 },
-          { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
-        );
-      }
-    });
-
-    return () => ctx.revert();
-  }, []);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Grid cards stagger animation only
-      if (gridRef.current) {
-        const cards = gridRef.current.querySelectorAll('.product-card');
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 28 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: 'power2.out', delay: 0.2 }
-        );
-      }
-    });
-
-    return () => ctx.revert();
-  }, [filteredProducts]);
 
   // Filter products based on search and filters
   useEffect(() => {
@@ -145,7 +110,6 @@ export function BuyView({
     <div className="p-7 space-y-6">
       {/* Filter Bar */}
       <div
-        ref={filterBarRef}
         className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#0f0f0f] border border-white/[0.06]"
       >
         {/* Category Dropdown */}
@@ -264,7 +228,6 @@ export function BuyView({
 
       {/* Product Grid */}
       <div
-        ref={gridRef}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
       >
         {filteredProducts.map((product) => (
@@ -310,33 +273,8 @@ function ProductCard({
   onToggleSave,
   onMessageClick,
 }: ProductCardProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseEnter = () => {
-    if (cardRef.current) {
-      gsap.to(cardRef.current, {
-        y: -6,
-        duration: 0.25,
-        ease: 'power2.out',
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (cardRef.current) {
-      gsap.to(cardRef.current, {
-        y: 0,
-        duration: 0.25,
-        ease: 'power2.out',
-      });
-    }
-  };
-
   return (
     <div
-      ref={cardRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       className="product-card group bg-[#121212] rounded-2xl p-3.5 cursor-pointer transition-shadow duration-300 border border-white/[0.06]"
     >
       {/* Image */}

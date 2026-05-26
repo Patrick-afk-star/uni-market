@@ -66,4 +66,4 @@ export type ViewMode = 'sell' | 'buy';
 
 export type SellSubView = 'create' | 'listings' | 'analytics' | 'payouts';
 
-export type BuySubView = 'browse' | 'saved' | 'messages' | 'orders';
+export type BuySubView = 'browse' | 'saved' | 'messages' | 'orders' | 'settings';

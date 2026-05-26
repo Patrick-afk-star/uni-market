@@ -49,6 +49,7 @@ export default function DashboardLayout() {
     if (pathname.includes('/saved')) return 'saved';
     if (pathname.includes('/messages')) return 'messages';
     if (pathname.includes('/orders')) return 'orders';
+    if (pathname.includes('/settings')) return 'settings';
     return 'browse';
   };
 
@@ -83,6 +84,7 @@ export default function DashboardLayout() {
       saved: '/dashboard/saved',
       messages: '/dashboard/messages',
       orders: '/dashboard/orders',
+      settings: '/dashboard/settings',
     };
     navigate(routes[view]);
     setIsSidebarOpen(false);

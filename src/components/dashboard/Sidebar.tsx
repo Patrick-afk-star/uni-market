@@ -8,10 +8,10 @@ import {
   Wallet, 
   Heart, 
   MessageSquare, 
-  ShoppingBag,
   User,
   X,
-  LogOut
+  LogOut,
+  Settings
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { currentUser } from '@/data/user';
@@ -74,14 +74,13 @@ export function Sidebar({
     { id: 'create' as SellSubView, label: 'Create', icon: Plus },
     { id: 'listings' as SellSubView, label: 'My Listings', icon: List },
     { id: 'analytics' as SellSubView, label: 'Analytics', icon: BarChart3 },
-    { id: 'payouts' as SellSubView, label: 'Payouts', icon: Wallet },
   ];
 
   const buyNavItems = [
     { id: 'browse' as BuySubView, label: 'Browse', icon: Search },
     { id: 'saved' as BuySubView, label: 'Saved', icon: Heart },
     { id: 'messages' as BuySubView, label: 'Messages', icon: MessageSquare },
-    { id: 'orders' as BuySubView, label: 'Orders', icon: ShoppingBag },
+    { id: 'settings' as BuySubView, label: 'Settings', icon: Settings },
   ];
 
   const navItems = viewMode === 'sell' ? sellNavItems : buyNavItems;

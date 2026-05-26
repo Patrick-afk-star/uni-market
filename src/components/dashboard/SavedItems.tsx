@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
-import { gsap } from 'gsap';
+import { useState } from 'react';
 import { Heart, MapPin, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,31 +7,6 @@ import type { Product } from '@/types';
 
 export function SavedItems() {
   const [savedProducts, setSavedProducts] = useState<Product[]>(sampleProducts.slice(0, 4));
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      if (titleRef.current) {
-        gsap.fromTo(
-          titleRef.current,
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
-        );
-      }
-
-      if (gridRef.current) {
-        const cards = gridRef.current.querySelectorAll('.saved-card');
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.2 }
-        );
-      }
-    });
-
-    return () => ctx.revert();
-  }, []);
 
   const handleRemove = (id: string) => {
     setSavedProducts((prev) => prev.filter((p) => p.id !== id));
@@ -42,7 +16,7 @@ export function SavedItems() {
     <div className="p-7 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 ref={titleRef} className="text-2xl font-bold text-foreground">
+        <h1 className="text-2xl font-bold text-foreground">
           Saved Items
         </h1>
         <span className="text-sm text-muted-foreground">
@@ -51,7 +25,7 @@ export function SavedItems() {
       </div>
 
       {/* Saved Grid */}
-      <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {savedProducts.map((product) => (
           <div
             key={product.id}
