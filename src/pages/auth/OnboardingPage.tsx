@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { GraduationCap, Search, Check, Loader2, ArrowRight, LogOut, AlertCircle } from "lucide-react";
+import { getApiUrl } from "@/lib/api";
 
 interface University {
   id: string;
@@ -29,7 +30,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const response = await fetch("/api/v1/universities");
+        const response = await fetch(getApiUrl("/api/v1/universities"));
         if (!response.ok) {
           throw new Error("Failed to fetch universities.");
         }

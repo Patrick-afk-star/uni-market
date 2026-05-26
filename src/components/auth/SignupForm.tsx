@@ -3,6 +3,7 @@
 import { useState, SubmitEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { getApiUrl } from "@/lib/api";
 
 export default function SignupForm() {
   const [name, setName] = useState("");
@@ -29,7 +30,7 @@ export default function SignupForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/v1/auth/register/", {
+      const response = await fetch(getApiUrl("/api/v1/auth/register/"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

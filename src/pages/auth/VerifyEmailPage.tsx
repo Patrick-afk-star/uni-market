@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Mail, CheckCircle2, AlertTriangle, Loader2, ArrowRight } from "lucide-react";
+import { getApiUrl } from "@/lib/api";
 
 export default function VerifyEmailPage() {
   const [searchParams] = useSearchParams();
@@ -24,7 +25,7 @@ export default function VerifyEmailPage() {
 
     const verifyEmail = async () => {
       try {
-        const response = await fetch("/api/v1/auth/register/verify-email", {
+        const response = await fetch(getApiUrl("/api/v1/auth/register/verify-email"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -62,7 +63,7 @@ export default function VerifyEmailPage() {
 
     setIsResending(true);
     try {
-      const response = await fetch("/api/v1/auth/register/resend-email/", {
+      const response = await fetch(getApiUrl("/api/v1/auth/register/resend-email/"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
