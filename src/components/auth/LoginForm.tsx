@@ -59,27 +59,11 @@ export default function LoginForm() {
         <div className="bg-white dark:bg-[#151816] rounded-2xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.4)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 px-5 py-8">
           {/* Logo */}
           <div className="flex justify-center mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#0f1411] flex items-center justify-center shadow-[0_8px_20px_rgba(15,107,79,0.25)]">
-              <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
-                <circle cx="32" cy="32" r="30" fill="#0f1411" />
-                <path
-                  d="M19 36c0-9 6-16 13-18 6-2 13 2 13 10 0 10-8 18-20 18-4 0-6-3-6-10Z"
-                  fill="url(#gradient)"
-                />
-                <path
-                  d="M26 40c6-3 12-9 14-16"
-                  stroke="#f4f2ee"
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                />
-                <defs>
-                  <linearGradient id="gradient" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#2aa67f" />
-                    <stop offset="100%" stopColor="#d8a24a" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
+            <img 
+              src="/favicon.png" 
+              alt="UniMarket logo" 
+              className="w-9 h-9 rounded-xl object-cover shadow-[0_8px_20px_rgba(15,107,79,0.25)]" 
+            />
           </div>
 
           <h2 className="text-lg font-bold text-center text-[#121412] dark:text-[#f4f2ee]">

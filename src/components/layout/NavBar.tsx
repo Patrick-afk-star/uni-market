@@ -11,34 +11,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between gap-4 py-4.5">
           {/* Brand */}
           <div className="flex items-center gap-3 min-w-0">
-            <span
-              className="w-12 h-12 shrink-0 rounded-2xl grid place-items-center shadow-[0_10px_24px_rgba(15,107,79,0.25)]"
-              style={{
-                background:
-                  "radial-gradient(circle at 30% 30%, rgba(42,166,127,0.4), transparent 70%), #0f1411",
-              }}
-              aria-hidden="true"
-            >
-              <svg viewBox="0 0 64 64" role="img" aria-label="UniMarket logo">
-                <defs>
-                  <linearGradient id="umLeaf" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#2aa67f" />
-                    <stop offset="100%" stopColor="#d8a24a" />
-                  </linearGradient>
-                </defs>
-                <circle cx="32" cy="32" r="30" fill="#0f1411" />
-                <path
-                  d="M19 36c0-9 6-16 13-18 6-2 13 2 13 10 0 10-8 18-20 18-4 0-6-3-6-10Z"
-                  fill="url(#umLeaf)"
-                />
-                <path
-                  d="M26 40c6-3 12-9 14-16"
-                  stroke="#f4f2ee"
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </span>
+            <img 
+              src="/favicon.png" 
+              alt="UniMarket logo" 
+              className="w-12 h-12 shrink-0 rounded-2xl object-cover shadow-[0_10px_24px_rgba(15,107,79,0.25)]" 
+            />
             <div className="min-w-0">
               <div className="font-bold text-lg truncate">UniMarket Rwanda</div>
               <div className="text-xs text-[#5f5b52] dark:text-[#b7b1a6] truncate hidden sm:block">
