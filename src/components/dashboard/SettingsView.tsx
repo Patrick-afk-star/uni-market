@@ -8,15 +8,12 @@ import {
   Camera,
   CheckCircle,
   AlertTriangle,
-  Clock,
   Shield,
   Trash2,
   Save,
   Loader2,
-  Upload,
-  BookOpen
+  BookOpen,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
@@ -31,19 +28,26 @@ interface University {
 
 export function SettingsView() {
   const { user, completeProfile } = useAuth();
-  const { submitVerification, isVerified, isPending, isUnverified } = useVerification();
-  
-  const [activeTab, setActiveTab] = useState<"profile" | "account" | "university">("profile");
+  const { submitVerification, isVerified, isPending } =
+    useVerification();
+
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "account" | "university"
+  >("profile");
 
   // Profile fields state
   const [fullName, setFullName] = useState(user?.first_name || "Alex Johnson");
-  const [bio, setBio] = useState("Computer Science student | Book lover | Tech enthusiast");
+  const [bio, setBio] = useState(
+    "Computer Science student | Book lover | Tech enthusiast",
+  );
   const [location, setLocation] = useState("Kigali, Rwanda");
   const [avatar, setAvatar] = useState("/avatar_student.jpg");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Account settings state
-  const [email, setEmail] = useState(user?.email || "alex.johnson@university.edu");
+  const [email, setEmail] = useState(
+    user?.email || "alex.johnson@university.edu",
+  );
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -85,7 +89,13 @@ export function SettingsView() {
         gsap.fromTo(
           containerRef.current.querySelectorAll(".settings-entry"),
           { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: 0.4, stagger: 0.05, ease: "power2.out" }
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.4,
+            stagger: 0.05,
+            ease: "power2.out",
+          },
         );
       }
     });
@@ -98,7 +108,7 @@ export function SettingsView() {
         gsap.fromTo(
           contentRef.current,
           { opacity: 0, x: 10 },
-          { opacity: 1, x: 0, duration: 0.35, ease: "power1.out" }
+          { opacity: 1, x: 0, duration: 0.35, ease: "power1.out" },
         );
       }
     });
@@ -145,7 +155,11 @@ export function SettingsView() {
       await completeProfile(selectedUniversityId);
       toast.success("University info updated successfully!");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to update university info.");
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Failed to update university info.",
+      );
     } finally {
       setIsSubmittingOnboarding(false);
     }
@@ -153,7 +167,8 @@ export function SettingsView() {
 
   const handleUploadId = () => {
     // Simulate ID Card image upload selection
-    const mockImage = "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=250&fit=crop";
+    const mockImage =
+      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=250&fit=crop";
     setUploadedIdImage(mockImage);
     toast.success("ID image uploaded successfully!");
   };
@@ -170,7 +185,7 @@ export function SettingsView() {
     const avatars = [
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop",
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop"
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
     ];
     const nextAvatar = avatars[Math.floor(Math.random() * avatars.length)];
     setAvatar(nextAvatar);
@@ -181,42 +196,43 @@ export function SettingsView() {
     <div ref={containerRef} className="p-4 md:p-7 max-w-5xl mx-auto space-y-6">
       {/* Title */}
       <div className="settings-entry">
-        <h1 className="text-2xl font-bold text-foreground">Dashboard Settings</h1>
-        <p className="text-sm text-muted-foreground">Manage your profile, security, and student credentials.</p>
+        <h1 className="text-2xl font-bold text-foreground">
+          Dashboard Settings
+        </h1>
+        <p className="text-sm text-[#676767]">
+          Manage your profile, security, and student credentials.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Navigation Tabs */}
-        <div className="settings-entry md:col-span-1 flex flex-row md:flex-col gap-1 overflow-x-auto pb-2 md:pb-0 border-b md:border-b-0 border-white/[0.06]">
+        <div className="settings-entry md:col-span-1 flex flex-row gap-1 pb-2 md:pb-0 border-b md:border-b-0 border-white/[0.06]">
           <button
             onClick={() => setActiveTab("profile")}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === "profile"
-                ? "bg-[#1a1a1a] text-foreground border-l-2 border-[#bb740a]"
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "profile"
+                ? "bg-[#1a1a1a] text-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
-            }`}
+              }`}
           >
             <User className="w-4 h-4 shrink-0" />
             <span>Profile Settings</span>
           </button>
           <button
             onClick={() => setActiveTab("account")}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === "account"
-                ? "bg-[#1a1a1a] text-foreground border-l-2 border-[#bb740a]"
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "account"
+                ? "bg-[#1a1a1a] text-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
-            }`}
+              }`}
           >
             <Lock className="w-4 h-4 shrink-0" />
             <span>Account & Security</span>
           </button>
           <button
             onClick={() => setActiveTab("university")}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === "university"
-                ? "bg-[#1a1a1a] text-foreground border-l-2 border-[#bb740a]"
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "university"
+                ? "bg-[#1a1a1a] text-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
-            }`}
+              }`}
           >
             <GraduationCap className="w-4 h-4 shrink-0" />
             <span>University & Status</span>
@@ -224,19 +240,31 @@ export function SettingsView() {
         </div>
 
         {/* Tab Contents */}
-        <div ref={contentRef} className="md:col-span-3 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl p-5 md:p-7 shadow-xl">
+        <div
+          ref={contentRef}
+          className="md:col-span-3 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl p-5 md:p-7 shadow-xl"
+        >
           {/* PROFILE SETTINGS */}
           {activeTab === "profile" && (
             <form onSubmit={handleSaveProfile} className="space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-foreground">Profile Details</h2>
-                <p className="text-xs text-muted-foreground">This information will be shown publicly to other buyers and sellers.</p>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Profile Details
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  This information will be shown publicly to other buyers and
+                  sellers.
+                </p>
               </div>
 
               {/* Avatar Update */}
               <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-xl bg-white/[0.02] border border-white/[0.03]">
                 <div className="relative w-20 h-20 rounded-2xl overflow-hidden group">
-                  <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  <img
+                    src={avatar}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
                   <button
                     type="button"
                     onClick={handleAvatarChange}
@@ -247,8 +275,12 @@ export function SettingsView() {
                   </button>
                 </div>
                 <div className="text-center sm:text-left space-y-1">
-                  <h4 className="text-sm font-medium text-foreground">Profile Picture</h4>
-                  <p className="text-xs text-muted-foreground">Click the image to swap avatar variations.</p>
+                  <h4 className="text-sm font-medium text-foreground">
+                    Profile Picture
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Click the image to swap avatar variations.
+                  </p>
                   <Button
                     type="button"
                     variant="outline"
@@ -265,7 +297,9 @@ export function SettingsView() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">Full Name</label>
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Full Name
+                    </label>
                     <Input
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
@@ -274,7 +308,9 @@ export function SettingsView() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">Location</label>
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Location
+                    </label>
                     <Input
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
@@ -284,7 +320,9 @@ export function SettingsView() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Bio / Description</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Bio / Description
+                  </label>
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
@@ -298,16 +336,24 @@ export function SettingsView() {
               {/* Profile Ratings Statistics */}
               <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.03] grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Average Rating</p>
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Average Rating
+                  </p>
                   <p className="text-lg font-bold text-[#e4b363] mt-1">★ 4.8</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total Sales</p>
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Total Sales
+                  </p>
                   <p className="text-lg font-bold text-foreground mt-1">24</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Member Since</p>
-                  <p className="text-sm font-semibold text-foreground mt-2">Jan 2024</p>
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Member Since
+                  </p>
+                  <p className="text-sm font-semibold text-foreground mt-2">
+                    Jan 2024
+                  </p>
                 </div>
               </div>
 
@@ -337,8 +383,12 @@ export function SettingsView() {
           {activeTab === "account" && (
             <form onSubmit={handleSaveAccount} className="space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-foreground">Account Credentials & Security</h2>
-                <p className="text-xs text-muted-foreground">Keep your email and password secure.</p>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Account Credentials & Security
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Keep your email and password secure.
+                </p>
               </div>
 
               <div className="space-y-4">
@@ -357,11 +407,14 @@ export function SettingsView() {
 
                 <div className="border-t border-white/[0.06] pt-5">
                   <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
-                    <Shield className="w-4 h-4 text-[#bb740a]" /> Update Password
+                    <Shield className="w-4 h-4 text-[#bb740a]" /> Update
+                    Password
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Current Password</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Current Password
+                      </label>
                       <Input
                         type="password"
                         value={currentPassword}
@@ -371,7 +424,9 @@ export function SettingsView() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">New Password</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        New Password
+                      </label>
                       <Input
                         type="password"
                         value={newPassword}
@@ -381,7 +436,9 @@ export function SettingsView() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Confirm Password</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Confirm Password
+                      </label>
                       <Input
                         type="password"
                         value={confirmPassword}
@@ -400,14 +457,17 @@ export function SettingsView() {
                   <AlertTriangle className="w-4 h-4" /> Danger Zone
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  Once you delete your account, all listed items, messages, and order history are permanently deleted.
+                  Once you delete your account, all listed items, messages, and
+                  order history are permanently deleted.
                 </p>
                 <Button
                   type="button"
                   variant="destructive"
                   className="bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs px-4 h-9 cursor-pointer font-semibold transition-all"
                   onClick={() => {
-                    const confirmDel = window.confirm("Are you sure you want to permanently delete your UniMarket account?");
+                    const confirmDel = window.confirm(
+                      "Are you sure you want to permanently delete your UniMarket account?",
+                    );
                     if (confirmDel) toast.error("Account deletion requested.");
                   }}
                 >
@@ -441,22 +501,32 @@ export function SettingsView() {
           {activeTab === "university" && (
             <div className="space-y-6">
               <div>
-                <h2 className="text-lg font-semibold text-foreground">University & Verification</h2>
-                <p className="text-xs text-muted-foreground">Manage your university alignment and student verification details.</p>
+                <h2 className="text-lg font-semibold text-foreground">
+                  University & Verification
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Manage your university alignment and student verification
+                  details.
+                </p>
               </div>
 
               {/* Verification Status Card */}
-              <div className="p-5 rounded-2xl border bg-white/[0.01] border-white/[0.05] space-y-4">
+              {/* <div className="p-5 rounded-2xl border bg-white/[0.01] border-white/[0.05] space-y-4">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Current Verification Status</p>
+                    <p className="text-xs text-muted-foreground">
+                      Current Verification Status
+                    </p>
                     <div className="flex items-center gap-2">
                       {isVerified && (
                         <>
                           <Badge className="bg-[#177865] text-[#022420] font-bold flex items-center gap-1">
-                            <CheckCircle className="w-3.5 h-3.5" /> Verified Student
+                            <CheckCircle className="w-3.5 h-3.5" /> Verified
+                            Student
                           </Badge>
-                          <span className="text-[10px] text-muted-foreground">Exp: Dec 2026</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            Exp: Dec 2026
+                          </span>
                         </>
                       )}
                       {isPending && (
@@ -471,7 +541,7 @@ export function SettingsView() {
                       )}
                     </div>
                   </div>
-                  
+
                   {isUnverified && (
                     <Button
                       size="sm"
@@ -485,31 +555,46 @@ export function SettingsView() {
                 </div>
 
                 <div className="border-t border-white/[0.06] pt-4 text-xs text-muted-foreground space-y-2">
-                  <p>• Verified status allows you to create selling listings and directly message other students.</p>
-                  <p>• Verification requires uploading a valid student ID card or official university enrollment document.</p>
+                  <p>
+                    • Verified status allows you to create selling listings and
+                    directly message other students.
+                  </p>
+                  <p>
+                    • Verification requires uploading a valid student ID card or
+                    official university enrollment document.
+                  </p>
                 </div>
-              </div>
+              </div> */}
 
               {/* ID Verification Form (if unverified or pending) */}
               {!isVerified && (
                 <div className="p-4 rounded-xl border border-white/[0.06] bg-white/[0.01] space-y-4">
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-[#bb740a]" /> Upload Credentials
+                    <Shield className="w-4 h-4 text-[#bb740a]" /> Upload
+                    Credentials
                   </h3>
-                  
+
                   {!uploadedIdImage ? (
                     <div
                       onClick={handleUploadId}
                       className="border-2 border-dashed border-white/[0.08] rounded-xl p-8 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 transition-all bg-white/[0.01]"
                     >
                       <Camera className="w-7 h-7 text-muted-foreground mb-1" />
-                      <p className="text-xs font-semibold text-foreground">Click to upload student ID card image</p>
-                      <p className="text-[10px] text-muted-foreground">Mock image gets populated automatically on click</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        Click to upload student ID card image
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        Mock image gets populated automatically on click
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <div className="relative rounded-xl overflow-hidden border border-white/[0.06]">
-                        <img src={uploadedIdImage} alt="Uploaded card" className="w-full h-32 object-cover opacity-80" />
+                        <img
+                          src={uploadedIdImage}
+                          alt="Uploaded card"
+                          className="w-full h-32 object-cover opacity-80"
+                        />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                           <CheckCircle className="w-6 h-6 text-green-400" />
                         </div>
@@ -535,20 +620,28 @@ export function SettingsView() {
               )}
 
               {/* University Alignment Form */}
-              <form onSubmit={handleUniversitySubmit} className="border-t border-white/[0.06] pt-5 space-y-4">
+              <form
+                onSubmit={handleUniversitySubmit}
+                className="border-t border-white/[0.06] pt-5 space-y-4"
+              >
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-[#bb740a]" /> University Association
+                  <BookOpen className="w-4 h-4 text-[#bb740a]" /> University
+                  Association
                 </h3>
-                
+
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">Associated University Campus</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Associated University Campus
+                  </label>
                   <select
                     value={selectedUniversityId}
                     onChange={(e) => setSelectedUniversityId(e.target.value)}
                     className="w-full h-11 text-sm rounded-lg border border-white/[0.08] bg-secondary/40 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-all"
                   >
                     {universities.length === 0 ? (
-                      <option value="">Carnegie Mellon University Africa</option>
+                      <option value="">
+                        Carnegie Mellon University Africa
+                      </option>
                     ) : (
                       universities.map((uni) => (
                         <option key={uni.id} value={uni.id}>
@@ -579,11 +672,11 @@ export function SettingsView() {
 
               {/* Simulated Student Card Preview (Show off beautiful premium aesthetics) */}
               <div className="border-t border-white/[0.06] pt-5">
-                <h3 className="text-sm font-semibold text-foreground mb-4">Digital Student ID Card Preview</h3>
-                
-                <div 
-                  className="relative overflow-hidden rounded-2xl w-full max-w-sm aspect-[1.586] mx-auto border border-white/[0.12] p-5 shadow-[0_12px_24px_rgba(0,0,0,0.4)] bg-gradient-to-br from-[#1c1c1c] via-[#121212] to-[#0a0a0a]"
-                >
+                <h3 className="text-sm font-semibold text-foreground mb-4">
+                  Digital Student ID Card Preview
+                </h3>
+
+                <div className="relative overflow-hidden rounded-2xl w-full max-w-sm aspect-[1.586] mx-auto border border-white/[0.12] p-5 shadow-[0_12px_24px_rgba(0,0,0,0.4)] bg-gradient-to-br from-[#1c1c1c] via-[#121212] to-[#0a0a0a]">
                   {/* Glowing background highlights */}
                   <div className="absolute -top-16 -right-16 w-32 h-32 rounded-full bg-[#bb740a]/10 blur-2xl" />
                   <div className="absolute -bottom-16 -left-16 w-32 h-32 rounded-full bg-[#177865]/10 blur-2xl" />
@@ -591,46 +684,85 @@ export function SettingsView() {
                   {/* Top Bar */}
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-1.5">
-                      <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 64 64"
+                        fill="none"
+                      >
                         <circle cx="32" cy="32" r="30" fill="#0f1411" />
-                        <path d="M19 36c0-9 6-16 13-18 6-2 13 2 13 10 0 10-8 18-20 18-4 0-6-3-6-10Z" fill="url(#umGrad)" />
+                        <path
+                          d="M19 36c0-9 6-16 13-18 6-2 13 2 13 10 0 10-8 18-20 18-4 0-6-3-6-10Z"
+                          fill="url(#umGrad)"
+                        />
                         <defs>
-                          <linearGradient id="umGrad" x1="0" y1="0" x2="1" y2="1">
+                          <linearGradient
+                            id="umGrad"
+                            x1="0"
+                            y1="0"
+                            x2="1"
+                            y2="1"
+                          >
                             <stop offset="0%" stopColor="#2aa67f" />
                             <stop offset="100%" stopColor="#d8a24a" />
                           </linearGradient>
                         </defs>
                       </svg>
-                      <span className="text-[10px] font-bold tracking-wider text-foreground">UNIMARKET CARD</span>
+                      <span className="text-[10px] font-bold tracking-wider text-foreground">
+                        UNIMARKET CARD
+                      </span>
                     </div>
-                    <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">Active</span>
+                    <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">
+                      Active
+                    </span>
                   </div>
 
                   {/* Middle Info */}
                   <div className="mt-8 flex gap-4 items-center">
                     <div className="w-14 h-14 rounded-xl overflow-hidden border border-white/10 bg-secondary/50 shrink-0">
-                      <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      <img
+                        src={avatar}
+                        alt="Avatar"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="min-w-0">
-                      <h4 className="text-sm font-extrabold text-foreground truncate">{fullName}</h4>
+                      <h4 className="text-sm font-extrabold text-foreground truncate">
+                        {fullName}
+                      </h4>
                       <p className="text-[10px] text-primary font-semibold tracking-wide truncate">
-                        {universities.find(u => u.id === selectedUniversityId)?.name || "Carnegie Mellon University Africa"}
+                        {universities.find((u) => u.id === selectedUniversityId)
+                          ?.name || "Carnegie Mellon University Africa"}
                       </p>
-                      <p className="text-[9px] text-muted-foreground mt-0.5">Role: Student Merchant</p>
+                      <p className="text-[9px] text-muted-foreground mt-0.5">
+                        Role: Student Merchant
+                      </p>
                     </div>
                   </div>
 
                   {/* Bottom Verification Info */}
                   <div className="absolute bottom-4 left-5 right-5 flex justify-between items-center border-t border-white/[0.04] pt-2.5">
                     <div>
-                      <p className="text-[7px] text-muted-foreground uppercase font-bold tracking-widest">Status</p>
-                      <p className={`text-[9px] font-bold ${isVerified ? "text-[#2aa67f]" : isPending ? "text-yellow-400" : "text-red-400"}`}>
-                        {isVerified ? "★ VERIFIED" : isPending ? "⏳ PENDING" : "⚠️ UNVERIFIED"}
+                      <p className="text-[7px] text-muted-foreground uppercase font-bold tracking-widest">
+                        Status
+                      </p>
+                      <p
+                        className={`text-[9px] font-bold ${isVerified ? "text-[#2aa67f]" : isPending ? "text-yellow-400" : "text-red-400"}`}
+                      >
+                        {isVerified
+                          ? "★ VERIFIED"
+                          : isPending
+                            ? "⏳ PENDING"
+                            : "⚠️ UNVERIFIED"}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[7px] text-muted-foreground uppercase font-bold tracking-widest">Card ID</p>
-                      <p className="text-[9px] font-mono text-foreground">UM-2026-9923</p>
+                      <p className="text-[7px] text-muted-foreground uppercase font-bold tracking-widest">
+                        Card ID
+                      </p>
+                      <p className="text-[9px] font-mono text-foreground">
+                        UM-2026-9923
+                      </p>
                     </div>
                   </div>
                 </div>

@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import { Heart, MapPin, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { sampleProducts } from '@/data/products';
-import type { Product } from '@/types';
+import { useState } from "react";
+import { Heart, MapPin, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { sampleProducts } from "@/data/products";
+import type { Product } from "@/types";
 
 export function SavedItems() {
-  const [savedProducts, setSavedProducts] = useState<Product[]>(sampleProducts.slice(0, 4));
+  const [savedProducts, setSavedProducts] = useState<Product[]>(
+    sampleProducts.slice(0, 4),
+  );
 
   const handleRemove = (id: string) => {
     setSavedProducts((prev) => prev.filter((p) => p.id !== id));
@@ -16,9 +18,7 @@ export function SavedItems() {
     <div className="p-7 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">
-          Saved Items
-        </h1>
+        <h1 className="text-2xl font-bold text-foreground">Saved Items</h1>
         <span className="text-sm text-muted-foreground">
           {savedProducts.length} items saved
         </span>
@@ -79,9 +79,12 @@ export function SavedItems() {
           <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-4">
             <Heart className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">No saved items</h3>
-          <p className="text-sm text-muted-foreground max-w-sm">
-            Browse listings and click the heart icon to save items you&apos;re interested in.
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            No saved items
+          </h3>
+          <p className="text-sm text-[#676767] max-w-sm">
+            Browse listings and click the heart icon to save items you&apos;re
+            interested in.
           </p>
           <Button className="mt-6 bg-primary hover:bg-primary/90 text-primary-foreground">
             Browse Listings

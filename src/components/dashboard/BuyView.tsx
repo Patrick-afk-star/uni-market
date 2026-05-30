@@ -1,16 +1,24 @@
-import { useState, useEffect } from 'react';
-import { Search, MapPin, Heart, MessageSquare, Filter, ChevronDown, Shield } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect } from "react";
+import {
+  Search,
+  MapPin,
+  Heart,
+  MessageSquare,
+  Filter,
+  ChevronDown,
+  Shield,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import type { Product, Condition } from '@/types';
-import { sampleProducts, categories, conditions } from '@/data/products';
+} from "@/components/ui/dropdown-menu";
+import type { Product, Condition } from "@/types";
+import { sampleProducts, categories, conditions } from "@/data/products";
 
 interface BuyViewProps {
   searchQuery: string;
@@ -25,12 +33,17 @@ export function BuyView({
   onMessageClick,
   onVerificationRequired,
 }: BuyViewProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('All Categories');
+  const [selectedCategory, setSelectedCategory] =
+    useState<string>("All Categories");
   const [selectedConditions, setSelectedConditions] = useState<Condition[]>([]);
-  const [priceRange, setPriceRange] = useState<{ min: string; max: string }>({ min: '', max: '' });
-  const [sortBy, setSortBy] = useState<string>('Relevance');
+  const [priceRange, setPriceRange] = useState<{ min: string; max: string }>({
+    min: "",
+    max: "",
+  });
+  const [sortBy, setSortBy] = useState<string>("Relevance");
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);
+  const [filteredProducts, setFilteredProducts] =
+    useState<Product[]>(sampleProducts);
 
   // Filter products based on search and filters
   useEffect(() => {
@@ -43,18 +56,20 @@ export function BuyView({
         (p) =>
           p.title.toLowerCase().includes(query) ||
           p.category.toLowerCase().includes(query) ||
-          p.location.toLowerCase().includes(query)
+          p.location.toLowerCase().includes(query),
       );
     }
 
     // Category filter
-    if (selectedCategory !== 'All Categories') {
+    if (selectedCategory !== "All Categories") {
       filtered = filtered.filter((p) => p.category === selectedCategory);
     }
 
     // Condition filter
     if (selectedConditions.length > 0) {
-      filtered = filtered.filter((p) => selectedConditions.includes(p.condition));
+      filtered = filtered.filter((p) =>
+        selectedConditions.includes(p.condition),
+      );
     }
 
     // Price filter
@@ -66,11 +81,11 @@ export function BuyView({
     }
 
     // Sort
-    if (sortBy === 'Price: Low to High') {
+    if (sortBy === "Price: Low to High") {
       filtered = [...filtered].sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'Price: High to Low') {
+    } else if (sortBy === "Price: High to Low") {
       filtered = [...filtered].sort((a, b) => b.price - a.price);
-    } else if (sortBy === 'Newest') {
+    } else if (sortBy === "Newest") {
       filtered = [...filtered].reverse();
     }
 
@@ -81,7 +96,7 @@ export function BuyView({
     setSelectedConditions((prev) =>
       prev.includes(condition)
         ? prev.filter((c) => c !== condition)
-        : [...prev, condition]
+        : [...prev, condition],
     );
   };
 
@@ -109,9 +124,7 @@ export function BuyView({
   return (
     <div className="p-7 space-y-6">
       {/* Filter Bar */}
-      <div
-        className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#0f0f0f] border border-white/[0.06]"
-      >
+      <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#0f0f0f] border border-white/[0.06]">
         {/* Category Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -128,7 +141,7 @@ export function BuyView({
               <DropdownMenuItem
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`cursor-pointer hover:bg-[#1a1a1a] ${selectedCategory === category ? 'bg-[#1a1a1a]' : ''}`}
+                className={`cursor-pointer hover:bg-[#1a1a1a] ${selectedCategory === category ? "bg-[#1a1a1a]" : ""}`}
               >
                 {category}
               </DropdownMenuItem>
@@ -142,7 +155,9 @@ export function BuyView({
             type="number"
             placeholder="Min"
             value={priceRange.min}
-            onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+            onChange={(e) =>
+              setPriceRange({ ...priceRange, min: e.target.value })
+            }
             className="w-24 h-10 rounded-xl bg-[#0f0f0f] border border-white/[0.06] text-sm focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:text-muted-foreground"
           />
           <span className="text-muted-foreground">-</span>
@@ -150,7 +165,9 @@ export function BuyView({
             type="number"
             placeholder="Max"
             value={priceRange.max}
-            onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+            onChange={(e) =>
+              setPriceRange({ ...priceRange, max: e.target.value })
+            }
             className="w-24 h-10 rounded-xl bg-[#0f0f0f] border border-white/[0.06] text-sm focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-inner-spin-button]:text-muted-foreground"
           />
         </div>
@@ -163,8 +180,8 @@ export function BuyView({
               onClick={() => toggleCondition(condition as Condition)}
               className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
                 selectedConditions.includes(condition as Condition)
-                  ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
-                  : 'bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]'
+                  ? "bg-transparent border border-[#bb740a] text-[#bb740a]"
+                  : "bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]"
               }`}
             >
               {condition}
@@ -187,11 +204,16 @@ export function BuyView({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 bg-[#121212] border border-white/[0.06]">
-            {['Relevance', 'Newest', 'Price: Low to High', 'Price: High to Low'].map((sort) => (
+            {[
+              "Relevance",
+              "Newest",
+              "Price: Low to High",
+              "Price: High to Low",
+            ].map((sort) => (
               <DropdownMenuItem
                 key={sort}
                 onClick={() => setSortBy(sort)}
-                className={`cursor-pointer hover:bg-[#1a1a1a] ${sortBy === sort ? 'bg-[#1a1a1a]' : ''}`}
+                className={`cursor-pointer hover:bg-[#1a1a1a] ${sortBy === sort ? "bg-[#1a1a1a]" : ""}`}
               >
                 {sort}
               </DropdownMenuItem>
@@ -212,9 +234,12 @@ export function BuyView({
             <Shield className="w-6 h-6 text-primary" />
           </div>
           <div className="flex-1">
-            <p className="font-medium text-foreground">Verify your account to message sellers</p>
+            <p className="font-medium text-foreground">
+              Verify your account to message sellers
+            </p>
             <p className="text-sm text-muted-foreground">
-              Keep UniMarket safe by verifying your student status. It only takes a few minutes.
+              Keep UniMarket safe by verifying your student status. It only
+              takes a few minutes.
             </p>
           </div>
           <Button
@@ -227,9 +252,7 @@ export function BuyView({
       )}
 
       {/* Product Grid */}
-      <div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredProducts.map((product) => (
           <ProductCard
             key={product.id}
@@ -248,9 +271,12 @@ export function BuyView({
           <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-4">
             <Search className="w-8 h-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">No results found</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            No results found
+          </h3>
           <p className="text-sm text-muted-foreground max-w-sm">
-            Try adjusting your filters or search query to find what you&apos;re looking for.
+            Try adjusting your filters or search query to find what you&apos;re
+            looking for.
           </p>
         </div>
       )}
@@ -274,9 +300,7 @@ function ProductCard({
   onMessageClick,
 }: ProductCardProps) {
   return (
-    <div
-      className="product-card group bg-[#121212] rounded-2xl p-3.5 cursor-pointer transition-shadow duration-300 border border-white/[0.06]"
-    >
+    <div className="product-card group bg-[#121212] rounded-2xl p-3.5 cursor-pointer transition-shadow duration-300 border border-white/[0.06]">
       {/* Image */}
       <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
         <img
@@ -292,15 +316,15 @@ function ProductCard({
           }}
           className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
             isSaved
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-black/50 text-white hover:bg-black/70'
+              ? "bg-primary text-primary-foreground"
+              : "bg-black/50 text-white hover:bg-black/70"
           }`}
         >
-          <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+          <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
         </button>
 
         {/* Verified Badge */}
-        <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-green-500/90 text-white text-xs font-medium flex items-center gap-1">
+        <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-[#0c1710] text-white text-xs font-medium flex items-center gap-1">
           <Shield className="w-3 h-3" />
           Verified
         </div>

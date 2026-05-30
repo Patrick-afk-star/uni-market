@@ -6,7 +6,7 @@ import { Sidebar } from '@/components/dashboard/Sidebar';
 import { Header } from '@/components/dashboard/Header';
 import { VerificationModal } from '@/components/dashboard/VerificationModal';
 import { useVerification } from '@/hooks/useVerification';
-import type { ViewMode, SellSubView, BuySubView } from '@/types';
+import type { ViewMode } from '@/types';
 import { Toaster } from '@/components/dashboard/ui/sonner';
 import { toast } from 'sonner';
 
@@ -27,7 +27,7 @@ export default function DashboardLayout() {
     isUnverified,
   } = useVerification();
 
-  // Determine current view mode and sub-view from pathname
+  // Determine current view mode from pathname
   const getViewMode = (): ViewMode => {
     if (pathname.includes('/create') || pathname.includes('/listings') || 
         pathname.includes('/analytics') || pathname.includes('/payouts')) {
@@ -36,59 +36,7 @@ export default function DashboardLayout() {
     return 'buy';
   };
 
-  const getSellSubView = (): SellSubView => {
-    if (pathname.includes('/create')) return 'create';
-    if (pathname.includes('/listings')) return 'listings';
-    if (pathname.includes('/analytics')) return 'analytics';
-    if (pathname.includes('/payouts')) return 'payouts';
-    return 'create';
-  };
-
-  const getBuySubView = (): BuySubView => {
-    if (pathname.includes('/browse')) return 'browse';
-    if (pathname.includes('/saved')) return 'saved';
-    if (pathname.includes('/messages')) return 'messages';
-    if (pathname.includes('/orders')) return 'orders';
-    if (pathname.includes('/settings')) return 'settings';
-    return 'browse';
-  };
-
   const viewMode = getViewMode();
-  const sellSubView = getSellSubView();
-  const buySubView = getBuySubView();
-
-  const handleModeChange = (mode: ViewMode) => {
-    if (mode === 'sell' && !isVerified) {
-      setPendingAction('sell');
-      setShowVerification(true);
-      return;
-    }
-    navigate(mode === 'sell' ? '/dashboard/create' : '/dashboard/browse');
-    setIsSidebarOpen(false);
-  };
-
-  const handleSellSubViewChange = (view: SellSubView) => {
-    const routes: Record<SellSubView, string> = {
-      create: '/dashboard/create',
-      listings: '/dashboard/listings',
-      analytics: '/dashboard/analytics',
-      payouts: '/dashboard/payouts',
-    };
-    navigate(routes[view]);
-    setIsSidebarOpen(false);
-  };
-
-  const handleBuySubViewChange = (view: BuySubView) => {
-    const routes: Record<BuySubView, string> = {
-      browse: '/dashboard/browse',
-      saved: '/dashboard/saved',
-      messages: '/dashboard/messages',
-      orders: '/dashboard/orders',
-      settings: '/dashboard/settings',
-    };
-    navigate(routes[view]);
-    setIsSidebarOpen(false);
-  };
 
   const handleCreateClick = () => {
     if (!isVerified) {
@@ -127,12 +75,6 @@ export default function DashboardLayout() {
 
       {/* Sidebar */}
       <Sidebar
-        viewMode={viewMode}
-        setViewMode={handleModeChange}
-        sellSubView={sellSubView}
-        setSellSubView={handleSellSubViewChange}
-        buySubView={buySubView}
-        setBuySubView={handleBuySubViewChange}
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
       />
