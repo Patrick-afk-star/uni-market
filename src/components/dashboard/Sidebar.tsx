@@ -60,7 +60,7 @@ export function Sidebar({
     { id: "saved", label: "Saved", icon: Heart, path: "/dashboard/saved" },
     { id: "messages", label: "Messages", icon: MessageSquare, path: "/dashboard/messages" },
     ...(isStaff ? [{ id: "analytics", label: "Analytics", icon: BarChart3, path: "/dashboard/analytics" }] : []),
-    { id: "settings", label: "Settings", icon: Settings, path: "/dashboard/settings" },
+    { id: "profile", label: "Profile", icon: User, path: "/dashboard/settings" },
   ];
 
   return (

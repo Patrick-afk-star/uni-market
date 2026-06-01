@@ -178,11 +178,10 @@ export function BuyView({
             <button
               key={condition}
               onClick={() => toggleCondition(condition as Condition)}
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
-                selectedConditions.includes(condition as Condition)
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${selectedConditions.includes(condition as Condition)
                   ? "bg-transparent border border-[#bb740a] text-[#bb740a]"
                   : "bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]"
-              }`}
+                }`}
             >
               {condition}
             </button>
@@ -252,7 +251,7 @@ export function BuyView({
       )}
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
         {filteredProducts.map((product) => (
           <ProductCard
             key={product.id}
@@ -300,56 +299,52 @@ function ProductCard({
   onMessageClick,
 }: ProductCardProps) {
   return (
-    <div className="product-card group bg-[#121212] rounded-2xl p-3.5 cursor-pointer transition-shadow duration-300 border border-white/[0.06]">
-      {/* Image */}
-      <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
-        <img
-          src={product.image}
-          alt={product.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        {/* Save Button */}
+    <div className="product-card group relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer border border-white/[0.06]">
+      {/* Background Image */}
+      <img
+        src={product.image}
+        alt={product.title}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+      {/* Top badges/buttons */}
+      <div className="absolute top-3 right-3 flex justify-end items-start">
         <button
           onClick={(e) => {
             e.stopPropagation();
             onToggleSave();
           }}
-          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-            isSaved
+          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-md ${isSaved
               ? "bg-primary text-primary-foreground"
               : "bg-black/50 text-white hover:bg-black/70"
-          }`}
+            }`}
         >
           <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
         </button>
-
-        {/* Verified Badge */}
-        <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-[#0c1710] text-white text-xs font-medium flex items-center gap-1">
-          <Shield className="w-3 h-3" />
-          Verified
-        </div>
       </div>
 
-      {/* Content */}
-      <div className="space-y-2">
-        <h3 className="font-semibold text-[15px] text-foreground line-clamp-2 leading-snug">
+      {/* Content at Bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
+        <h3 className="font-semibold text-sm sm:text-[15px] text-white line-clamp-2 leading-snug">
           {product.title}
         </h3>
 
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+          <span className="text-base sm:text-lg font-bold text-primary">
             RWF {product.price.toLocaleString()}
           </span>
           <Badge
             variant="secondary"
-            className="text-xs bg-secondary text-muted-foreground"
+            className="w-fit text-[10px] bg-white/10 text-white/80 border-0 backdrop-blur-md"
           >
             {product.condition}
           </Badge>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-[#8f8f8f]">
-          <span className="flex items-center gap-1">
+        <div className="flex items-center justify-between text-[10px] sm:text-xs text-white/60">
+          <span className="hidden sm:flex items-center gap-1">
             <MapPin className="w-3 h-3" />
             {product.location}
           </span>
@@ -357,22 +352,15 @@ function ProductCard({
         </div>
 
         {/* Seller & Action */}
-        <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
-          <div className="flex items-center gap-2">
-            <img
-              src={product.seller.avatar}
-              alt={product.seller.name}
-              className="w-6 h-6 rounded-full object-cover"
-            />
-            <span className="text-xs text-[#8f8f8f] truncate max-w-[80px]">
-              {product.seller.name}
-            </span>
-          </div>
+        <div className="flex items-center justify-between pt-2 border-t border-white/[0.08]">
+          <span className="text-xs text-white/70 truncate max-w-[80px]">
+            {product.seller.name}
+          </span>
           <Button
             size="sm"
             variant="ghost"
             onClick={onMessageClick}
-            className="h-7 px-2 text-xs text-primary hover:bg-[#0a0a0a] cursor-pointer transition-colors"
+            className="hidden sm:inline-flex h-7 px-2 text-[10px] sm:text-xs text-primary hover:bg-white/10 cursor-pointer transition-colors"
           >
             <MessageSquare className="w-3 h-3 mr-1" />
             Message
