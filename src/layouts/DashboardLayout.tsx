@@ -9,6 +9,7 @@ import { useVerification } from '@/hooks/useVerification';
 import type { ViewMode } from '@/types';
 import { Toaster } from '@/components/dashboard/ui/sonner';
 import { toast } from 'sonner';
+import { Search, Plus, MessageSquare, Settings } from 'lucide-react';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -91,7 +92,7 @@ export default function DashboardLayout() {
         />
 
         {/* Content Area */}
-        <main className="flex-1 overflow-auto scrollbar-thin">
+        <main className="flex-1 overflow-auto scrollbar-thin pb-[72px] md:pb-0">
           {isUnverified && viewMode === 'sell' ? (
             <div className="flex flex-col items-center justify-center h-full p-8">
               <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
@@ -168,6 +169,34 @@ export default function DashboardLayout() {
           )}
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-t border-white/[0.06] pb-safe shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
+        <div className="flex items-center justify-around p-2">
+          {[
+            { id: 'explore', label: 'Explore', icon: Search, path: '/dashboard/browse' },
+            { id: 'create', label: 'Create', icon: Plus, path: '/dashboard/create' },
+            { id: 'messages', label: 'Messages', icon: MessageSquare, path: '/dashboard/messages' },
+            { id: 'settings', label: 'Settings', icon: Settings, path: '/dashboard/settings' },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname.includes(item.path);
+            
+            return (
+              <button
+                key={item.id}
+                onClick={() => navigate(item.path)}
+                className={`flex flex-col items-center justify-center w-16 h-12 gap-1 rounded-xl transition-all duration-200 ${
+                  isActive ? 'text-[#bb740a]' : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
+                }`}
+              >
+                <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+                <span className="text-[10px] font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* Verification Modal */}
       <VerificationModal
