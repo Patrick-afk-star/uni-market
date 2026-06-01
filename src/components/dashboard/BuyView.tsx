@@ -307,7 +307,7 @@ function ProductCard({
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
 
       {/* Top badges/buttons */}
       <div className="absolute top-3 right-3 flex justify-end items-start">
@@ -327,9 +327,6 @@ function ProductCard({
 
       {/* Content at Bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
-        <h3 className="font-semibold text-sm sm:text-[15px] text-white line-clamp-2 leading-snug">
-          {product.title}
-        </h3>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
           <span className="text-base sm:text-lg font-bold text-primary">
