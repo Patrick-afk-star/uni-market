@@ -17,6 +17,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import type { Product, Condition } from "@/types";
 import { sampleProducts, categories, conditions } from "@/data/products";
 
@@ -44,14 +51,16 @@ export function BuyView({
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
   const [filteredProducts, setFilteredProducts] =
     useState<Product[]>(sampleProducts);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
 
   // Filter products based on search and filters
   useEffect(() => {
     let filtered = sampleProducts;
 
     // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    const activeSearchQuery = searchQuery || mobileSearchQuery;
+    if (activeSearchQuery) {
+      const query = activeSearchQuery.toLowerCase();
       filtered = filtered.filter(
         (p) =>
           p.title.toLowerCase().includes(query) ||
@@ -90,7 +99,7 @@ export function BuyView({
     }
 
     setFilteredProducts(filtered);
-  }, [searchQuery, selectedCategory, selectedConditions, priceRange, sortBy]);
+  }, [searchQuery, mobileSearchQuery, selectedCategory, selectedConditions, priceRange, sortBy]);
 
   const toggleCondition = (condition: Condition) => {
     setSelectedConditions((prev) =>
@@ -123,8 +132,8 @@ export function BuyView({
 
   return (
     <div className="p-7 space-y-6">
-      {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#0f0f0f] border border-white/[0.06]">
+      {/* Filter Bar (Desktop) */}
+      <div className="hidden md:flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#0f0f0f] border border-white/[0.06]">
         {/* Category Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -224,6 +233,110 @@ export function BuyView({
         <span className="text-sm text-muted-foreground">
           {filteredProducts.length} results
         </span>
+      </div>
+
+      {/* Filter Bar (Mobile) */}
+      <div className="flex md:hidden items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search items..." 
+            value={mobileSearchQuery}
+            onChange={(e) => setMobileSearchQuery(e.target.value)}
+            className="pl-9 h-11 rounded-xl bg-[#0f0f0f] border-white/[0.06] focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20"
+          />
+        </div>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl bg-[#0f0f0f] border-white/[0.06]">
+              <Filter className="w-5 h-5 text-foreground" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[80vh] rounded-t-[2rem] bg-[#121212] border-t-white/[0.06] p-6 overflow-y-auto">
+            <SheetHeader className="mb-6">
+              <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-6 pb-8">
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-foreground">Category</h4>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        selectedCategory === category
+                          ? "bg-transparent border border-[#bb740a] text-[#bb740a]"
+                          : "bg-[#0f0f0f] text-muted-foreground border border-white/[0.06]"
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-foreground">Price Range</h4>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    value={priceRange.min}
+                    onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                    className="flex-1 h-11 rounded-xl bg-[#0f0f0f] border border-white/[0.06] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="text-muted-foreground">-</span>
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    value={priceRange.max}
+                    onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                    className="flex-1 h-11 rounded-xl bg-[#0f0f0f] border border-white/[0.06] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-foreground">Condition</h4>
+                <div className="flex flex-wrap gap-2">
+                  {conditions.map((condition) => (
+                    <button
+                      key={condition}
+                      onClick={() => toggleCondition(condition as Condition)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        selectedConditions.includes(condition as Condition)
+                          ? "bg-transparent border border-[#bb740a] text-[#bb740a]"
+                          : "bg-[#0f0f0f] text-muted-foreground border border-white/[0.06]"
+                      }`}
+                    >
+                      {condition}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-foreground">Sort By</h4>
+                <div className="flex flex-wrap gap-2">
+                  {["Relevance", "Newest", "Price: Low to High", "Price: High to Low"].map((sort) => (
+                    <button
+                      key={sort}
+                      onClick={() => setSortBy(sort)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        sortBy === sort
+                          ? "bg-transparent border border-[#bb740a] text-[#bb740a]"
+                          : "bg-[#0f0f0f] text-muted-foreground border border-white/[0.06]"
+                      }`}
+                    >
+                      {sort}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       {/* Verification Banner for Unverified Users */}
