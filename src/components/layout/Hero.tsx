@@ -1,39 +1,8 @@
 "use client";
 import { ShoppingCart, Eye, MessageCircle } from "lucide-react";
+
 export default function Hero() {
-  // <section className="">
-  //   <div className="container grid-cols-2">
-  //     <div className="bg-red-500">
-  //       <h1>First </h1>
-  //     </div>
-  //     <div className="bg-yellow-500">
-  //       <h1>Second</h1>
-  //     </div>
-  //   </div>
-  // </section>
-
-  // Static data
-  const categories = [
-    { title: "Electronics", count: 320 },
-    { title: "Furniture", count: 180 },
-    { title: "Textbooks", count: 240 },
-    { title: "Clothing", count: 190 },
-    { title: "Stationery", count: 95 },
-    { title: "Bicycles", count: 42 },
-    { title: "Kitchen", count: 78 },
-    { title: "Sports", count: 64 },
-  ];
-
-  const universities = [
-    "University of Rwanda - Huye",
-    "University of Rwanda - Gikondo",
-    "University of Rwanda - Nyarugenge",
-    "CMU Africa",
-    "African Leadership University",
-    "INES Ruhengeri",
-    "ULK",
-  ];
-
+  // Original static data restored
   const products = [
     {
       id: 1,
@@ -81,6 +50,25 @@ export default function Hero() {
     },
   ];
 
+  const categories = [
+    { title: "Electronics", count: 320 },
+    { title: "Furniture", count: 180 },
+    { title: "Textbooks", count: 240 },
+    { title: "Clothing", count: 190 },
+    { title: "Stationery", count: 95 },
+    { title: "Bicycles", count: 42 },
+    { title: "Kitchen", count: 78 },
+    { title: "Sports", count: 64 },
+  ];
+  const universities = [
+    "University of Rwanda - Huye",
+    "University of Rwanda - Gikondo",
+    "University of Rwanda - Nyarugenge",
+    "CMU Africa",
+    "African Leadership University",
+    "INES Ruhengeri",
+    "ULK",
+  ];
   const deals = [
     { title: "Laptop + Backpack Bundle", detail: "Save 15% + free mouse" },
     { title: "Textbook Exchange Pack", detail: "3 books for 25,000 RWF" },
@@ -108,26 +96,6 @@ export default function Hero() {
     },
   ];
 
-  // export default function HomePage({
-  //   currentView,
-  //   setCurrentView,
-  //   selectedUniversity,
-  //   setSelectedUniversity,
-  //   isVerified,
-  //   requireStudent,
-  //   openDetails,
-  //   openCheckout,
-  //   openWhatsApp,
-  //   openSignIn,
-  //   openSidebar,
-  //   openListing,
-  //   openAdminLogin,
-  //   isAdmin,
-  //   authUser,
-  //   signOut,
-  //   auth,
-  //   filteredProducts = products, // example, you can pass filtered list
-  // }) {
   return (
     <main className="home-only">
       {/* Hero Section */}
