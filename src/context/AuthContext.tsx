@@ -85,7 +85,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         const data: RefreshResponse = await res.json();
-        setAccessToken(data.access_token);
+        setAccessToken(data.access);
 
         // Fetch user profile standard endpoint to fully restore the session details
         try {
@@ -93,7 +93,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${data.access_token}`,
+              Authorization: `Bearer ${data.access}`,
             },
           });
           if (resUser.ok) {

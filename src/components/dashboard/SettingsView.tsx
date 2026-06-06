@@ -37,10 +37,11 @@ export function SettingsView() {
 
   // Profile fields state
   const [fullName, setFullName] = useState(user?.first_name || "Alex Johnson");
+  const [lastName, setLastName] = useState(user?.last_name || "");
   const [bio, setBio] = useState(
-    "Computer Science student | Book lover | Tech enthusiast",
+    "",
   );
-  const [location, setLocation] = useState("Kigali, Rwanda");
+  const [phone_number, setPhoneNumber] = useState(user?.phone_number || "");
   const [avatar, setAvatar] = useState("/avatar_student.jpg");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
@@ -210,8 +211,8 @@ export function SettingsView() {
           <button
             onClick={() => setActiveTab("profile")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "profile"
-                ? "bg-[#1a1a1a] text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
               }`}
           >
             <User className="w-4 h-4 shrink-0" />
@@ -220,8 +221,8 @@ export function SettingsView() {
           <button
             onClick={() => setActiveTab("verification")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "verification"
-                ? "bg-[#1a1a1a] text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
               }`}
           >
             <GraduationCap className="w-4 h-4 shrink-0" />
@@ -230,8 +231,8 @@ export function SettingsView() {
           <button
             onClick={() => setActiveTab("account")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "account"
-                ? "bg-[#1a1a1a] text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
               }`}
           >
             <Lock className="w-4 h-4 shrink-0" />
@@ -240,8 +241,8 @@ export function SettingsView() {
           <button
             onClick={() => setActiveTab("privacy")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "privacy"
-                ? "bg-[#1a1a1a] text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
               }`}
           >
             <Shield className="w-4 h-4 shrink-0" />
@@ -250,8 +251,8 @@ export function SettingsView() {
           <button
             onClick={() => setActiveTab("security")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "security"
-                ? "bg-[#1a1a1a] text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
               }`}
           >
             <Lock className="w-4 h-4 shrink-0" />
@@ -318,23 +319,32 @@ export function SettingsView() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-muted-foreground">
-                      Full Name
+                      First Name
                     </label>
                     <Input
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="bg-secondary/40 border-white/[0.08] focus:border-[#bb740a]"
+                      className="bg-secondary/40 border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-all"
+                      required
+                    />
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Last Name
+                    </label>
+                    <Input
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="bg-secondary/40 border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-all"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-muted-foreground">
-                      Location
+                      Phone Number
                     </label>
                     <Input
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="bg-secondary/40 border-white/[0.08] focus:border-[#bb740a]"
+                      value={phone_number}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="bg-secondary/40 border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-all"
                     />
                   </div>
                 </div>
@@ -421,6 +431,8 @@ export function SettingsView() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-secondary/40 border-white/[0.08] focus:border-[#bb740a]"
+                    readOnly={true}
+                    disabled={true}
                     required
                   />
                 </div>
