@@ -28,6 +28,7 @@ import type { Product, Condition, Category } from "@/types";
 import { sampleProducts, categories, conditions } from "@/data/products";
 import { getApiUrl } from "@/lib/api";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 interface BuyViewProps {
   searchQuery: string;
@@ -42,6 +43,7 @@ export function BuyView({
   onMessageClick,
   onVerificationRequired,
 }: BuyViewProps) {
+  const { accessToken } = useAuth();
   const [selectedCategory, setSelectedCategory] =
     useState<string>("All Categories");
   const [selectedConditions, setSelectedConditions] = useState<Condition[]>([]);
@@ -94,7 +96,11 @@ export function BuyView({
     const fetchListings = async () => {
       try {
         setLoading(true);
-        const res = await fetch(getApiUrl("/api/v1/listing/"));
+        const res = await fetch(getApiUrl("/api/v1/listing/"), {
+          headers: {
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+        });
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
@@ -157,7 +163,7 @@ export function BuyView({
     return () => {
       active = false;
     };
-  }, []);
+  }, [accessToken]);
 
   // Filter products based on search and filters
   useEffect(() => {
