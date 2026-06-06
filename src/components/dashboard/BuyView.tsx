@@ -43,7 +43,7 @@ export function BuyView({
   onMessageClick,
   onVerificationRequired,
 }: BuyViewProps) {
-  const { accessToken } = useAuth();
+  const { accessToken, isInitializing } = useAuth();
   const [selectedCategory, setSelectedCategory] =
     useState<string>("All Categories");
   const [selectedConditions, setSelectedConditions] = useState<Condition[]>([]);
@@ -92,13 +92,17 @@ export function BuyView({
 
   // Fetch listings on mount
   useEffect(() => {
+    if (isInitializing || !accessToken) {
+      return;
+    }
+
     let active = true;
     const fetchListings = async () => {
       try {
         setLoading(true);
         const res = await fetch(getApiUrl("/api/v1/listing/"), {
           headers: {
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+            Authorization: `Bearer ${accessToken}`,
           },
         });
         if (!res.ok) {
@@ -163,7 +167,7 @@ export function BuyView({
     return () => {
       active = false;
     };
-  }, [accessToken]);
+  }, [accessToken, isInitializing]);
 
   // Filter products based on search and filters
   useEffect(() => {
