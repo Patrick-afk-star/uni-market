@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
-import { Upload, MapPin, X } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,25 +8,48 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { currentUser } from '@/data/user';
-import type { Category, Condition, DealType } from '@/types';
-import { categories, conditions, dealTypes, campuses } from '@/data/products';
+import { getApiUrl } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
+
+const CONDITIONS = [
+  { value: 'new', label: 'New' },
+  { value: 'like_new', label: 'Like New' },
+  { value: 'good', label: 'Good' },
+  { value: 'fair', label: 'Fair' },
+];
+
+interface ApiCategory {
+  id: string;
+  name: string;
+}
 
 interface SellViewProps {
   onPublish?: () => void;
 }
 
 export function SellView({ onPublish }: SellViewProps) {
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [selectedCondition, setSelectedCondition] = useState<Condition | null>(null);
-  const [images, setImages] = useState<string[]>([]);
+  const { accessToken } = useAuth();
+  const [apiCategories, setApiCategories] = useState<ApiCategory[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const titleRef = useRef<HTMLHeadingElement>(null);
   const composerRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch(getApiUrl('/api/v1/categories'))
+      .then((res) => res.json())
+      .then((data) => setApiCategories(data))
+      .catch((err) => console.error('Failed to fetch categories:', err));
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -63,44 +86,79 @@ export function SellView({ onPublish }: SellViewProps) {
     return () => ctx.revert();
   }, []);
 
-  const handleCategorySelect = (category: Category) => {
-    setSelectedCategory(category === selectedCategory ? null : category);
+  const handleCategorySelect = (categoryId: string) => {
+    setSelectedCategory(categoryId === selectedCategory ? null : categoryId);
   };
 
-  const handleConditionSelect = (condition: Condition) => {
+  const handleConditionSelect = (condition: string) => {
     setSelectedCondition(condition === selectedCondition ? null : condition);
   };
 
-  const handleImageUpload = () => {
-    // Simulate image upload
-    if (images.length < 5) {
-      const placeholderImages = [
-        '/product_textbook.jpg',
-        '/product_headphones.jpg',
-        '/product_lamp.jpg',
-      ];
-      const randomImage = placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
-      setImages([...images, randomImage]);
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0 && imageFiles.length + files.length <= 5) {
+      const newFiles = [...imageFiles, ...files];
+      setImageFiles(newFiles);
+      
+      const newPreviews = files.map(file => URL.createObjectURL(file));
+      setImagePreviews([...imagePreviews, ...newPreviews]);
     }
   };
 
   const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
+    URL.revokeObjectURL(imagePreviews[index]);
+    setImageFiles(imageFiles.filter((_, i) => i !== index));
+    setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
-  const handlePublish = async () => {
+  const handlePublish = async (status: 'published' | 'draft') => {
+    if (!isFormValid) return;
+    
     setIsPublishing(true);
-    // Simulate publishing
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsPublishing(false);
-    onPublish?.();
-    // Reset form
-    setTitle('');
-    setPrice('');
-    setDescription('');
-    setSelectedCategory(null);
-    setSelectedCondition(null);
-    setImages([]);
+    
+    try {
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('price', price);
+      formData.append('description', description);
+      formData.append('condition', selectedCondition as string);
+      formData.append('status', status);
+      formData.append('category', selectedCategory as string);
+      
+      imageFiles.forEach((file) => {
+        formData.append('images', file);
+      });
+
+      const res = await fetch(getApiUrl('/api/v1/listing/'), {
+        method: 'POST',
+        headers: {
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create listing');
+      }
+
+      onPublish?.();
+      
+      // Reset form
+      setTitle('');
+      setPrice('');
+      setDescription('');
+      setSelectedCategory(null);
+      setSelectedCondition(null);
+      setImageFiles([]);
+      imagePreviews.forEach(URL.revokeObjectURL);
+      setImagePreviews([]);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch (err) {
+      console.error(err);
+      // Here you could show an error toast
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   const isFormValid =
@@ -121,17 +179,17 @@ export function SellView({ onPublish }: SellViewProps) {
         <div className="composer-panel space-y-3">
           <Label className="text-sm font-medium text-foreground">Category</Label>
           <div className="flex flex-wrap gap-2">
-            {categories.slice(1).map((category) => (
+            {apiCategories.map((category) => (
               <button
-                key={category}
-                onClick={() => handleCategorySelect(category as Category)}
+                key={category.id}
+                onClick={() => handleCategorySelect(category.id)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  selectedCategory === category
+                  selectedCategory === category.id
                     ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
                     : 'bg-[#0f0f0f] text-primary-foreground hover:text-foreground border border-white/[0.06]'
                 }`}
               >
-                {category}
+                {category.name}
               </button>
             ))}
           </div>
@@ -140,8 +198,16 @@ export function SellView({ onPublish }: SellViewProps) {
         {/* Photos */}
         <div className="composer-panel space-y-3">
           <Label className="text-sm font-medium text-foreground">Photos</Label>
+          <input 
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            multiple
+            accept="image/png, image/jpeg, image/jpg"
+            onChange={handleImageUpload}
+          />
           <div
-            onClick={handleImageUpload}
+            onClick={() => fileInputRef.current?.click()}
             className="border-2 border-dashed border-white/[0.14] rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-secondary/30 transition-all duration-200"
           >
             <div className="bg-[#1a1a1a] w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
@@ -154,9 +220,9 @@ export function SellView({ onPublish }: SellViewProps) {
               </p>
             </div>
           </div>
-          {images.length > 0 && (
+          {imagePreviews.length > 0 && (
             <div className="flex gap-3 mt-4">
-              {images.map((img, index) => (
+              {imagePreviews.map((img, index) => (
                 <div key={index} className="relative group">
                   <img
                     src={img}
@@ -201,17 +267,17 @@ export function SellView({ onPublish }: SellViewProps) {
           <div className="space-y-3">
             <Label className="text-sm font-medium text-foreground">Condition</Label>
             <div className="flex flex-wrap gap-2">
-              {conditions.map((condition) => (
+              {CONDITIONS.map((condition) => (
                 <button
-                  key={condition}
-                  onClick={() => handleConditionSelect(condition as Condition)}
+                  key={condition.value}
+                  onClick={() => handleConditionSelect(condition.value)}
                   className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    selectedCondition === condition
+                    selectedCondition === condition.value
                       ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
                       : 'bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]'
                   }`}
                 >
-                  {condition}
+                  {condition.label}
                 </button>
               ))}
             </div>
@@ -234,17 +300,19 @@ export function SellView({ onPublish }: SellViewProps) {
         {/* Action Buttons */}
         <div className="composer-panel flex gap-3 pt-4">
           <Button
+            onClick={() => handlePublish('draft')}
+            disabled={!isFormValid || isPublishing}
             variant="outline"
-            className="cursor-pointer flex-1 h-12 rounded-xl border-white/10 hover:bg-[#1a1a1a] transition-all duration-200"
+            className="cursor-pointer flex-1 h-12 rounded-xl border-white/10 hover:bg-[#1a1a1a] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save draft
+            Save Draft
           </Button>
           <Button
-            onClick={handlePublish}
+            onClick={() => handlePublish('published')}
             disabled={!isFormValid || isPublishing}
             className="cursor-pointer flex-1 h-12 rounded-xl bg-[#bb740a] hover:bg-[#bb740a]/90 text-white font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isPublishing ? 'Publishing...' : 'Publish listing'}
+            {isPublishing ? 'Publishing...' : 'Publish'}
           </Button>
         </div>
       </div>
@@ -261,9 +329,9 @@ export function SellView({ onPublish }: SellViewProps) {
 
           {/* Preview Image */}
           <div className="aspect-square rounded-xl bg-[#1a1a1a] overflow-hidden mb-4">
-            {images.length > 0 ? (
+            {imagePreviews.length > 0 ? (
               <img
-                src={images[0]}
+                src={imagePreviews[0]}
                 alt="Preview"
                 className="w-full h-full object-cover"
               />
@@ -289,7 +357,7 @@ export function SellView({ onPublish }: SellViewProps) {
                   variant="secondary"
                   className="bg-secondary text-muted-foreground"
                 >
-                  {selectedCondition}
+                  {CONDITIONS.find(c => c.value === selectedCondition)?.label || selectedCondition}
                 </Badge>
               )}
             </div>
