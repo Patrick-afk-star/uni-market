@@ -18,12 +18,10 @@ interface SellViewProps {
 export function SellView({ onPublish }: SellViewProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [selectedCondition, setSelectedCondition] = useState<Condition | null>(null);
-  const [selectedDealTypes, setSelectedDealTypes] = useState<DealType[]>([]);
   const [images, setImages] = useState<string[]>([]);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
 
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -73,14 +71,6 @@ export function SellView({ onPublish }: SellViewProps) {
     setSelectedCondition(condition === selectedCondition ? null : condition);
   };
 
-  const handleDealTypeToggle = (dealType: DealType) => {
-    setSelectedDealTypes((prev) =>
-      prev.includes(dealType)
-        ? prev.filter((t) => t !== dealType)
-        : [...prev, dealType]
-    );
-  };
-
   const handleImageUpload = () => {
     // Simulate image upload
     if (images.length < 5) {
@@ -110,12 +100,11 @@ export function SellView({ onPublish }: SellViewProps) {
     setDescription('');
     setSelectedCategory(null);
     setSelectedCondition(null);
-    setSelectedDealTypes([]);
     setImages([]);
   };
 
   const isFormValid =
-    title && price && selectedCategory && selectedCondition && location;
+    title && price && selectedCategory && selectedCondition;
 
   return (
     <div className="flex h-full">
@@ -241,42 +230,6 @@ export function SellView({ onPublish }: SellViewProps) {
           />
         </div>
 
-        {/* Location & Deal Type */}
-        <div className="composer-panel grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <Label className="text-sm font-medium text-foreground">Location</Label>
-            <select
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl bg-[#0f0f0f] border border-white/[0.06] text-foreground focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 outline-none"
-            >
-              <option value="">Select campus</option>
-              {campuses.map((campus) => (
-                <option key={campus} value={campus}>
-                  {campus}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-3">
-            <Label className="text-sm font-medium text-foreground">Deal Type</Label>
-            <div className="flex flex-wrap gap-2">
-              {dealTypes.map((dealType) => (
-                <button
-                  key={dealType}
-                  onClick={() => handleDealTypeToggle(dealType as DealType)}
-                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    selectedDealTypes.includes(dealType as DealType)
-                      ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
-                      : 'bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]'
-                  }`}
-                >
-                  {dealType}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* Action Buttons */}
         <div className="composer-panel flex gap-3 pt-4">
@@ -355,20 +308,7 @@ export function SellView({ onPublish }: SellViewProps) {
               </div>
             </div>
 
-            {/* Location & Deal Type */}
-            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-              {location && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  {location}
-                </span>
-              )}
-              {selectedDealTypes.map((type) => (
-                <span key={type} className="px-2 py-0.5 rounded-full bg-secondary">
-                  {type}
-                </span>
-              ))}
-            </div>
+
 
             {/* CTA Button */}
             <Button
