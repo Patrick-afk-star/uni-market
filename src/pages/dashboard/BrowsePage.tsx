@@ -1,11 +1,13 @@
 "use client";
 
+import { useOutletContext } from 'react-router-dom';
 import { BuyView } from '@/components/dashboard/BuyView';
 import { useVerification } from '@/hooks/useVerification';
 import { toast } from 'sonner';
 
 export default function BrowsePage() {
   const { isVerified } = useVerification();
+  const { searchQuery } = useOutletContext<{ searchQuery: string }>();
 
   const handleMessageClick = () => {
     toast.info('Redirecting to messages...');
@@ -17,7 +19,7 @@ export default function BrowsePage() {
 
   return (
     <BuyView
-      searchQuery=""
+      searchQuery={searchQuery}
       isVerified={isVerified}
       onMessageClick={handleMessageClick}
       onVerificationRequired={handleVerificationRequired}

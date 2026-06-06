@@ -24,8 +24,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import type { Product, Condition } from "@/types";
+import type { Product, Condition, Category } from "@/types";
 import { sampleProducts, categories, conditions } from "@/data/products";
+import { getApiUrl } from "@/lib/api";
+import { toast } from "sonner";
 
 interface BuyViewProps {
   searchQuery: string;
@@ -49,13 +51,117 @@ export function BuyView({
   });
   const [sortBy, setSortBy] = useState<string>("Relevance");
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
-  const [filteredProducts, setFilteredProducts] =
-    useState<Product[]>(sampleProducts);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [mobileSearchQuery, setMobileSearchQuery] = useState("");
+
+  const resolveImageUrl = (url: string): string => {
+    if (!url) return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    const apiBase = getApiUrl("/");
+    const cleanBase = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
+    const cleanUrl = url.startsWith("/") ? url : `/${url}`;
+    return `${cleanBase}${cleanUrl}`;
+  };
+
+  const mapApiCondition = (cond: string): Condition => {
+    if (!cond) return 'Good';
+    const normalized = cond.toLowerCase().replace(/_/g, ' ');
+    if (normalized === 'new') return 'New';
+    if (normalized === 'like new') return 'Like New';
+    if (normalized === 'good') return 'Good';
+    if (normalized === 'fair') return 'Fair';
+    return 'Good';
+  };
+
+  const mapApiCategory = (cat: string): Category => {
+    if (!cat) return 'Other';
+    const normalized = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
+    const validCategories: Category[] = ['Textbooks', 'Electronics', 'Furniture', 'Clothing', 'Tickets', 'Other'];
+    if (validCategories.includes(normalized as Category)) {
+      return normalized as Category;
+    }
+    return 'Other';
+  };
+
+  // Fetch listings on mount
+  useEffect(() => {
+    let active = true;
+    const fetchListings = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(getApiUrl("/api/v1/listing/"));
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
+        interface ApiListingImage {
+          image: string;
+        }
+        
+        interface ApiListingItem {
+          title: string;
+          price: string;
+          category: string;
+          condition: string;
+          status: string;
+          images: ApiListingImage[];
+        }
+
+        const data: ApiListingItem[] = await res.json();
+        
+        if (!active) return;
+
+        const mapped: Product[] = data.map((item, index) => {
+          const image = item.images && Array.isArray(item.images) && item.images.length > 0
+            ? resolveImageUrl(item.images[0].image)
+            : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+
+          return {
+            id: `api-${index}-${item.title}`,
+            title: item.title,
+            price: parseFloat(item.price) || 0,
+            category: mapApiCategory(item.category),
+            condition: mapApiCondition(item.condition),
+            image,
+            location: "Kigali Campus",
+            postedAt: "Just now",
+            seller: {
+              name: "Verified Student",
+              avatar: "/avatar_student.jpg"
+            },
+            description: item.title,
+            dealType: ["Meet on campus"]
+          };
+        });
+
+        setAllProducts(mapped);
+        setError(null);
+      } catch (err) {
+        console.error("Failed to fetch listings:", err);
+        setError("Failed to load live listings. Showing offline demo data.");
+        setAllProducts(sampleProducts);
+        toast.error("Failed to load live listings. Displaying offline demo data.");
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchListings();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Filter products based on search and filters
   useEffect(() => {
-    let filtered = sampleProducts;
+    let filtered = allProducts;
 
     // Search filter
     const activeSearchQuery = searchQuery || mobileSearchQuery;
@@ -99,7 +205,7 @@ export function BuyView({
     }
 
     setFilteredProducts(filtered);
-  }, [searchQuery, mobileSearchQuery, selectedCategory, selectedConditions, priceRange, sortBy]);
+  }, [searchQuery, mobileSearchQuery, selectedCategory, selectedConditions, priceRange, sortBy, allProducts]);
 
   const toggleCondition = (condition: Condition) => {
     setSelectedConditions((prev) =>
@@ -363,22 +469,39 @@ export function BuyView({
         </div>
       )}
 
-      {/* Product Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-        {filteredProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            isSaved={savedItems.has(product.id)}
-            onToggleSave={() => toggleSave(product.id)}
-            isVerified={isVerified}
-            onMessageClick={handleMessageClick}
-            onVerificationRequired={onVerificationRequired}
-          />
-        ))}
-      </div>
-
-      {filteredProducts.length === 0 && (
+      {/* Product Grid / Loading / Error Display */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-10 h-10 border-4 border-[#bb740a] border-t-transparent rounded-full animate-spin mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-1">Loading listings</h3>
+          <p className="text-sm text-muted-foreground">Connecting to marketplace...</p>
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center w-full">
+          <div className="w-16 h-16 rounded-2xl bg-[#bb740a]/10 flex items-center justify-center mb-4 text-[#bb740a]">
+            <Shield className="w-8 h-8" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-1">
+            Offline Demo Mode
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-md mb-8">
+            {error}
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4 w-full text-left">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                isSaved={savedItems.has(product.id)}
+                onToggleSave={() => toggleSave(product.id)}
+                isVerified={isVerified}
+                onMessageClick={handleMessageClick}
+                onVerificationRequired={onVerificationRequired}
+              />
+            ))}
+          </div>
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-4">
             <Search className="w-8 h-8 text-muted-foreground" />
@@ -390,6 +513,20 @@ export function BuyView({
             Try adjusting your filters or search query to find what you&apos;re
             looking for.
           </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              isSaved={savedItems.has(product.id)}
+              onToggleSave={() => toggleSave(product.id)}
+              isVerified={isVerified}
+              onMessageClick={handleMessageClick}
+              onVerificationRequired={onVerificationRequired}
+            />
+          ))}
         </div>
       )}
     </div>
