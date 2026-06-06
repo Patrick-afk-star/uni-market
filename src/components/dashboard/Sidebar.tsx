@@ -11,7 +11,6 @@ import {
   User,
   X,
   LogOut,
-  Settings,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { currentUser } from "@/data/user";
@@ -60,22 +59,21 @@ export function Sidebar({
     { id: "saved", label: "Saved", icon: Heart, path: "/dashboard/saved" },
     { id: "messages", label: "Messages", icon: MessageSquare, path: "/dashboard/messages" },
     ...(isStaff ? [{ id: "analytics", label: "Analytics", icon: BarChart3, path: "/dashboard/analytics" }] : []),
-    { id: "settings", label: "Settings", icon: Settings, path: "/dashboard/settings" },
+    { id: "profile", label: "Profile", icon: User, path: "/dashboard/settings" },
   ];
 
   return (
     <aside
-      className={`fixed left-0 top-0 bottom-0 w-[260px] bg-background border-r border-white/[0.06] flex flex-col z-50 transition-transform duration-300 ease-in-out ${
-        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-      }`}
+      className={`fixed left-0 top-0 bottom-0 w-[260px] bg-background border-r border-white/[0.06] flex flex-col z-50 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
     >
       {/* Logo */}
       <div className="px-5 py-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
-          <img 
-            src="/favicon.png" 
-            alt="UniMarket logo" 
-            className="w-12 h-12 rounded-2xl object-cover shadow-[0_10px_24px_rgba(15,107,79,0.25)]" 
+          <img
+            src="/favicon.png"
+            alt="UniMarket logo"
+            className="w-12 h-12 rounded-2xl object-cover shadow-[0_10px_24px_rgba(15,107,79,0.25)]"
           />
           <div>
             <h1 className="font-semibold text-[15px] text-foreground leading-tight">
@@ -107,16 +105,14 @@ export function Sidebar({
                 navigate(item.path);
                 if (setIsOpen) setIsOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group cursor-pointer ${
-                isActive
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group cursor-pointer ${isActive
                   ? "bg-[#1a1a1a] text-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
-              }`}
+                }`}
             >
               <Icon
-                className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${
-                  isActive ? "text-[#bb740a]" : ""
-                }`}
+                className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${isActive ? "text-[#bb740a]" : ""
+                  }`}
               />
               <span className="flex-1 text-left">{item.label}</span>
               {isActive && (

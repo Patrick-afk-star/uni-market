@@ -9,7 +9,7 @@ import { useVerification } from '@/hooks/useVerification';
 import type { ViewMode } from '@/types';
 import { Toaster } from '@/components/dashboard/ui/sonner';
 import { toast } from 'sonner';
-import { Search, Plus, MessageSquare, Settings } from 'lucide-react';
+import { Search, Plus, MessageSquare, User } from 'lucide-react';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -171,13 +171,13 @@ export default function DashboardLayout() {
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-t border-white/[0.06] pb-safe shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-t border-transparent pb-safe shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
         <div className="flex items-center justify-around p-2">
           {[
             { id: 'explore', label: 'Explore', icon: Search, path: '/dashboard/browse' },
             { id: 'create', label: 'Create', icon: Plus, path: '/dashboard/create' },
             { id: 'messages', label: 'Messages', icon: MessageSquare, path: '/dashboard/messages' },
-            { id: 'settings', label: 'Settings', icon: Settings, path: '/dashboard/settings' },
+            { id: 'profile', label: 'Profile', icon: User, path: '/dashboard/settings' },
           ].map((item) => {
             const Icon = item.icon;
             const isActive = pathname.includes(item.path);

@@ -5,6 +5,7 @@ export interface AuthUser {
   email: string;
   first_name: string;
   last_name?: string;
+  phone_number?: string;
   has_completed_profile?: boolean;
   is_staff?: boolean;
 }
@@ -20,7 +21,7 @@ export interface LoginResponse {
 
 /** Shape returned by POST /backend/api/v1/auth/token/refresh */
 export interface RefreshResponse {
-  access_token: string;
+  access: string;
 }
 
 // ─── Marketplace ─────────────────────────────────────────────────────────────

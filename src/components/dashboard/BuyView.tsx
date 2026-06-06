@@ -17,6 +17,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import type { Product, Condition } from "@/types";
 import { sampleProducts, categories, conditions } from "@/data/products";
 
@@ -44,14 +51,16 @@ export function BuyView({
   const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
   const [filteredProducts, setFilteredProducts] =
     useState<Product[]>(sampleProducts);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
 
   // Filter products based on search and filters
   useEffect(() => {
     let filtered = sampleProducts;
 
     // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    const activeSearchQuery = searchQuery || mobileSearchQuery;
+    if (activeSearchQuery) {
+      const query = activeSearchQuery.toLowerCase();
       filtered = filtered.filter(
         (p) =>
           p.title.toLowerCase().includes(query) ||
@@ -90,7 +99,7 @@ export function BuyView({
     }
 
     setFilteredProducts(filtered);
-  }, [searchQuery, selectedCategory, selectedConditions, priceRange, sortBy]);
+  }, [searchQuery, mobileSearchQuery, selectedCategory, selectedConditions, priceRange, sortBy]);
 
   const toggleCondition = (condition: Condition) => {
     setSelectedConditions((prev) =>
@@ -123,8 +132,8 @@ export function BuyView({
 
   return (
     <div className="p-7 space-y-6">
-      {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#0f0f0f] border border-white/[0.06]">
+      {/* Filter Bar (Desktop) */}
+      <div className="hidden md:flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#0f0f0f] border border-white/[0.06]">
         {/* Category Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -178,11 +187,10 @@ export function BuyView({
             <button
               key={condition}
               onClick={() => toggleCondition(condition as Condition)}
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
-                selectedConditions.includes(condition as Condition)
+              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${selectedConditions.includes(condition as Condition)
                   ? "bg-transparent border border-[#bb740a] text-[#bb740a]"
                   : "bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]"
-              }`}
+                }`}
             >
               {condition}
             </button>
@@ -227,6 +235,110 @@ export function BuyView({
         </span>
       </div>
 
+      {/* Filter Bar (Mobile) */}
+      <div className="flex md:hidden items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search items..." 
+            value={mobileSearchQuery}
+            onChange={(e) => setMobileSearchQuery(e.target.value)}
+            className="pl-9 h-11 rounded-xl bg-[#0f0f0f] border-white/[0.06] focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20"
+          />
+        </div>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl bg-[#0f0f0f] border-white/[0.06]">
+              <Filter className="w-5 h-5 text-foreground" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[80vh] rounded-t-[2rem] bg-[#121212] border-t-white/[0.06] p-6 overflow-y-auto">
+            <SheetHeader className="mb-6">
+              <SheetTitle className="text-xl font-bold">Filters</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-6 pb-8">
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-foreground">Category</h4>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        selectedCategory === category
+                          ? "bg-transparent border border-[#bb740a] text-[#bb740a]"
+                          : "bg-[#0f0f0f] text-muted-foreground border border-white/[0.06]"
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-foreground">Price Range</h4>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    value={priceRange.min}
+                    onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                    className="flex-1 h-11 rounded-xl bg-[#0f0f0f] border border-white/[0.06] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="text-muted-foreground">-</span>
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    value={priceRange.max}
+                    onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                    className="flex-1 h-11 rounded-xl bg-[#0f0f0f] border border-white/[0.06] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-foreground">Condition</h4>
+                <div className="flex flex-wrap gap-2">
+                  {conditions.map((condition) => (
+                    <button
+                      key={condition}
+                      onClick={() => toggleCondition(condition as Condition)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        selectedConditions.includes(condition as Condition)
+                          ? "bg-transparent border border-[#bb740a] text-[#bb740a]"
+                          : "bg-[#0f0f0f] text-muted-foreground border border-white/[0.06]"
+                      }`}
+                    >
+                      {condition}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-foreground">Sort By</h4>
+                <div className="flex flex-wrap gap-2">
+                  {["Relevance", "Newest", "Price: Low to High", "Price: High to Low"].map((sort) => (
+                    <button
+                      key={sort}
+                      onClick={() => setSortBy(sort)}
+                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                        sortBy === sort
+                          ? "bg-transparent border border-[#bb740a] text-[#bb740a]"
+                          : "bg-[#0f0f0f] text-muted-foreground border border-white/[0.06]"
+                      }`}
+                    >
+                      {sort}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
       {/* Verification Banner for Unverified Users */}
       {!isVerified && (
         <div className="bg-[#0c1816] flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-[#213732]">
@@ -252,7 +364,7 @@ export function BuyView({
       )}
 
       {/* Product Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
         {filteredProducts.map((product) => (
           <ProductCard
             key={product.id}
@@ -300,56 +412,49 @@ function ProductCard({
   onMessageClick,
 }: ProductCardProps) {
   return (
-    <div className="product-card group bg-[#121212] rounded-2xl p-3.5 cursor-pointer transition-shadow duration-300 border border-white/[0.06]">
-      {/* Image */}
-      <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
-        <img
-          src={product.image}
-          alt={product.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        {/* Save Button */}
+    <div className="product-card group relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer border border-white/[0.06]">
+      {/* Background Image */}
+      <img
+        src={product.image}
+        alt={product.title}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+
+      {/* Top badges/buttons */}
+      <div className="absolute top-3 right-3 flex justify-end items-start">
         <button
           onClick={(e) => {
             e.stopPropagation();
             onToggleSave();
           }}
-          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
-            isSaved
+          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 backdrop-blur-md ${isSaved
               ? "bg-primary text-primary-foreground"
               : "bg-black/50 text-white hover:bg-black/70"
-          }`}
+            }`}
         >
           <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
         </button>
-
-        {/* Verified Badge */}
-        <div className="absolute top-2 left-2 px-2 py-1 rounded-full bg-[#0c1710] text-white text-xs font-medium flex items-center gap-1">
-          <Shield className="w-3 h-3" />
-          Verified
-        </div>
       </div>
 
-      {/* Content */}
-      <div className="space-y-2">
-        <h3 className="font-semibold text-[15px] text-foreground line-clamp-2 leading-snug">
-          {product.title}
-        </h3>
+      {/* Content at Bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
 
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+          <span className="text-base sm:text-lg font-bold text-primary">
             RWF {product.price.toLocaleString()}
           </span>
           <Badge
             variant="secondary"
-            className="text-xs bg-secondary text-muted-foreground"
+            className="w-fit text-[10px] bg-white/10 text-white/80 border-0 backdrop-blur-md"
           >
             {product.condition}
           </Badge>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-[#8f8f8f]">
-          <span className="flex items-center gap-1">
+        <div className="flex items-center justify-between text-[10px] sm:text-xs text-white/60">
+          <span className="hidden sm:flex items-center gap-1">
             <MapPin className="w-3 h-3" />
             {product.location}
           </span>
@@ -357,22 +462,15 @@ function ProductCard({
         </div>
 
         {/* Seller & Action */}
-        <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
-          <div className="flex items-center gap-2">
-            <img
-              src={product.seller.avatar}
-              alt={product.seller.name}
-              className="w-6 h-6 rounded-full object-cover"
-            />
-            <span className="text-xs text-[#8f8f8f] truncate max-w-[80px]">
-              {product.seller.name}
-            </span>
-          </div>
+        <div className="flex items-center justify-between pt-2 border-t border-white/[0.08]">
+          <span className="text-xs text-white/70 truncate max-w-[80px]">
+            {product.seller.name}
+          </span>
           <Button
             size="sm"
             variant="ghost"
             onClick={onMessageClick}
-            className="h-7 px-2 text-xs text-primary hover:bg-[#0a0a0a] cursor-pointer transition-colors"
+            className="hidden sm:inline-flex h-7 px-2 text-[10px] sm:text-xs text-primary hover:bg-white/10 cursor-pointer transition-colors"
           >
             <MessageSquare className="w-3 h-3 mr-1" />
             Message

@@ -32,15 +32,16 @@ export function SettingsView() {
     useVerification();
 
   const [activeTab, setActiveTab] = useState<
-    "profile" | "account" | "university"
+    "profile" | "verification" | "account" | "privacy" | "security"
   >("profile");
 
   // Profile fields state
   const [fullName, setFullName] = useState(user?.first_name || "Alex Johnson");
+  const [lastName, setLastName] = useState(user?.last_name || "");
   const [bio, setBio] = useState(
-    "Computer Science student | Book lover | Tech enthusiast",
+    "",
   );
-  const [location, setLocation] = useState("Kigali, Rwanda");
+  const [phone_number, setPhoneNumber] = useState(user?.phone_number || "");
   const [avatar, setAvatar] = useState("/avatar_student.jpg");
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
@@ -204,45 +205,65 @@ export function SettingsView() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Navigation Tabs */}
-        <div className="settings-entry md:col-span-1 flex flex-row gap-1 pb-2 md:pb-0 border-b md:border-b-0 border-white/[0.06]">
+        <div className="settings-entry md:col-span-1 flex flex-row md:flex-col gap-1 pb-2 md:pb-0 border-b md:border-b-0 border-transparent overflow-x-auto">
           <button
             onClick={() => setActiveTab("profile")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "profile"
-                ? "bg-[#1a1a1a] text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
               }`}
           >
             <User className="w-4 h-4 shrink-0" />
-            <span>Profile Settings</span>
+            <span>View/Edit Profile</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("verification")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "verification"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+              }`}
+          >
+            <GraduationCap className="w-4 h-4 shrink-0" />
+            <span>Student Verification</span>
           </button>
           <button
             onClick={() => setActiveTab("account")}
             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "account"
-                ? "bg-[#1a1a1a] text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
               }`}
           >
             <Lock className="w-4 h-4 shrink-0" />
-            <span>Account & Security</span>
+            <span>Account Settings</span>
           </button>
           <button
-            onClick={() => setActiveTab("university")}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "university"
-                ? "bg-[#1a1a1a] text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+            onClick={() => setActiveTab("privacy")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "privacy"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
               }`}
           >
-            <GraduationCap className="w-4 h-4 shrink-0" />
-            <span>University & Status</span>
+            <Shield className="w-4 h-4 shrink-0" />
+            <span>Privacy</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("security")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer whitespace-nowrap ${activeTab === "security"
+              ? "bg-[#1a1a1a] text-foreground"
+              : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+              }`}
+          >
+            <Lock className="w-4 h-4 shrink-0" />
+            <span>Security</span>
           </button>
         </div>
 
         {/* Tab Contents */}
         <div
           ref={contentRef}
-          className="md:col-span-3 bg-[#0f0f0f] border border-white/[0.06] rounded-2xl p-5 md:p-7 shadow-xl"
+          className="md:col-span-3 bg-[#0f0f0f] border-transparent rounded-2xl p-5 md:p-7 shadow-xl"
         >
           {/* PROFILE SETTINGS */}
           {activeTab === "profile" && (
@@ -298,23 +319,32 @@ export function SettingsView() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-muted-foreground">
-                      Full Name
+                      First Name
                     </label>
                     <Input
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="bg-secondary/40 border-white/[0.08] focus:border-[#bb740a]"
+                      className="bg-secondary/40 border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-all"
+                      required
+                    />
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Last Name
+                    </label>
+                    <Input
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="bg-secondary/40 border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-all"
                       required
                     />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-muted-foreground">
-                      Location
+                      Phone Number
                     </label>
                     <Input
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      className="bg-secondary/40 border-white/[0.08] focus:border-[#bb740a]"
+                      value={phone_number}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="bg-secondary/40 border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-all"
                     />
                   </div>
                 </div>
@@ -401,6 +431,8 @@ export function SettingsView() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-secondary/40 border-white/[0.08] focus:border-[#bb740a]"
+                    readOnly={true}
+                    disabled={true}
                     required
                   />
                 </div>
@@ -498,7 +530,7 @@ export function SettingsView() {
           )}
 
           {/* UNIVERSITY & VERIFICATION STATUS */}
-          {activeTab === "university" && (
+          {activeTab === "verification" && (
             <div className="space-y-6">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">
@@ -764,6 +796,71 @@ export function SettingsView() {
                         UM-2026-9923
                       </p>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* PRIVACY */}
+          {activeTab === "privacy" && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Privacy Settings
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Manage who can see your profile and listings.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl border border-transparent">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Profile Visibility</h3>
+                    <p className="text-xs text-muted-foreground">Make your profile visible to other students.</p>
+                  </div>
+                  <div className="w-10 h-5 bg-[#bb740a] rounded-full relative cursor-pointer">
+                    <div className="w-4 h-4 bg-white rounded-full absolute top-0.5 right-0.5 shadow-sm" />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-white/[0.02] rounded-xl border border-transparent">
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">Read Receipts</h3>
+                    <p className="text-xs text-muted-foreground">Show when you have read messages.</p>
+                  </div>
+                  <div className="w-10 h-5 bg-secondary rounded-full relative cursor-pointer">
+                    <div className="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECURITY */}
+          {activeTab === "security" && (
+            <div className="space-y-6">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Security
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Manage advanced security settings and login sessions.
+                </p>
+              </div>
+              <div className="space-y-4">
+                <div className="p-4 bg-white/[0.02] rounded-xl border border-transparent space-y-3">
+                  <h3 className="text-sm font-semibold text-foreground">Two-Factor Authentication (2FA)</h3>
+                  <p className="text-xs text-muted-foreground">Add an extra layer of security to your account.</p>
+                  <Button variant="outline" className="text-xs h-9 border-transparent bg-secondary hover:bg-secondary/80">
+                    Enable 2FA
+                  </Button>
+                </div>
+                <div className="p-4 bg-white/[0.02] rounded-xl border border-transparent space-y-3">
+                  <h3 className="text-sm font-semibold text-foreground">Active Sessions</h3>
+                  <p className="text-xs text-muted-foreground">You are currently logged in on 1 device.</p>
+                  <div className="flex items-center gap-3 text-xs">
+                    <div className="w-2 h-2 bg-green-500 rounded-full" />
+                    <span className="text-foreground font-medium">Current Session (Chrome on Linux)</span>
                   </div>
                 </div>
               </div>
