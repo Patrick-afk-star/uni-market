@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -44,6 +45,7 @@ export function BuyView({
   onVerificationRequired,
 }: BuyViewProps) {
   const { accessToken, isInitializing } = useAuth();
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] =
     useState<string>("All Categories");
   const [selectedConditions, setSelectedConditions] = useState<Condition[]>([]);
@@ -114,6 +116,7 @@ export function BuyView({
         }
         
         interface ApiListingItem {
+          id: string;
           title: string;
           price: string;
           category: string;
@@ -132,7 +135,7 @@ export function BuyView({
             : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
 
           return {
-            id: `api-${index}-${item.title}`,
+            id: item.id ? item.id.toString() : `api-${index}-${item.title}`,
             title: item.title,
             price: parseFloat(item.price) || 0,
             category: mapApiCategory(item.category),
@@ -163,7 +166,30 @@ export function BuyView({
       }
     };
 
+    const fetchSavedListings = async () => {
+      try {
+        const res = await fetch(getApiUrl("/api/v1/listing/saved"), {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (active && Array.isArray(data)) {
+            const savedIds = new Set<string>();
+            data.forEach((item: any) => {
+              if (item.listing && item.listing.id) {
+                savedIds.add(item.listing.id);
+              }
+            });
+            setSavedItems(savedIds);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch saved items:", err);
+      }
+    };
+
     fetchListings();
+    fetchSavedListings();
     return () => {
       active = false;
     };
@@ -225,16 +251,49 @@ export function BuyView({
     );
   };
 
-  const toggleSave = (id: string) => {
+  const toggleSave = async (id: string) => {
+    if (!accessToken) {
+      toast.error("Please log in to save items.");
+      return;
+    }
+
+    const isCurrentlySaved = savedItems.has(id);
+    
+    // Optimistic update
     setSavedItems((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
+      if (isCurrentlySaved) {
         newSet.delete(id);
       } else {
         newSet.add(id);
       }
       return newSet;
     });
+
+    try {
+      const res = await fetch(getApiUrl(`/api/v1/listing/${id}/save`), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to toggle save status");
+      }
+    } catch (err) {
+      // Revert optimistic update
+      setSavedItems((prev) => {
+        const newSet = new Set(prev);
+        if (isCurrentlySaved) {
+          newSet.add(id);
+        } else {
+          newSet.delete(id);
+        }
+        return newSet;
+      });
+      toast.error("Failed to update saved status.");
+    }
   };
 
   const handleMessageClick = (e: React.MouseEvent) => {
@@ -507,6 +566,7 @@ export function BuyView({
                 isVerified={isVerified}
                 onMessageClick={handleMessageClick}
                 onVerificationRequired={onVerificationRequired}
+                onClick={() => navigate(`/dashboard/listing/${product.id}`)}
               />
             ))}
           </div>
@@ -535,6 +595,7 @@ export function BuyView({
               isVerified={isVerified}
               onMessageClick={handleMessageClick}
               onVerificationRequired={onVerificationRequired}
+              onClick={() => navigate(`/dashboard/listing/${product.id}`)}
             />
           ))}
         </div>
@@ -550,6 +611,7 @@ interface ProductCardProps {
   isVerified: boolean;
   onMessageClick: (e: React.MouseEvent) => void;
   onVerificationRequired: () => void;
+  onClick?: () => void;
 }
 
 function ProductCard({
@@ -557,9 +619,13 @@ function ProductCard({
   isSaved,
   onToggleSave,
   onMessageClick,
+  onClick,
 }: ProductCardProps) {
   return (
-    <div className="product-card group relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer border border-white/[0.06]">
+    <div 
+      className="product-card group relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer border border-white/[0.06]"
+      onClick={onClick}
+    >
       {/* Background Image */}
       <img
         src={product.image}

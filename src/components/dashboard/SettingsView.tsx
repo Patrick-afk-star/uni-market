@@ -27,7 +27,7 @@ interface University {
 }
 
 export function SettingsView() {
-  const { user, completeProfile } = useAuth();
+  const { user, completeProfile, accessToken } = useAuth();
   const { submitVerification, isVerified, isPending } =
     useVerification();
 
@@ -38,11 +38,11 @@ export function SettingsView() {
   // Profile fields state
   const [fullName, setFullName] = useState(user?.first_name || "Alex Johnson");
   const [lastName, setLastName] = useState(user?.last_name || "");
-  const [bio, setBio] = useState(
-    "",
-  );
+  const [bio, setBio] = useState("");
   const [phone_number, setPhoneNumber] = useState(user?.phone_number || "");
-  const [avatar, setAvatar] = useState("/avatar_student.jpg");
+  const [avatarPreview, setAvatarPreview] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Account settings state
@@ -119,12 +119,41 @@ export function SettingsView() {
   // Handlers
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!accessToken) {
+      toast.error("You must be logged in to update your profile.");
+      return;
+    }
+
     setIsSavingProfile(true);
-    // Simulate API update
-    setTimeout(() => {
-      setIsSavingProfile(false);
+    try {
+      const formData = new FormData();
+      formData.append("first_name", fullName);
+      formData.append("last_name", lastName);
+      formData.append("phone_number", phone_number);
+      formData.append("bio", bio);
+      if (avatarFile) {
+        formData.append("avatar_url", avatarFile);
+      }
+
+      const res = await fetch(getApiUrl("/api/v1/profiles/me"), {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Failed to update profile");
+      }
+
       toast.success("Profile updated successfully!");
-    }, 1000);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update profile");
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   const handleSaveAccount = async (e: React.FormEvent) => {
@@ -181,16 +210,16 @@ export function SettingsView() {
     }
   };
 
-  const handleAvatarChange = () => {
-    // Simulate changing avatar
-    const avatars = [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
-    ];
-    const nextAvatar = avatars[Math.floor(Math.random() * avatars.length)];
-    setAvatar(nextAvatar);
-    toast.success("Avatar preview updated!");
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
   };
 
   return (
@@ -280,36 +309,46 @@ export function SettingsView() {
 
               {/* Avatar Update */}
               <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-xl bg-white/[0.02] border border-white/[0.03]">
-                <div className="relative w-20 h-20 rounded-2xl overflow-hidden group">
-                  <img
-                    src={avatar}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleAvatarChange}
-                    className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[10px] font-medium cursor-pointer"
-                  >
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleAvatarFileChange}
+                  className="hidden"
+                />
+                <div 
+                  className="relative w-20 h-20 rounded-2xl overflow-hidden group bg-secondary/50 flex items-center justify-center cursor-pointer border border-white/[0.06]"
+                  onClick={handleAvatarClick}
+                >
+                  {avatarPreview ? (
+                    <img
+                      src={avatarPreview}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-8 h-8 text-muted-foreground" />
+                  )}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity text-white text-[10px] font-medium">
                     <Camera className="w-4 h-4 mb-1" />
-                    Change
-                  </button>
+                    Upload
+                  </div>
                 </div>
                 <div className="text-center sm:text-left space-y-1">
                   <h4 className="text-sm font-medium text-foreground">
                     Profile Picture
                   </h4>
                   <p className="text-xs text-muted-foreground">
-                    Click the image to swap avatar variations.
+                    Click the image to upload a new avatar.
                   </p>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     className="mt-2 text-xs border-white/10 hover:bg-[#bb740a]/10 hover:text-white"
-                    onClick={handleAvatarChange}
+                    onClick={handleAvatarClick}
                   >
-                    Randomize Avatar
+                    Upload Image
                   </Button>
                 </div>
               </div>
@@ -752,11 +791,17 @@ export function SettingsView() {
                   {/* Middle Info */}
                   <div className="mt-8 flex gap-4 items-center">
                     <div className="w-14 h-14 rounded-xl overflow-hidden border border-white/10 bg-secondary/50 shrink-0">
-                      <img
-                        src={avatar}
-                        alt="Avatar"
-                        className="w-full h-full object-cover"
-                      />
+                      {avatarPreview ? (
+                        <img
+                          src={avatarPreview}
+                          alt="Avatar"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <User className="w-6 h-6" />
+                        </div>
+                      )}
                     </div>
                     <div className="min-w-0">
                       <h4 className="text-sm font-extrabold text-foreground truncate">

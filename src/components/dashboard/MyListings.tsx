@@ -9,15 +9,41 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { sampleListings } from '@/data/products';
 import type { Listing } from '@/types';
+import { getApiUrl } from '@/lib/api';
+import { useAuth } from '@/context/AuthContext';
 
 export function MyListings() {
-  const [listings, setListings] = useState<Listing[]>(sampleListings);
+  const { accessToken } = useAuth();
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const res = await fetch(getApiUrl('/api/v1/listing/me'), {
+          headers: {
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+        });
+        if (!res.ok) throw new Error('Failed to fetch listings');
+        const data = await res.json();
+        setListings(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, [accessToken]);
+
+  useEffect(() => {
+    if (isLoading) return;
+
     const ctx = gsap.context(() => {
       if (titleRef.current) {
         gsap.fromTo(
@@ -29,19 +55,33 @@ export function MyListings() {
 
       if (gridRef.current) {
         const cards = gridRef.current.querySelectorAll('.listing-card');
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.2 }
-        );
+        if (cards.length > 0) {
+          gsap.fromTo(
+            cards,
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.2 }
+          );
+        }
       }
     });
 
     return () => ctx.revert();
-  }, []);
+  }, [isLoading, listings.length]);
 
-  const handleDelete = (id: string) => {
-    setListings((prev) => prev.filter((l) => l.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!accessToken) return;
+    try {
+      const res = await fetch(getApiUrl(`/api/v1/listing/${id}/delete`), {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (!res.ok) throw new Error('Failed to delete listing');
+      setListings((prev) => prev.filter((l) => l.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleToggleStatus = (id: string) => {
@@ -171,7 +211,9 @@ export function MyListings() {
         ))}
       </div>
 
-      {listings.length === 0 && (
+      {isLoading ? (
+        <div className="flex justify-center py-20 text-muted-foreground">Loading...</div>
+      ) : listings.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mb-4">
             <Edit className="w-8 h-8 text-muted-foreground" />
@@ -184,7 +226,7 @@ export function MyListings() {
             Create Listing
           </Button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
