@@ -27,7 +27,7 @@ interface University {
 }
 
 export function SettingsView() {
-  const { user, completeProfile } = useAuth();
+  const { user, completeProfile, accessToken } = useAuth();
   const { submitVerification, isVerified, isPending } =
     useVerification();
 
@@ -119,12 +119,39 @@ export function SettingsView() {
   // Handlers
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!accessToken) {
+      toast.error("You must be logged in to update your profile.");
+      return;
+    }
+
     setIsSavingProfile(true);
-    // Simulate API update
-    setTimeout(() => {
-      setIsSavingProfile(false);
+    try {
+      const res = await fetch(getApiUrl("/api/v1/profiles/me"), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          first_name: fullName,
+          last_name: lastName,
+          phone_number: phone_number,
+          bio: bio,
+          avatar_url: avatar,
+        }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Failed to update profile");
+      }
+
       toast.success("Profile updated successfully!");
-    }, 1000);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update profile");
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   const handleSaveAccount = async (e: React.FormEvent) => {

@@ -13,6 +13,9 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 // Public Pages
 import HomePage from '@/pages/HomePage';
 
+// Dashboard Pages
+import ListingDetailPage from '@/pages/ListingDetailPage';
+
 // Auth Pages
 import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
@@ -73,6 +76,7 @@ export default function App() {
               <Route path="/dashboard/create" element={<CreatePage />} />
               <Route path="/dashboard/payouts" element={<PayoutsPage />} />
               <Route path="/dashboard/settings" element={<SettingsPage />} />
+              <Route path="/dashboard/listing/:id" element={<ListingDetailPage />} />
             </Route>
           </Route>
 

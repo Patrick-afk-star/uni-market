@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -44,6 +45,7 @@ export function BuyView({
   onVerificationRequired,
 }: BuyViewProps) {
   const { accessToken, isInitializing } = useAuth();
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] =
     useState<string>("All Categories");
   const [selectedConditions, setSelectedConditions] = useState<Condition[]>([]);
@@ -114,6 +116,7 @@ export function BuyView({
         }
         
         interface ApiListingItem {
+          id: string;
           title: string;
           price: string;
           category: string;
@@ -132,7 +135,7 @@ export function BuyView({
             : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
 
           return {
-            id: `api-${index}-${item.title}`,
+            id: item.id ? item.id.toString() : `api-${index}-${item.title}`,
             title: item.title,
             price: parseFloat(item.price) || 0,
             category: mapApiCategory(item.category),
@@ -507,6 +510,7 @@ export function BuyView({
                 isVerified={isVerified}
                 onMessageClick={handleMessageClick}
                 onVerificationRequired={onVerificationRequired}
+                onClick={() => navigate(`/dashboard/listing/${product.id}`)}
               />
             ))}
           </div>
@@ -535,6 +539,7 @@ export function BuyView({
               isVerified={isVerified}
               onMessageClick={handleMessageClick}
               onVerificationRequired={onVerificationRequired}
+              onClick={() => navigate(`/dashboard/listing/${product.id}`)}
             />
           ))}
         </div>
@@ -550,6 +555,7 @@ interface ProductCardProps {
   isVerified: boolean;
   onMessageClick: (e: React.MouseEvent) => void;
   onVerificationRequired: () => void;
+  onClick?: () => void;
 }
 
 function ProductCard({
@@ -557,9 +563,13 @@ function ProductCard({
   isSaved,
   onToggleSave,
   onMessageClick,
+  onClick,
 }: ProductCardProps) {
   return (
-    <div className="product-card group relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer border border-white/[0.06]">
+    <div 
+      className="product-card group relative aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden cursor-pointer border border-white/[0.06]"
+      onClick={onClick}
+    >
       {/* Background Image */}
       <img
         src={product.image}
