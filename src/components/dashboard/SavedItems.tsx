@@ -127,11 +127,11 @@ export function SavedItems() {
       </div>
 
       {/* Saved Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
         {savedProducts.map((product) => (
           <div
             key={product.id}
-            className="saved-card group bg-[#0f0f0f] rounded-2xl p-3.5 transition-all duration-300 border border-white/[0.06]"
+            className="saved-card group bg-[#0f0f0f] rounded-2xl p-3 transition-all duration-300 border border-white/[0.06]"
           >
             {/* Image */}
             <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
@@ -150,26 +150,26 @@ export function SavedItems() {
             </div>
 
             {/* Content */}
-            <div className="space-y-2">
-              <h3 className="font-semibold text-[15px] text-foreground line-clamp-2 leading-snug">
+            <div className="space-y-1.5 md:space-y-2">
+              <h3 className="font-semibold text-[13px] md:text-[15px] text-foreground line-clamp-2 leading-snug">
                 {product.title}
               </h3>
 
-              <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-primary">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                <span className="text-sm md:text-lg font-bold text-primary">
                   RWF {product.price.toLocaleString()}
                 </span>
                 <Badge
                   variant="secondary"
-                  className="text-xs bg-[#1a1a1a] text-[#898989]"
+                  className="w-fit text-[10px] md:text-xs bg-[#1a1a1a] text-[#898989] px-1.5 py-0"
                 >
                   {product.condition}
                 </Badge>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-[#898989]">
-                <MapPin className="w-3 h-3" />
-                {product.location}
+              <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-[#898989]">
+                <MapPin className="w-3 h-3 shrink-0" />
+                <span className="truncate">{product.location}</span>
               </div>
             </div>
           </div>
