@@ -68,8 +68,20 @@ export function MyListings() {
     return () => ctx.revert();
   }, [isLoading, listings.length]);
 
-  const handleDelete = (id: string) => {
-    setListings((prev) => prev.filter((l) => l.id !== id));
+  const handleDelete = async (id: string) => {
+    if (!accessToken) return;
+    try {
+      const res = await fetch(getApiUrl(`/api/v1/listing/${id}/delete`), {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (!res.ok) throw new Error('Failed to delete listing');
+      setListings((prev) => prev.filter((l) => l.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleToggleStatus = (id: string) => {

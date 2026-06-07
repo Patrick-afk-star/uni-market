@@ -166,7 +166,30 @@ export function BuyView({
       }
     };
 
+    const fetchSavedListings = async () => {
+      try {
+        const res = await fetch(getApiUrl("/api/v1/listing/saved"), {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (active && Array.isArray(data)) {
+            const savedIds = new Set<string>();
+            data.forEach((item: any) => {
+              if (item.listing && item.listing.id) {
+                savedIds.add(item.listing.id);
+              }
+            });
+            setSavedItems(savedIds);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch saved items:", err);
+      }
+    };
+
     fetchListings();
+    fetchSavedListings();
     return () => {
       active = false;
     };
@@ -228,16 +251,49 @@ export function BuyView({
     );
   };
 
-  const toggleSave = (id: string) => {
+  const toggleSave = async (id: string) => {
+    if (!accessToken) {
+      toast.error("Please log in to save items.");
+      return;
+    }
+
+    const isCurrentlySaved = savedItems.has(id);
+    
+    // Optimistic update
     setSavedItems((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
+      if (isCurrentlySaved) {
         newSet.delete(id);
       } else {
         newSet.add(id);
       }
       return newSet;
     });
+
+    try {
+      const res = await fetch(getApiUrl(`/api/v1/listing/${id}/save`), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to toggle save status");
+      }
+    } catch (err) {
+      // Revert optimistic update
+      setSavedItems((prev) => {
+        const newSet = new Set(prev);
+        if (isCurrentlySaved) {
+          newSet.add(id);
+        } else {
+          newSet.delete(id);
+        }
+        return newSet;
+      });
+      toast.error("Failed to update saved status.");
+    }
   };
 
   const handleMessageClick = (e: React.MouseEvent) => {

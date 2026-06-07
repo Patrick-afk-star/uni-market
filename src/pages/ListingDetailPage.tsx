@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, MapPin, Clock, Eye, MessageSquare, Share, Heart, AlertCircle } from 'lucide-react';
+import { ChevronLeft, MapPin, Clock, Eye, MessageSquare, Heart, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -65,7 +65,7 @@ export default function ListingDetailPage() {
     <div className="flex flex-col md:block h-full">
       <div className="max-w-6xl mx-auto py-6 px-4 md:py-8 md:px-6">
         {/* Back Navigation */}
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-6 group"
         >
@@ -78,8 +78,8 @@ export default function ListingDetailPage() {
           <div className="w-full md:w-3/5 space-y-4">
             <div className="aspect-[4/3] md:rounded-3xl bg-[#121212] overflow-hidden relative">
               {listing.images && listing.images.length > 0 ? (
-                <img 
-                  src={listing.images[activeImageIndex]} 
+                <img
+                  src={listing.images[activeImageIndex]}
                   alt={listing.title}
                   className="w-full h-full object-contain"
                 />
@@ -94,7 +94,7 @@ export default function ListingDetailPage() {
                 </div>
               )}
             </div>
-            
+
             {/* Thumbnails */}
             {listing.images && listing.images.length > 1 && (
               <div className="flex gap-3 px-4 md:px-0 overflow-x-auto pb-2 scrollbar-hide">
@@ -102,9 +102,8 @@ export default function ListingDetailPage() {
                   <button
                     key={idx}
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-[#121212] ${
-                      activeImageIndex === idx ? 'ring-2 ring-primary' : 'opacity-70 hover:opacity-100'
-                    } transition-all`}
+                    className={`relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-[#121212] ${activeImageIndex === idx ? 'ring-2 ring-primary' : 'opacity-70 hover:opacity-100'
+                      } transition-all`}
                   >
                     <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
                   </button>
@@ -188,13 +187,13 @@ export default function ListingDetailPage() {
 
             {/* Action Buttons (Sticky on mobile) */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-md border-t border-white/[0.06] md:relative md:p-0 md:bg-transparent md:border-t-0 md:border-0 md:backdrop-blur-none z-10 flex gap-3">
-              <Button 
+              <Button
                 className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base transition-transform active:scale-[0.98]"
               >
                 Message Seller
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="hidden md:flex h-12 w-12 rounded-xl items-center justify-center border-white/[0.12] hover:bg-secondary transition-colors"
               >
                 <Heart className="w-5 h-5" />
