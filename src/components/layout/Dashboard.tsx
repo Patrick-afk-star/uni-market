@@ -15,6 +15,7 @@ interface ApiListingItem {
   condition: string;
   status: string;
   images: ApiListingImage[];
+  image?: string;
 }
 
 interface DashboardProduct {
@@ -52,16 +53,19 @@ export default function Dashboard() {
         }
         const data: ApiListingItem[] = await response.json();
 
-        const mappedProducts: DashboardProduct[] = data.map((item, index) => ({
-          id: item.id || (index + 1).toString(),
-          name: item.title,
-          price: item.price,
-          rating: 4.5,
-          location: "Campus",
-          university: "Various Universities",
-          image: item.images.length > 0 ? resolveImageUrl(item.images[0].image) : "https://via.placeholder.com/150",
-          tag: item.condition,
-        }));
+        const mappedProducts: DashboardProduct[] = data.map((item, index) => {
+          const imageUrl = item.image || (item.images?.length > 0 ? item.images[0].image : "");
+          return {
+            id: item.id || (index + 1).toString(),
+            name: item.title,
+            price: item.price,
+            rating: 4.5,
+            location: "Campus",
+            university: "Various Universities",
+            image: resolveImageUrl(imageUrl),
+            tag: item.condition,
+          };
+        });
         setProducts(mappedProducts);
       } catch (err) {
         console.error("Failed to fetch listings:", err);

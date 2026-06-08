@@ -76,7 +76,7 @@ export default function ListingPage() {
                     condition: item.condition,
                     description: item.description || "Freshly listed student item.",
                     location: item.location || "Main Campus",
-                    image: resolveImageUrl(item.images?.[0]?.image),
+                    image: resolveImageUrl(item.image || item.images?.[0]?.image),
                     seller: { id: "s1", name: "Jean Paul", avatar: "/avatar_student.jpg", university: "UR - Gikondo" }
                 });
             }
