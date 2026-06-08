@@ -17,6 +17,18 @@ export function MyListings() {
   const { accessToken } = useAuth();
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const resolveImageUrl = (url: string): string => {
+    if (!url) return "https://via.placeholder.com/600";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    const apiBase = getApiUrl("/");
+    const cleanBase = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
+    const cleanUrl = url.startsWith("/") ? url : `/${url}`;
+    return `${cleanBase}${cleanUrl}`;
+  };
+
   const titleRef = useRef<HTMLHeadingElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
 
@@ -133,9 +145,9 @@ export function MyListings() {
           >
             {/* Image */}
             <div className="aspect-video rounded-xl bg-secondary overflow-hidden mb-4">
-              {listing.images.length > 0 ? (
+              {listing.images && listing.images.length > 0 ? (
                 <img
-                  src={listing.images[0]}
+                  src={resolveImageUrl(listing.images[0].image)}
                   alt={listing.title}
                   className="w-full h-full object-cover"
                 />

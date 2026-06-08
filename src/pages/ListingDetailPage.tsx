@@ -15,6 +15,17 @@ export default function ListingDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+  const resolveImageUrl = (url: string): string => {
+    if (!url) return "https://via.placeholder.com/600";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    const apiBase = getApiUrl("/");
+    const cleanBase = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
+    const cleanUrl = url.startsWith("/") ? url : `/${url}`;
+    return `${cleanBase}${cleanUrl}`;
+  };
+
   useEffect(() => {
     const fetchListing = async () => {
       try {
@@ -61,6 +72,8 @@ export default function ListingDetailPage() {
     );
   }
 
+  
+
   return (
     <div className="flex flex-col md:block h-full">
       <div className="max-w-6xl mx-auto py-6 px-4 md:py-8 md:px-6">
@@ -79,14 +92,12 @@ export default function ListingDetailPage() {
             <div className="aspect-[4/3] md:rounded-3xl bg-[#121212] overflow-hidden relative">
               {listing.images && listing.images.length > 0 ? (
                 <img
-                  src={listing.images[activeImageIndex]}
+                  src={listing.images[activeImageIndex].image}
                   alt={listing.title}
                   className="w-full h-full object-contain"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  No images available
-                </div>
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground">No images available</div>
               )}
               {listing.status === 'sold' && (
                 <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider">
@@ -105,7 +116,7 @@ export default function ListingDetailPage() {
                     className={`relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-[#121212] ${activeImageIndex === idx ? 'ring-2 ring-primary' : 'opacity-70 hover:opacity-100'
                       } transition-all`}
                   >
-                    <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                    <img src={resolveImageUrl(img.image)} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -179,7 +190,7 @@ export default function ListingDetailPage() {
                     </p>
                   </div>
                 </div>
-                <Button variant="outline" className="rounded-xl text-sm h-9">
+                <Button variant="outline" className="rounded-xl text-sm h-9" onClick={() => navigate(`/seller/s1`)}>
                   View Profile
                 </Button>
               </div>
