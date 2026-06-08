@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getApiUrl } from "@/lib/api";
-import { ShoppingCart, MessageCircle, ArrowLeft, MapPin, ShieldCheck } from "lucide-react";
+import { ShoppingCart, MessageCircle, ArrowLeft, MapPin } from "lucide-react";
 import { sampleProducts } from "@/data/products";
 
 interface ListingDetail {
