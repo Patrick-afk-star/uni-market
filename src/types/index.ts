@@ -49,13 +49,17 @@ export interface Product {
   dealType: DealType[];
 }
 
+export interface ListingImage {
+  image: string;
+}
+
 export interface Listing {
   id: string;
   title: string;
   price: number;
   category: Category;
   condition: Condition;
-  images: string[];
+  images: ListingImage[];
   description: string;
   location: string;
   dealType: DealType[];

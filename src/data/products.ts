@@ -114,7 +114,7 @@ export const sampleListings: Listing[] = [
     price: 45000,
     category: 'Textbooks',
     condition: 'Good',
-    images: ['/product_textbook.jpg'],
+    images: [{ image: '/product_textbook.jpg' }],
     description: 'Complete set for first year physics courses.',
     location: 'Kigali Campus',
     dealType: ['Pickup'],
