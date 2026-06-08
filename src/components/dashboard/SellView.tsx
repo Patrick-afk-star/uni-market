@@ -28,7 +28,7 @@ interface SellViewProps {
 }
 
 export function SellView({ onPublish }: SellViewProps) {
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const [apiCategories, setApiCategories] = useState<ApiCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
@@ -365,9 +365,9 @@ export function SellView({ onPublish }: SellViewProps) {
             {/* Seller Row */}
             <div className="flex items-center gap-3 py-3 border-y border-white/[0.06]">
               <Avatar className="w-10 h-10">
-                <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
+                <AvatarImage src={user?.avatar_url || currentUser.avatar} alt={user?.first_name || currentUser.name} />
                 <AvatarFallback className="bg-primary/20 text-primary">
-                  {currentUser.name.split(' ').map(n => n[0]).join('')}
+                  {(user?.first_name || currentUser.name).split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div>
