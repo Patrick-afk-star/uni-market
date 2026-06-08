@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { getApiUrl } from "@/lib/api";
 import { ShoppingCart } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ApiListingImage {
   image: string;
 }
 
 interface ApiListingItem {
+  id: string;
   title: string;
   price: string;
   category: string;
@@ -16,7 +18,7 @@ interface ApiListingItem {
 }
 
 interface DashboardProduct {
-  id: number;
+  id: string;
   name: string;
   price: string;
   rating: number;
@@ -31,6 +33,15 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const resolveImageUrl = (url: string): string => {
+    if (!url) return "https://via.placeholder.com/300";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    const apiBase = getApiUrl("/");
+    const cleanBase = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
+    const cleanUrl = url.startsWith("/") ? url : `/${url}`;
+    return `${cleanBase}${cleanUrl}`;
+  };
+
   useEffect(() => {
     const fetchListings = async () => {
       try {
@@ -42,13 +53,13 @@ export default function Dashboard() {
         const data: ApiListingItem[] = await response.json();
 
         const mappedProducts: DashboardProduct[] = data.map((item, index) => ({
-          id: index + 1,
+          id: item.id || (index + 1).toString(),
           name: item.title,
           price: item.price,
           rating: 4.5,
           location: "Campus",
           university: "Various Universities",
-          image: item.images.length > 0 ? item.images[0].image : "https://via.placeholder.com/150",
+          image: item.images.length > 0 ? resolveImageUrl(item.images[0].image) : "https://via.placeholder.com/150",
           tag: item.condition,
         }));
         setProducts(mappedProducts);
@@ -79,14 +90,18 @@ export default function Dashboard() {
             key={product.id}
             className="bg-white dark:bg-[#151816] rounded-2xl overflow-hidden shadow-sm border border-[rgba(18,20,18,0.12)] dark:border-white/10 hover:shadow-md transition-shadow"
           >
-            <div className="relative h-48">
-              <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-              <span className="absolute top-2 left-2 bg-[rgba(28,110,93,0.9)] text-white px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                {product.tag}
-              </span>
-            </div>
+            <Link to={`/listing/${product.id}`} className="block">
+              <div className="relative h-48">
+                <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                <span className="absolute top-2 left-2 bg-[rgba(28,110,93,0.9)] text-white px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                  {product.tag}
+                </span>
+              </div>
+            </Link>
             <div className="p-4 space-y-2">
-              <h3 className="font-semibold text-[#121412] dark:text-[#f4f2ee] line-clamp-1">{product.name}</h3>
+              <Link to={`/listing/${product.id}`} className="block">
+                <h3 className="font-semibold text-[#121412] dark:text-[#f4f2ee] line-clamp-1 hover:text-[#d8a24a] transition-colors">{product.name}</h3>
+              </Link>
               <div className="flex justify-between items-center">
                 <span className="text-[#0a4e39] dark:text-[#1f7c5f] font-bold">{product.price} RWF</span>
                 <span className="text-xs font-semibold bg-[rgba(241,179,92,0.2)] px-2 py-0.5 rounded-full">★ {product.rating}</span>
