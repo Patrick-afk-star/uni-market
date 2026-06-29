@@ -1,11 +1,39 @@
 "use client";
-import { ShoppingCart, Eye, MessageCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { getApiUrl } from "@/lib/api";
+import { ShoppingCart, Eye } from "lucide-react";
 
 export default function Hero() {
-  // Original static data restored
-  const products = [
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [dbListings, setDbListings] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const res = await fetch(getApiUrl("/api/v1/listing/"));
+        if (res.ok) {
+          const data = await res.json();
+          setDbListings(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch homepage listings:", err);
+      }
+    };
+    fetchListings();
+  }, []);
+
+  const resolveImageUrl = (url: string): string => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return getApiUrl(`/${url}`);
+  };
+
+  const staticProducts = [
     {
-      id: 1,
+      id: "1",
       name: "Wireless Headphones",
       price: "28,000 RWF",
       rating: 4.8,
@@ -16,7 +44,7 @@ export default function Hero() {
       tag: "Like new",
     },
     {
-      id: 2,
+      id: "2",
       name: "Minimal Study Desk",
       price: "85,000 RWF",
       rating: 4.9,
@@ -27,7 +55,7 @@ export default function Hero() {
       tag: "Solid wood",
     },
     {
-      id: 3,
+      id: "3",
       name: "Programming Books (set of 5)",
       price: "12,000 RWF",
       rating: 5.0,
@@ -38,7 +66,7 @@ export default function Hero() {
       tag: "Bestseller",
     },
     {
-      id: 4,
+      id: "4",
       name: "MacBook Air M1",
       price: "750,000 RWF",
       rating: 4.9,
@@ -49,6 +77,42 @@ export default function Hero() {
       tag: "Student discount",
     },
   ];
+
+  const mappedDbProducts = dbListings.map((item: any, idx: number) => {
+    const image = item.images && Array.isArray(item.images) && item.images.length > 0
+      ? resolveImageUrl(item.images[0].image)
+      : item.image
+        ? resolveImageUrl(item.image)
+        : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+
+    const university = item.seller_info?.student_profile?.university || 
+                       item.student_profile?.university || 
+                       item.seller_info?.university || 
+                       "UR - Gikondo";
+
+    return {
+      id: item.id || `api-${idx}`,
+      name: item.title,
+      price: typeof item.price === "number"
+        ? `${item.price.toLocaleString()} RWF`
+        : `${parseFloat(item.price || "0").toLocaleString()} RWF`,
+      rating: 4.8,
+      location: item.location || "Kigali Campus",
+      university: university,
+      image,
+      tag: item.condition ? (item.condition.charAt(0).toUpperCase() + item.condition.slice(1)) : "Verified",
+    };
+  });
+
+  const products = mappedDbProducts.length > 0 ? mappedDbProducts : staticProducts;
+
+  const handleItemClick = (listingId: string) => {
+    if (!isAuthenticated) {
+      navigate(`/login?next=/dashboard/listing/${listingId}`);
+    } else {
+      navigate(`/dashboard/listing/${listingId}`);
+    }
+  };
 
   const categories = [
     { title: "Electronics", count: 320 },
@@ -368,6 +432,7 @@ export default function Hero() {
                         <button
                           className="w-full flex items-center justify-center gap-1.5 bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-xl px-3 py-2 font-semibold text-xs hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
                           type="button"
+                          onClick={() => handleItemClick(product.id)}
                         >
                           <Eye size={14} /> View
                         </button>
@@ -379,6 +444,7 @@ export default function Hero() {
                         <button
                           className="w-full flex items-center justify-center gap-1.5 bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-xl px-3 py-2 font-semibold text-xs shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
                           type="button"
+                          onClick={() => handleItemClick(product.id)}
                         >
                           <ShoppingCart size={14} /> Buy
                         </button>
@@ -386,17 +452,6 @@ export default function Hero() {
                           Verify to buy
                         </span>
                       </div>
-                    </div>
-                    <div className="relative w-full group/btn">
-                      <button
-                        className="w-full flex items-center justify-center gap-1.5 bg-[#25d366] text-[#0f1b12] rounded-xl px-3 py-2 font-semibold text-xs hover:brightness-95 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
-                        type="button"
-                      >
-                        <MessageCircle size={14} /> WhatsApp seller
-                      </button>
-                      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[#111311] dark:bg-[#f4f2ee] text-white dark:text-[#121412] text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none z-10">
-                        Verify to contact
-                      </span>
                     </div>
                   </div>
                 </div>
