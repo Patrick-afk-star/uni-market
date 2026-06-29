@@ -67,6 +67,12 @@ export interface Listing {
   createdAt: string;
   views: number;
   messages: number;
+  seller_info?: {
+    id: string;
+    name?: string | null;
+    avatar_url?: string | null;
+    is_seller_verified?: boolean;
+  };
 }
 
 export type ViewMode = 'sell' | 'buy';

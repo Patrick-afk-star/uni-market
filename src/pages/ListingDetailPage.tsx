@@ -15,6 +15,7 @@ export default function ListingDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [sellerProfile, setSellerProfile] = useState<any>(null);
 
   const resolveImageUrl = (url: string): string => {
     if (!url) return "https://via.placeholder.com/600";
@@ -48,6 +49,27 @@ export default function ListingDetailPage() {
       fetchListing();
     }
   }, [id]);
+
+  useEffect(() => {
+    const fetchSellerProfile = async () => {
+      const sellerId = listing?.seller_info?.id;
+      // Fetch only if name is missing/null/empty
+      if (sellerId && !listing?.seller_info?.name) {
+        try {
+          const res = await fetch(getApiUrl(`/api/v1/profiles/${sellerId}`));
+          if (res.ok) {
+            const data = await res.json();
+            setSellerProfile(data);
+          }
+        } catch (err) {
+          console.error("Failed to fetch seller profile fallback:", err);
+        }
+      }
+    };
+    if (listing) {
+      fetchSellerProfile();
+    }
+  }, [listing]);
 
   if (isLoading) {
     return (
@@ -187,15 +209,20 @@ export default function ListingDetailPage() {
               <h3 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider text-muted-foreground">About the Seller</h3>
               {(() => {
                 const sellerInfo = (listing as any).seller_info;
+                const finalName = sellerInfo?.name || sellerProfile?.name || sellerProfile?.display_name || sellerProfile?.first_name || 'Student Seller';
+                const isVerified = sellerInfo?.is_seller_verified || sellerProfile?.is_verified || sellerProfile?.is_seller_verified || false;
+                const avatar = sellerInfo?.avatar_url || sellerProfile?.avatar_url || '';
+                const sellerId = sellerInfo?.id || sellerProfile?.id;
+
                 return (
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <Avatar className="w-12 h-12">
-                          <AvatarImage src={sellerInfo?.avatar_url || ''} />
+                          <AvatarImage src={avatar} />
                           <AvatarFallback />
                         </Avatar>
-                        {sellerInfo?.is_seller_verified && (
+                        {isVerified && (
                           <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#177865] flex items-center justify-center" title="Verified Seller">
                             <svg viewBox="0 0 12 12" fill="none" className="w-2.5 h-2.5">
                               <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -205,10 +232,10 @@ export default function ListingDetailPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-foreground flex items-center gap-1.5">
-                          {sellerInfo?.name || 'Student Seller'}
+                          {finalName}
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {sellerInfo?.is_seller_verified ? 'Verified Seller' : 'Unverified Seller'}
+                          {isVerified ? 'Verified Student Seller' : 'Student Seller'}
                         </p>
                       </div>
                     </div>
@@ -217,8 +244,8 @@ export default function ListingDetailPage() {
                         variant="outline"
                         className="rounded-xl text-sm h-9"
                         onClick={() => {
-                          if (sellerInfo?.id) {
-                            navigate(`/dashboard/seller/${sellerInfo.id}`);
+                          if (sellerId) {
+                            navigate(`/dashboard/seller/${sellerId}`);
                           } else {
                             toast.info('Seller profile is not available.');
                           }

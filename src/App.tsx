@@ -75,6 +75,7 @@ export default function App() {
               <Route path="/dashboard/analytics" element={<AnalyticsPage />} />
               <Route path="/dashboard/orders" element={<OrdersPage />} />
               <Route path="/dashboard/create" element={<CreatePage />} />
+              <Route path="/dashboard/edit/:id" element={<CreatePage />} />
               <Route path="/dashboard/payouts" element={<PayoutsPage />} />
               <Route path="/dashboard/settings" element={<SettingsPage />} />
               <Route path="/dashboard/listing/:id" element={<ListingDetailPage />} />

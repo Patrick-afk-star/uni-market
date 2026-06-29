@@ -12,9 +12,11 @@ import {
 import type { Listing } from '@/types';
 import { getApiUrl } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export function MyListings() {
   const { accessToken } = useAuth();
+  const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -182,7 +184,13 @@ export function MyListings() {
               {/* Actions */}
               <div className="flex items-center justify-between pt-3 border-t border-white/[0.06]">
                 <span className="text-xs text-muted-foreground">
-                  {new Date(listing.createdAt).toLocaleDateString()}
+                  {(() => {
+                    const rawDate = (listing as any).created_at || listing.createdAt;
+                    if (!rawDate) return 'Recently';
+                    const d = new Date(rawDate);
+                    if (isNaN(d.getTime())) return 'Recently';
+                    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                  })()}
                 </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -191,7 +199,10 @@ export function MyListings() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-[#121212] border border-white/[0.06]">
-                    <DropdownMenuItem className="cursor-pointer hover:bg-[#1a1a1a]">
+                    <DropdownMenuItem 
+                      onClick={() => navigate(`/dashboard/edit/${listing.id}`)}
+                      className="cursor-pointer hover:bg-[#1a1a1a]"
+                    >
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
                     </DropdownMenuItem>

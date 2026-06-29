@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { currentUser } from '@/data/user';
 import { getApiUrl } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 const CONDITIONS = [
   { value: 'new', label: 'New' },
@@ -24,10 +25,11 @@ interface ApiCategory {
 }
 
 interface SellViewProps {
+  listingId?: string;
   onPublish?: () => void;
 }
 
-export function SellView({ onPublish }: SellViewProps) {
+export function SellView({ listingId, onPublish }: SellViewProps) {
   const { accessToken, user } = useAuth();
   const [apiCategories, setApiCategories] = useState<ApiCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -50,6 +52,26 @@ export function SellView({ onPublish }: SellViewProps) {
       .then((data) => setApiCategories(data))
       .catch((err) => console.error('Failed to fetch categories:', err));
   }, []);
+
+  useEffect(() => {
+    if (listingId) {
+      fetch(getApiUrl(`/api/v1/listing/${listingId}`))
+        .then((res) => res.json())
+        .then((data) => {
+          setTitle(data.title || '');
+          setPrice(data.price ? data.price.toString() : '');
+          setDescription(data.description || '');
+          // The category field from API might be a string name or category object.
+          // Let's try to match it with our category lists.
+          setSelectedCategory(data.category_id || data.category || null);
+          setSelectedCondition(data.condition || null);
+          if (data.images && Array.isArray(data.images)) {
+            setImagePreviews(data.images.map((img: any) => img.image));
+          }
+        })
+        .catch((err) => console.error('Failed to fetch listing detail for edit:', err));
+    }
+  }, [listingId]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -129,8 +151,12 @@ export function SellView({ onPublish }: SellViewProps) {
         formData.append('images', file);
       });
 
-      const res = await fetch(getApiUrl('/api/v1/listing/'), {
-        method: 'POST',
+      const url = listingId 
+        ? getApiUrl(`/api/v1/listing/${listingId}/`) 
+        : getApiUrl('/api/v1/listing/');
+
+      const res = await fetch(url, {
+        method: listingId ? 'PUT' : 'POST',
         headers: {
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
@@ -138,24 +164,26 @@ export function SellView({ onPublish }: SellViewProps) {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to create listing');
+        throw new Error(listingId ? 'Failed to update listing' : 'Failed to create listing');
       }
 
       onPublish?.();
       
-      // Reset form
-      setTitle('');
-      setPrice('');
-      setDescription('');
-      setSelectedCategory(null);
-      setSelectedCondition(null);
-      setImageFiles([]);
-      imagePreviews.forEach(URL.revokeObjectURL);
-      setImagePreviews([]);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      // Reset form if creating new listing
+      if (!listingId) {
+        setTitle('');
+        setPrice('');
+        setDescription('');
+        setSelectedCategory(null);
+        setSelectedCondition(null);
+        setImageFiles([]);
+        imagePreviews.forEach(URL.revokeObjectURL);
+        setImagePreviews([]);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
     } catch (err) {
       console.error(err);
-      // Here you could show an error toast
+      toast.error(listingId ? 'Failed to update listing' : 'Failed to create listing');
     } finally {
       setIsPublishing(false);
     }
@@ -170,7 +198,7 @@ export function SellView({ onPublish }: SellViewProps) {
       <div ref={composerRef} className="flex-1 max-w-2xl p-7 space-y-6 overflow-auto">
         {/* Title */}
         <h1 ref={titleRef} className="text-3xl font-bold text-foreground">
-          <span className="word inline-block">Create</span>{' '}
+          <span className="word inline-block">{listingId ? 'Edit' : 'Create'}</span>{' '}
           <span className="word inline-block">a</span>{' '}
           <span className="word inline-block">listing</span>
         </h1>
