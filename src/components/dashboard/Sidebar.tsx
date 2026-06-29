@@ -128,10 +128,10 @@ export function Sidebar({
         <div className="flex-1 flex items-center gap-3 p-2.5 rounded-2xl bg-[#121212] border border-white/[0.03] min-w-0 shadow-[inset_0_1px_2px_rgba(255,255,255,0.02)]">
           <Avatar className="w-9 h-9 shrink-0">
             <AvatarImage
-              src={user?.avatar_url || currentUser.avatar}
+              src={user?.avatar_url}
               alt={user?.first_name || currentUser.name}
             />
-            <AvatarFallback className="bg-[#bb740a]/20 text-[#bb740a]">
+            <AvatarFallback className="bg-[#2a2a2a] text-[#a0a0a0]">
               <User className="w-4 h-4" />
             </AvatarFallback>
           </Avatar>

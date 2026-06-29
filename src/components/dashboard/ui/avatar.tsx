@@ -2,6 +2,7 @@ import * as React from "react"
 import * as AvatarPrimitive from "@radix-ui/react-avatar"
 
 import { cn } from "@/lib/utils"
+import { User } from "lucide-react"
 
 function Avatar({
   className,
@@ -40,11 +41,13 @@ function AvatarFallback({
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
       className={cn(
-        "bg-muted flex size-full items-center justify-center rounded-full",
+        "bg-[#2a2a2a] text-[#a0a0a0] flex size-full items-center justify-center rounded-full",
         className
       )}
       {...props}
-    />
+    >
+      {props.children || <User className="w-1/2 h-1/2" />}
+    </AvatarPrimitive.Fallback>
   )
 }
 

@@ -40,7 +40,7 @@ interface Conversation {
 const conversations: Conversation[] = [
   {
     id: '1',
-    user: { name: 'Sarah M.', avatar: '/avatar_student.jpg', isOnline: true, isVerified: true },
+    user: { name: 'Sarah M.', avatar: '', isOnline: true, isVerified: true },
     lastMessage: 'Is the laptop still available?',
     timestamp: '2m ago',
     unread: 2,
@@ -50,7 +50,7 @@ const conversations: Conversation[] = [
   },
   {
     id: '2',
-    user: { name: 'David K.', avatar: '/avatar_student.jpg', isOnline: false, isVerified: true },
+    user: { name: 'David K.', avatar: '', isOnline: false, isVerified: true },
     lastMessage: 'Would you take 20,000 for the textbook?',
     timestamp: '1h ago',
     unread: 0,
@@ -60,7 +60,7 @@ const conversations: Conversation[] = [
   },
   {
     id: '3',
-    user: { name: 'Marie Claire', avatar: '/avatar_student.jpg', isOnline: true, isVerified: true },
+    user: { name: 'Marie Claire', avatar: '', isOnline: true, isVerified: true },
     lastMessage: 'Can we meet tomorrow at 3pm?',
     timestamp: '3h ago',
     unread: 1,
@@ -70,7 +70,7 @@ const conversations: Conversation[] = [
   },
   {
     id: '4',
-    user: { name: 'Jean Paul', avatar: '/avatar_student.jpg', isOnline: false, isVerified: false },
+    user: { name: 'Jean Paul', avatar: '', isOnline: false, isVerified: false },
     lastMessage: 'Thanks for the quick response!',
     timestamp: '1d ago',
     unread: 0,
@@ -220,7 +220,7 @@ export function Messages({ isVerified, onVerificationRequired, setBuySubView }: 
                     <div className="relative flex-shrink-0">
                       <Avatar className="w-12 h-12">
                         <AvatarImage src={conv.user.avatar} alt={conv.user.name} />
-                        <AvatarFallback>{conv.user.name[0]}</AvatarFallback>
+                        <AvatarFallback />
                       </Avatar>
                       {conv.user.isOnline && (
                         <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-background" />
@@ -262,7 +262,7 @@ export function Messages({ isVerified, onVerificationRequired, setBuySubView }: 
                   <div className="relative">
                     <Avatar className="w-10 h-10">
                       <AvatarImage src={selectedConversation.user.avatar} alt={selectedConversation.user.name} />
-                      <AvatarFallback>{selectedConversation.user.name[0]}</AvatarFallback>
+                      <AvatarFallback />
                     </Avatar>
                     {selectedConversation.user.isOnline && (
                       <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-background" />
@@ -331,7 +331,7 @@ export function Messages({ isVerified, onVerificationRequired, setBuySubView }: 
                         {!isMe && showAvatar && (
                           <Avatar className="w-7 h-7 flex-shrink-0">
                             <AvatarImage src={selectedConversation.user.avatar} />
-                            <AvatarFallback>{selectedConversation.user.name[0]}</AvatarFallback>
+                            <AvatarFallback />
                           </Avatar>
                         )}
                         {!isMe && !showAvatar && <div className="w-7" />}

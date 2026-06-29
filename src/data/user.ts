@@ -19,7 +19,7 @@ export const currentUser: User = {
   name: 'Alex Johnson',
   email: 'alex.johnson@university.edu',
   role: 'Student',
-  avatar: '/avatar_student.jpg',
+  avatar: '',
   verified: true, // Change to false to test unverified state
   joinedDate: '2024-01-15',
   bio: 'Computer Science student | Book lover | Tech enthusiast',

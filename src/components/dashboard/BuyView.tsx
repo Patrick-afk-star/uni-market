@@ -145,7 +145,7 @@ export function BuyView({
             postedAt: "Just now",
             seller: {
               name: "Verified Student",
-              avatar: "/avatar_student.jpg"
+              avatar: ""
             },
             description: item.title,
             dealType: ["Meet on campus"]

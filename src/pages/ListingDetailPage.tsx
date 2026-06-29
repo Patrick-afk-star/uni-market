@@ -180,8 +180,8 @@ export default function ListingDetailPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Avatar className="w-12 h-12">
-                    <AvatarImage src="/avatar-placeholder.jpg" />
-                    <AvatarFallback className="bg-primary/20 text-primary">S</AvatarFallback>
+                    <AvatarImage src="" />
+                    <AvatarFallback />
                   </Avatar>
                   <div>
                     <p className="font-semibold text-foreground">Student Seller</p>

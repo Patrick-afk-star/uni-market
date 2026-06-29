@@ -365,14 +365,14 @@ export function SellView({ onPublish }: SellViewProps) {
             {/* Seller Row */}
             <div className="flex items-center gap-3 py-3 border-y border-white/[0.06]">
               <Avatar className="w-10 h-10">
-                <AvatarImage src={user?.avatar_url || currentUser.avatar} alt={user?.first_name || currentUser.name} />
-                <AvatarFallback className="bg-primary/20 text-primary">
-                  {(user?.first_name || currentUser.name).split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
+                <AvatarImage src={user?.avatar_url} alt={user?.first_name || currentUser.name} />
+                <AvatarFallback />
               </Avatar>
               <div>
-                <p className="text-sm font-medium text-foreground">{currentUser.name}</p>
-                <p className="text-xs text-muted-foreground">{currentUser.role}</p>
+                <p className="text-sm font-medium text-foreground">
+                  {user ? `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() || user.email : currentUser.name}
+                </p>
+                <p className="text-xs text-muted-foreground">{user?.email || currentUser.role}</p>
               </div>
             </div>
 
