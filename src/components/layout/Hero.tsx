@@ -114,16 +114,35 @@ export default function Hero() {
     }
   };
 
-  const categories = [
-    { title: "Electronics", count: 320 },
-    { title: "Furniture", count: 180 },
-    { title: "Textbooks", count: 240 },
-    { title: "Clothing", count: 190 },
-    { title: "Stationery", count: 95 },
-    { title: "Bicycles", count: 42 },
-    { title: "Kitchen", count: 78 },
-    { title: "Sports", count: 64 },
-  ];
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = () => {
+    const trimmed = searchQuery.trim();
+    if (trimmed) {
+      if (!isAuthenticated) {
+        navigate(`/login?next=/dashboard/browse?search=${encodeURIComponent(trimmed)}`);
+      } else {
+        navigate(`/dashboard/browse?search=${encodeURIComponent(trimmed)}`);
+      }
+    }
+  };
+
+  const handleCategoryClick = (categoryTitle: string) => {
+    if (!isAuthenticated) {
+      navigate(`/login?next=/dashboard/browse?category=${encodeURIComponent(categoryTitle)}`);
+    } else {
+      navigate(`/dashboard/browse?category=${encodeURIComponent(categoryTitle)}`);
+    }
+  };
+
+  // Compute live category counts from fetched listings
+  const categoryNames = ["Electronics", "Furniture", "Textbooks", "Clothing", "Stationery", "Bicycles", "Kitchen", "Sports"];
+  const categories = categoryNames.map(name => {
+    const count = dbListings.filter((item: any) =>
+      (item.category || "").toLowerCase() === name.toLowerCase()
+    ).length;
+    return { title: name, count };
+  });
   const universities = [
     "University of Rwanda - Huye",
     "University of Rwanda - Gikondo",
@@ -189,39 +208,29 @@ export default function Hero() {
               </p>
 
               {/* Search */}
-              <div className="flex flex-wrap gap-3 my-5">
+              <form className="flex flex-wrap gap-3 my-5" onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
                 <input
                   type="text"
                   placeholder="Search for laptops, textbooks, furniture..."
                   aria-label="Search products"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 min-w-[14rem] px-4 py-3.5 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
                 />
                 <button
                   className="bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform duration-200 cursor-pointer"
-                  type="button"
+                  type="submit"
                 >
                   Search
                 </button>
-              </div>
+              </form>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 mt-2.5">
+              <div className="mt-2.5">
                 <div>
-                  <div className="text-lg font-bold">4.9/5</div>
-                  <div className="text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
-                    Average rating
-                  </div>
-                </div>
-                <div>
-                  <div className="text-lg font-bold">2,600+</div>
+                  <div className="text-lg font-bold">{dbListings.length > 0 ? dbListings.length.toLocaleString() : "2,600+"}</div>
                   <div className="text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
                     Active listings
-                  </div>
-                </div>
-                <div>
-                  <div className="text-lg font-bold">90 min</div>
-                  <div className="text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
-                    Avg. sell time
                   </div>
                 </div>
               </div>
@@ -298,7 +307,8 @@ export default function Hero() {
             {categories.map((cat) => (
               <div
                 key={cat.title}
-                className="bg-[#ffffff] dark:bg-[#151816] p-4 rounded-xl flex items-center gap-3 shadow-[0_12px_28px_rgba(20,12,8,0.06)] border border-[rgba(18,20,18,0.12)] dark:border-white/10"
+                className="bg-[#ffffff] dark:bg-[#151816] p-4 rounded-xl flex items-center gap-3 shadow-[0_12px_28px_rgba(20,12,8,0.06)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 cursor-pointer hover:-translate-y-1 transition-transform"
+                onClick={() => handleCategoryClick(cat.title)}
               >
                 <div className="w-11 h-11 rounded-xl bg-[rgba(28,110,93,0.12)] grid place-items-center font-bold text-[#0a4e39] dark:text-[#1f7c5f]">
                   {cat.title[0]}

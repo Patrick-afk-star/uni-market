@@ -195,6 +195,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } finally {
       setAccessToken(null);
       setUser(null);
+      // Evict any persisted tokens from client storage
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      sessionStorage.removeItem("access_token");
+      sessionStorage.removeItem("refresh_token");
     }
   }, []);
 
