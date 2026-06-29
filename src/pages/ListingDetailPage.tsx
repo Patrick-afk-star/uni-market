@@ -205,7 +205,7 @@ export default function ListingDetailPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-foreground flex items-center gap-1.5">
-                          {sellerInfo?.display_name || 'Student Seller'}
+                          {sellerInfo?.name || 'Student Seller'}
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {sellerInfo?.is_seller_verified ? 'Verified Seller' : 'Unverified Seller'}
