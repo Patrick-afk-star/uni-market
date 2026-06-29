@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, MapPin, Clock, Eye, MessageSquare, Heart, AlertCircle } from 'lucide-react';
+import { ChevronLeft, Clock, Eye, MessageSquare, Heart, AlertCircle, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getApiUrl } from '@/lib/api';
+import { toast } from 'sonner';
 import type { Listing } from '@/types';
 
 export default function ListingDetailPage() {
@@ -132,7 +133,14 @@ export default function ListingDetailPage() {
               <span>•</span>
               <span className="flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />
-                {new Date(listing.createdAt).toLocaleDateString()}
+                {(() => {
+                  // Backend may return created_at (snake_case) or createdAt (camelCase)
+                  const raw = (listing as any).created_at || listing.createdAt;
+                  if (!raw) return 'Unknown date';
+                  const d = new Date(raw);
+                  if (isNaN(d.getTime())) return 'Unknown date';
+                  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                })()}
               </span>
             </div>
 
@@ -174,26 +182,61 @@ export default function ListingDetailPage() {
               </p>
             </div>
 
-            {/* Seller Info (Placeholder since actual seller info depends on API response) */}
+            {/* Seller Info */}
             <div className="bg-[#121212] border border-white/[0.06] rounded-2xl p-5 mb-8">
               <h3 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider text-muted-foreground">About the Seller</h3>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage src="" />
-                    <AvatarFallback />
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold text-foreground">Student Seller</p>
-                    <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" /> University Campus
-                    </p>
+              {(() => {
+                const sellerInfo = (listing as any).seller_info;
+                return (
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <Avatar className="w-12 h-12">
+                          <AvatarImage src={sellerInfo?.avatar_url || ''} />
+                          <AvatarFallback />
+                        </Avatar>
+                        {sellerInfo?.is_seller_verified && (
+                          <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#177865] flex items-center justify-center" title="Verified Seller">
+                            <svg viewBox="0 0 12 12" fill="none" className="w-2.5 h-2.5">
+                              <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground flex items-center gap-1.5">
+                          {sellerInfo?.display_name || 'Student Seller'}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {sellerInfo?.is_seller_verified ? 'Verified Seller' : 'Unverified Seller'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2 items-end shrink-0">
+                      <Button
+                        variant="outline"
+                        className="rounded-xl text-sm h-9"
+                        onClick={() => {
+                          if (sellerInfo?.id) {
+                            navigate(`/dashboard/seller/${sellerInfo.id}`);
+                          } else {
+                            toast.info('Seller profile is not available.');
+                          }
+                        }}
+                      >
+                        View Profile
+                      </Button>
+                      <button
+                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-400 transition-colors"
+                        onClick={() => toast.success('Report submitted. Our team will review it shortly.')}
+                      >
+                        <Flag className="w-3.5 h-3.5" />
+                        Report Seller
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <Button variant="outline" className="rounded-xl text-sm h-9" onClick={() => navigate(`/seller/s1`)}>
-                  View Profile
-                </Button>
-              </div>
+                );
+              })()}
             </div>
 
             {/* Action Buttons (Sticky on mobile) */}

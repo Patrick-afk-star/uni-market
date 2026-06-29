@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Heart, MapPin, Trash2, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import type { Product, Category, Condition } from "@/types";
 import { getApiUrl } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -9,7 +10,8 @@ import { toast } from "sonner";
 
 export function SavedItems() {
   const { accessToken } = useAuth();
-  const [savedProducts, setSavedProducts] = useState<Product[]>([]);
+  const navigate = useNavigate();
+  const [savedProducts, setSavedProducts] = useState<(Product & { listingId: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const resolveImageUrl = (url: string): string => {
@@ -56,7 +58,7 @@ export function SavedItems() {
         if (res.ok) {
           const data = await res.json();
           if (active && Array.isArray(data)) {
-            const products: Product[] = data.map((item: any) => {
+            const products: (Product & { listingId: string })[] = data.map((item: any) => {
               const listing = item.listing;
               const image = listing.images && Array.isArray(listing.images) && listing.images.length > 0
                 ? resolveImageUrl(listing.images[0].image)
@@ -64,12 +66,13 @@ export function SavedItems() {
 
               return {
                 id: item.id,
+                listingId: listing.id,
                 title: listing.title,
                 price: parseFloat(listing.price) || 0,
                 category: mapApiCategory(listing.category),
                 condition: mapApiCondition(listing.condition),
                 image,
-                location: "Kigali Campus", // Fallback location
+                location: "Kigali Campus",
                 postedAt: "Saved",
                 seller: {
                   name: "Verified Student",
@@ -131,7 +134,8 @@ export function SavedItems() {
         {savedProducts.map((product) => (
           <div
             key={product.id}
-            className="saved-card group bg-[#0f0f0f] rounded-2xl p-3 transition-all duration-300 border border-white/[0.06]"
+            onClick={() => navigate(`/dashboard/listing/${(product as any).listingId}`)}
+            className="saved-card group bg-[#0f0f0f] rounded-2xl p-3 transition-all duration-300 border border-white/[0.06] cursor-pointer hover:border-white/[0.14]"
           >
             {/* Image */}
             <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
@@ -142,7 +146,7 @@ export function SavedItems() {
               />
               {/* Remove Button */}
               <button
-                onClick={() => handleRemove(product.id)}
+                onClick={(e) => { e.stopPropagation(); handleRemove(product.id); }}
                 className="cursor-pointer absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 className="w-4 h-4" />
