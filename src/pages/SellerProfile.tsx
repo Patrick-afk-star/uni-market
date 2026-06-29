@@ -9,7 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface SellerProfileData {
   id: string;
-  display_name: string;
+  name: string;
   avatar_url: string | null;
   is_verified: boolean;
   university_name: string | null;
@@ -43,7 +43,7 @@ export default function SellerProfile() {
         const data = await res.json();
         setSeller({
           id: data.id || id,
-          display_name: data.display_name || data.first_name || "Student Seller",
+          name: data.name || data.display_name || data.first_name || "Student Seller",
           avatar_url: data.avatar_url || null,
           is_verified: data.is_verified ?? data.is_seller_verified ?? false,
           university_name: data.university_name || data.university || null,
@@ -109,7 +109,7 @@ export default function SellerProfile() {
           {/* Avatar */}
           <div className="relative shrink-0">
             <Avatar className="w-24 h-24 md:w-28 md:h-28 ring-2 ring-white/[0.08]">
-              <AvatarImage src={seller.avatar_url || ""} alt={seller.display_name} />
+              <AvatarImage src={seller.avatar_url || ""} alt={seller.name} />
               <AvatarFallback />
             </Avatar>
             {seller.is_verified && (
@@ -122,7 +122,7 @@ export default function SellerProfile() {
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap mb-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">{seller.display_name}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">{seller.name}</h1>
               {seller.is_verified && (
                 <Badge className="bg-[#177865]/15 text-[#2aa67f] border-0 text-[10px] font-bold uppercase tracking-wider">
                   Verified
@@ -168,7 +168,7 @@ export default function SellerProfile() {
         <div className="mt-8 flex flex-col sm:flex-row gap-3">
           <Button className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base transition-transform active:scale-[0.98]">
             <MessageCircle className="w-5 h-5 mr-2" />
-            Message {seller.display_name.split(" ")[0]}
+            Message {seller.name.split(" ")[0]}
           </Button>
         </div>
       </div>
