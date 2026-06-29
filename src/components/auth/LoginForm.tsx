@@ -15,7 +15,9 @@ export default function LoginForm() {
   const { login } = useAuth();
 
   // Redirect to the page the user was trying to reach, or fall back to /dashboard
-  const from = (location.state as { from?: Location })?.from?.pathname ?? "/dashboard";
+  const queryParams = new URLSearchParams(location.search);
+  const nextParam = queryParams.get("next");
+  const from = nextParam || ((location.state as { from?: Location })?.from?.pathname ?? "/dashboard/browse");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
