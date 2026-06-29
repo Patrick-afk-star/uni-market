@@ -31,7 +31,7 @@ interface University {
 }
 
 export function SettingsView() {
-  const { user, completeProfile, accessToken } = useAuth();
+  const { user, accessToken } = useAuth();
   const { submitVerification, isVerified, isPending } =
     useVerification();
 
@@ -50,7 +50,7 @@ export function SettingsView() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Account settings state
-  const [email, setEmail] = useState(
+  const [email] = useState(
     user?.email || "alex.johnson@university.edu",
   );
   const [currentPassword, setCurrentPassword] = useState("");
@@ -61,7 +61,7 @@ export function SettingsView() {
   // University state
   const [universities, setUniversities] = useState<University[]>([]);
   const [selectedUniversityId, setSelectedUniversityId] = useState("");
-  const [isSubmittingOnboarding, setIsSubmittingOnboarding] = useState(false);
+
   const [uploadedIdImage, setUploadedIdImage] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -164,26 +164,7 @@ export function SettingsView() {
     }, 1000);
   };
 
-  const handleUniversitySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedUniversityId) {
-      toast.error("Please select a university");
-      return;
-    }
-    setIsSubmittingOnboarding(true);
-    try {
-      await completeProfile(selectedUniversityId);
-      toast.success("University info updated successfully!");
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : "Failed to update university info.",
-      );
-    } finally {
-      setIsSubmittingOnboarding(false);
-    }
-  };
+
 
   const handleUploadId = () => {
     // Simulate ID Card image upload selection
@@ -239,9 +220,8 @@ export function SettingsView() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`relative flex items-center gap-2 px-5 py-4 text-sm font-medium transition-colors whitespace-nowrap ${
-                isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-white/[0.02] rounded-t-xl"
-              }`}
+              className={`relative flex items-center gap-2 px-5 py-4 text-sm font-medium transition-colors whitespace-nowrap ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-white/[0.02] rounded-t-xl"
+                }`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
@@ -447,7 +427,7 @@ export function SettingsView() {
                     <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-4 relative overflow-hidden">
                       {/* Decorative Background */}
                       <div className="absolute top-0 right-0 w-32 h-32 bg-[#bb740a]/10 rounded-full blur-3xl" />
-                      
+
                       <div className="flex items-center gap-3 mb-2 relative z-10">
                         {isVerified ? (
                           <div className="w-10 h-10 rounded-full bg-[#177865]/20 flex items-center justify-center text-[#177865]">
@@ -482,15 +462,15 @@ export function SettingsView() {
                           <span className="font-medium text-muted-foreground">UM-2026-9923</span>
                         </div>
                         {isVerified && (
-                           <div className="flex justify-between items-center text-sm pt-2">
-                             <span className="text-muted-foreground">Progress:</span>
-                             <div className="flex items-center gap-2">
-                               <div className="w-24 h-1.5 rounded-full bg-secondary overflow-hidden">
-                                 <div className="w-full h-full bg-[#177865]" />
-                               </div>
-                               <span className="text-xs text-[#177865] font-bold">100%</span>
-                             </div>
-                           </div>
+                          <div className="flex justify-between items-center text-sm pt-2">
+                            <span className="text-muted-foreground">Progress:</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-24 h-1.5 rounded-full bg-secondary overflow-hidden">
+                                <div className="w-full h-full bg-[#177865]" />
+                              </div>
+                              <span className="text-xs text-[#177865] font-bold">100%</span>
+                            </div>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -512,9 +492,9 @@ export function SettingsView() {
                     {!isVerified && (
                       <div className="p-6 rounded-2xl border border-white/[0.08] bg-white/[0.01]">
                         <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
-                           <Camera className="w-5 h-5 text-[#bb740a]"/> Upload Student ID
+                          <Camera className="w-5 h-5 text-[#bb740a]" /> Upload Student ID
                         </h3>
-                        
+
                         {!uploadedIdImage ? (
                           <div
                             onClick={handleUploadId}
