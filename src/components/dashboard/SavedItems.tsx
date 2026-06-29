@@ -73,7 +73,7 @@ export function SavedItems() {
                 postedAt: "Saved",
                 seller: {
                   name: "Verified Student",
-                  avatar: "/avatar_student.jpg"
+                  avatar: ""
                 },
                 description: listing.title,
                 dealType: ["Meet on campus"]
