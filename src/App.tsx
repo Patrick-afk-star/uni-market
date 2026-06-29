@@ -15,6 +15,7 @@ import HomePage from '@/pages/HomePage';
 
 // Dashboard Pages
 import ListingDetailPage from '@/pages/ListingDetailPage';
+import SellerProfile from '@/pages/SellerProfile';
 
 // Auth Pages
 import LoginPage from '@/pages/LoginPage';
@@ -77,6 +78,7 @@ export default function App() {
               <Route path="/dashboard/payouts" element={<PayoutsPage />} />
               <Route path="/dashboard/settings" element={<SettingsPage />} />
               <Route path="/dashboard/listing/:id" element={<ListingDetailPage />} />
+              <Route path="/dashboard/seller/:id" element={<SellerProfile />} />
             </Route>
           </Route>
 
