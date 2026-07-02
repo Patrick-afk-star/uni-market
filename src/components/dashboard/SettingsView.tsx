@@ -31,7 +31,7 @@ interface University {
 }
 
 export function SettingsView() {
-  const { user, accessToken } = useAuth();
+  const { user, accessToken, updateUser } = useAuth();
   const { submitVerification, isVerified, isPending } =
     useVerification();
 
@@ -138,6 +138,7 @@ export function SettingsView() {
         throw new Error(errorData.detail || "Failed to update profile");
       }
 
+      updateUser({ first_name: fullName, last_name: lastName });
       toast.success("Profile updated successfully!");
     } catch (err: any) {
       toast.error(err.message || "Failed to update profile");

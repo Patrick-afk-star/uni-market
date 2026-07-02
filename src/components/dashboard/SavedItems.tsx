@@ -82,7 +82,10 @@ export function SavedItems() {
                 dealType: ["Meet on campus"]
               };
             });
-            setSavedProducts(products);
+            const uniqueProducts = products.filter(
+              (item, idx, self) => self.findIndex((x) => x.id === item.id) === idx
+            );
+            setSavedProducts(uniqueProducts);
           }
         }
       } catch (err) {
@@ -101,11 +104,14 @@ export function SavedItems() {
   const handleRemove = async (id: string) => {
     if (!accessToken) return;
     
+    // Find the item to restore on failure
+    const removedItem = savedProducts.find((p) => p.id === id);
+
     // Optimistic remove
     setSavedProducts((prev) => prev.filter((p) => p.id !== id));
     
     try {
-      const res = await fetch(getApiUrl(`/api/v1/listing/${id}/delete`), {
+      const res = await fetch(getApiUrl(`/api/v1/listing/saved/${id}`), {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -114,8 +120,13 @@ export function SavedItems() {
       if (!res.ok) {
         throw new Error("Failed to unsave item");
       }
+      toast.success("Item removed from saved list");
     } catch (err) {
       toast.error("Failed to remove saved item. It might reappear on refresh.");
+      // Rollback
+      if (removedItem) {
+        setSavedProducts((prev) => [...prev, removedItem]);
+      }
     }
   };
 

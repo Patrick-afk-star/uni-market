@@ -40,6 +40,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
+  const [initialData, setInitialData] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -58,16 +59,32 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
       fetch(getApiUrl(`/api/v1/listing/${listingId}`))
         .then((res) => res.json())
         .then((data) => {
-          setTitle(data.title || '');
-          setPrice(data.price ? data.price.toString() : '');
-          setDescription(data.description || '');
-          // The category field from API might be a string name or category object.
-          // Let's try to match it with our category lists.
-          setSelectedCategory(data.category_id || data.category || null);
-          setSelectedCondition(data.condition || null);
+          const fetchedTitle = data.title || '';
+          const fetchedPrice = data.price ? data.price.toString() : '';
+          const fetchedDesc = data.description || '';
+          // The API might return category as UUID (category_id) or name.
+          const fetchedCat = data.category_id || data.category || null;
+          const fetchedCond = data.condition || null;
+          const fetchedStatus = data.status || 'draft';
+
+          setTitle(fetchedTitle);
+          setPrice(fetchedPrice);
+          setDescription(fetchedDesc);
+          setSelectedCategory(fetchedCat);
+          setSelectedCondition(fetchedCond);
+          
           if (data.images && Array.isArray(data.images)) {
             setImagePreviews(data.images.map((img: any) => img.image));
           }
+
+          setInitialData({
+            title: fetchedTitle,
+            price: fetchedPrice,
+            description: fetchedDesc,
+            category: fetchedCat,
+            condition: fetchedCond,
+            status: fetchedStatus
+          });
         })
         .catch((err) => console.error('Failed to fetch listing detail for edit:', err));
     }
@@ -121,7 +138,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
     if (files.length > 0 && imageFiles.length + files.length <= 5) {
       const newFiles = [...imageFiles, ...files];
       setImageFiles(newFiles);
-      
+
       const newPreviews = files.map(file => URL.createObjectURL(file));
       setImagePreviews([...imagePreviews, ...newPreviews]);
     }
@@ -135,28 +152,45 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
 
   const handlePublish = async (status: 'published' | 'draft') => {
     if (!isFormValid) return;
-    
+
     setIsPublishing(true);
-    
+
     try {
       const formData = new FormData();
-      formData.append('title', title);
-      formData.append('price', price);
-      formData.append('description', description);
-      formData.append('condition', selectedCondition as string);
-      formData.append('status', status);
-      formData.append('category', selectedCategory as string);
       
+      if (!listingId || title !== initialData?.title) {
+        formData.append('title', title);
+      }
+      if (!listingId || price !== initialData?.price) {
+        formData.append('price', price);
+      }
+      if (!listingId || description !== initialData?.description) {
+        formData.append('description', description);
+      }
+      if (!listingId || selectedCondition !== initialData?.condition) {
+        formData.append('condition', selectedCondition as string);
+      }
+      if (!listingId || status !== initialData?.status) {
+        formData.append('status', status);
+      }
+      if (!listingId || selectedCategory !== initialData?.category) {
+        // Ensure category is a UUID if possible
+        let catId = selectedCategory;
+        const catObj = apiCategories.find(c => c.id === selectedCategory || c.name === selectedCategory);
+        if (catObj) catId = catObj.id;
+        formData.append('category', catId as string);
+      }
+
       imageFiles.forEach((file) => {
         formData.append('images', file);
       });
 
-      const url = listingId 
-        ? getApiUrl(`/api/v1/listing/${listingId}/`) 
+      const url = listingId
+        ? getApiUrl(`/api/v1/listing/${listingId}`)
         : getApiUrl('/api/v1/listing/');
 
       const res = await fetch(url, {
-        method: listingId ? 'PUT' : 'POST',
+        method: listingId ? 'PATCH' : 'POST',
         headers: {
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
@@ -168,7 +202,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
       }
 
       onPublish?.();
-      
+
       // Reset form if creating new listing
       if (!listingId) {
         setTitle('');
@@ -211,11 +245,10 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  selectedCategory === category.id
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === category.id
                     ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
                     : 'bg-[#0f0f0f] text-primary-foreground hover:text-foreground border border-white/[0.06]'
-                }`}
+                  }`}
               >
                 {category.name}
               </button>
@@ -226,7 +259,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
         {/* Photos */}
         <div className="composer-panel space-y-3">
           <Label className="text-sm font-medium text-foreground">Photos</Label>
-          <input 
+          <input
             type="file"
             ref={fileInputRef}
             className="hidden"
@@ -299,11 +332,10 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
                 <button
                   key={condition.value}
                   onClick={() => handleConditionSelect(condition.value)}
-                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    selectedCondition === condition.value
+                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCondition === condition.value
                       ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
                       : 'bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]'
-                  }`}
+                    }`}
                 >
                   {condition.label}
                 </button>

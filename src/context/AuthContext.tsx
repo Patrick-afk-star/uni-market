@@ -49,6 +49,8 @@ interface AuthContextValue extends AuthState {
   setAccessToken: (token: string | null) => void;
   /** POST /api/v1/profiles/complete — completes user onboarding. */
   completeProfile: (universityId: string) => Promise<void>;
+  /** Update local user state immediately (e.g. after profile save) */
+  updateUser: (patch: Partial<AuthUser>) => void;
 }
 
 
@@ -284,6 +286,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [accessToken]
   );
 
+  // ── updateUser ───────────────────────────────────────────────────────────
+  const updateUser = useCallback((patch: Partial<AuthUser>) => {
+    setUser((prev) => (prev ? { ...prev, ...patch } : null));
+  }, []);
+
   // ── value ────────────────────────────────────────────────────────────────
   const value: AuthContextValue = {
     accessToken,
@@ -297,6 +304,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     resetPasswordConfirm,
     setAccessToken,
     completeProfile,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
