@@ -1,21 +1,42 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Clock, Eye, MessageSquare, Heart, AlertCircle, Flag } from 'lucide-react';
+import { ChevronLeft, Clock, Eye, MessageSquare, Heart, AlertCircle, Flag, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getApiUrl } from '@/lib/api';
 import { toast } from 'sonner';
 import type { Listing } from '@/types';
+import { useAuth } from '@/context/AuthContext';
+import { startConversation } from '@/lib/messaging';
 
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { accessToken } = useAuth();
   const [listing, setListing] = useState<Listing | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [sellerProfile, setSellerProfile] = useState<any>(null);
+  const [messagingLoading, setMessagingLoading] = useState(false);
+
+  const handleMessageSeller = async () => {
+    if (!id) return;
+    if (!accessToken) {
+      toast.error('Please log in to message sellers.');
+      return;
+    }
+    setMessagingLoading(true);
+    try {
+      const conv = await startConversation(accessToken, id);
+      navigate(`/dashboard/messages?conversation=${conv.id}`);
+    } catch (err: any) {
+      toast.error(err.message ?? 'Could not start conversation.');
+    } finally {
+      setMessagingLoading(false);
+    }
+  };
 
   const resolveImageUrl = (url: string): string => {
     if (!url) return "https://via.placeholder.com/600";
@@ -269,9 +290,15 @@ export default function ListingDetailPage() {
             {/* Action Buttons (Sticky on mobile) */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-md border-t border-white/[0.06] md:relative md:p-0 md:bg-transparent md:border-t-0 md:border-0 md:backdrop-blur-none z-10 flex gap-3">
               <Button
-                className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base transition-transform active:scale-[0.98]"
+                onClick={handleMessageSeller}
+                disabled={messagingLoading || listing?.status === 'sold'}
+                className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base transition-transform active:scale-[0.98] disabled:opacity-60"
               >
-                Message Seller
+                {messagingLoading ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Opening...</>
+                ) : (
+                  'Message Seller'
+                )}
               </Button>
               <Button
                 variant="outline"
