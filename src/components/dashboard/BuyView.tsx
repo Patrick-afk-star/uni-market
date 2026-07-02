@@ -34,7 +34,8 @@ import { useAuth } from "@/context/AuthContext";
 interface BuyViewProps {
   searchQuery: string;
   isVerified: boolean;
-  onMessageClick: () => void;
+  /** Called with the listing id when the user wants to message the seller */
+  onMessageClick: (listingId: string) => void;
   onVerificationRequired: () => void;
 }
 
@@ -296,12 +297,12 @@ export function BuyView({
     }
   };
 
-  const handleMessageClick = (e: React.MouseEvent) => {
+  const handleMessageClick = (e: React.MouseEvent, listingId: string) => {
     e.stopPropagation();
     if (!isVerified) {
       onVerificationRequired();
     } else {
-      onMessageClick();
+      onMessageClick(listingId);
     }
   };
 
@@ -609,7 +610,7 @@ interface ProductCardProps {
   isSaved: boolean;
   onToggleSave: () => void;
   isVerified: boolean;
-  onMessageClick: (e: React.MouseEvent) => void;
+  onMessageClick: (e: React.MouseEvent, listingId: string) => void;
   onVerificationRequired: () => void;
   onClick?: () => void;
 }
@@ -682,7 +683,7 @@ function ProductCard({
           <Button
             size="sm"
             variant="ghost"
-            onClick={onMessageClick}
+            onClick={(e) => onMessageClick(e, product.id)}
             className="hidden sm:inline-flex h-7 px-2 text-[10px] sm:text-xs text-primary hover:bg-white/10 cursor-pointer transition-colors"
           >
             <MessageSquare className="w-3 h-3 mr-1" />
