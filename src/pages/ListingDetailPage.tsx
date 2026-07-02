@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Clock, Eye, MessageSquare, Heart, AlertCircle, Flag, Loader2 } from 'lucide-react';
+import { ChevronLeft, Clock, Eye, MessageSquare, Heart, AlertCircle, Flag, Loader2, Edit, Trash2, Pause, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,7 +13,7 @@ import { startConversation } from '@/lib/messaging';
 export default function ListingDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const [listing, setListing] = useState<Listing | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +35,46 @@ export default function ListingDetailPage() {
       toast.error(err.message ?? 'Could not start conversation.');
     } finally {
       setMessagingLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id || !accessToken) return;
+    try {
+      const res = await fetch(getApiUrl(`/api/v1/listing/${id}`), {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!res.ok) throw new Error('Failed to delete');
+      toast.success('Listing deleted');
+      navigate('/dashboard/listings');
+    } catch (err) {
+      toast.error('Failed to delete listing');
+    }
+  };
+
+  const handleToggleStatus = async () => {
+    if (!id || !accessToken || !listing) return;
+    const newStatus = listing.status === 'published' ? 'draft' : 'published';
+    
+    // optimistic update
+    setListing({ ...listing, status: newStatus });
+    
+    try {
+      const res = await fetch(getApiUrl(`/api/v1/listing/${id}`), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+      toast.success(`Listing ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
+    } catch (err) {
+      toast.error('Failed to update listing status');
+      // rollback
+      setListing({ ...listing, status: listing.status });
     }
   };
 
@@ -116,7 +156,7 @@ export default function ListingDetailPage() {
     );
   }
 
-  
+  const isOwner = Boolean(user && listing?.seller_info && (user.id === listing.seller_info.id || user.pk === listing.seller_info.id));
 
   return (
     <div className="flex flex-col md:block h-full">
@@ -129,6 +169,22 @@ export default function ListingDetailPage() {
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
           Back
         </button>
+
+        {/* Owner Toolbar */}
+        {isOwner && (
+          <div className="flex items-center gap-2 mb-6 p-3 bg-secondary/20 border border-white/[0.06] rounded-xl overflow-x-auto scrollbar-hide">
+             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mr-auto px-2 shrink-0">Manage Listing</span>
+             <Button variant="outline" size="sm" className="h-8 shrink-0 hover:bg-[#1a1a1a]" onClick={() => navigate(`/dashboard/edit/${id}`)}>
+               <Edit className="w-3.5 h-3.5 mr-1.5" /> Edit
+             </Button>
+             <Button variant="outline" size="sm" className="h-8 shrink-0 hover:bg-[#1a1a1a]" onClick={handleToggleStatus}>
+               {listing.status === 'published' ? <><Pause className="w-3.5 h-3.5 mr-1.5" /> Unpublish</> : <><Play className="w-3.5 h-3.5 mr-1.5" /> Publish</>}
+             </Button>
+             <Button variant="destructive" size="sm" className="h-8 shrink-0 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white border-transparent" onClick={handleDelete}>
+               <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Delete
+             </Button>
+          </div>
+        )}
 
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           {/* Left Column: Images */}

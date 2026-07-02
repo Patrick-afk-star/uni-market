@@ -13,6 +13,7 @@ import type { Listing } from '@/types';
 import { getApiUrl } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export function MyListings() {
   const { accessToken } = useAuth();
@@ -85,7 +86,7 @@ export function MyListings() {
   const handleDelete = async (id: string) => {
     if (!accessToken) return;
     try {
-      const res = await fetch(getApiUrl(`/api/v1/listing/${id}/delete`), {
+      const res = await fetch(getApiUrl(`/api/v1/listing/${id}`), {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -93,19 +94,50 @@ export function MyListings() {
       });
       if (!res.ok) throw new Error('Failed to delete listing');
       setListings((prev) => prev.filter((l) => l.id !== id));
+      toast.success('Listing deleted successfully');
     } catch (err) {
       console.error(err);
+      toast.error('Failed to delete listing');
     }
   };
 
-  const handleToggleStatus = (id: string) => {
+  const handleToggleStatus = async (id: string) => {
+    if (!accessToken) return;
+    
+    // Find the listing to determine its current status
+    const listing = listings.find((l) => l.id === id);
+    if (!listing) return;
+    
+    const newStatus = listing.status === 'published' ? 'draft' : 'published';
+
+    // Optimistic UI update
     setListings((prev) =>
       prev.map((l) =>
-        l.id === id
-          ? { ...l, status: l.status === 'published' ? 'draft' : 'published' }
-          : l
+        l.id === id ? { ...l, status: newStatus } : l
       )
     );
+
+    try {
+      const res = await fetch(getApiUrl(`/api/v1/listing/${id}`), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+      toast.success(`Listing ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update listing status');
+      // Rollback optimistic update
+      setListings((prev) =>
+        prev.map((l) =>
+          l.id === id ? { ...l, status: listing.status } : l
+        )
+      );
+    }
   };
 
   const getStatusBadge = (status: Listing['status']) => {
@@ -143,7 +175,8 @@ export function MyListings() {
         {listings.map((listing) => (
           <div
             key={listing.id}
-            className="listing-card bg-[#121212] rounded-2xl p-4 border border-white/[0.06] transition-colors"
+            onClick={() => navigate(`/dashboard/listing/${listing.id}`)}
+            className="listing-card bg-[#121212] rounded-2xl p-4 border border-white/[0.06] transition-colors cursor-pointer hover:border-white/[0.14]"
           >
             {/* Image */}
             <div className="aspect-video rounded-xl bg-secondary overflow-hidden mb-4">
@@ -194,19 +227,27 @@ export function MyListings() {
                 </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 cursor-pointer hover:bg-[#1a1a1a]">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 cursor-pointer hover:bg-[#1a1a1a]"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <MoreHorizontal className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-[#121212] border border-white/[0.06]">
                     <DropdownMenuItem 
-                      onClick={() => navigate(`/dashboard/edit/${listing.id}`)}
+                      onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/edit/${listing.id}`); }}
                       className="cursor-pointer hover:bg-[#1a1a1a]"
                     >
                       <Edit className="w-4 h-4 mr-2" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleToggleStatus(listing.id)} className="cursor-pointer hover:bg-[#1a1a1a]">
+                    <DropdownMenuItem 
+                      onClick={(e) => { e.stopPropagation(); handleToggleStatus(listing.id); }} 
+                      className="cursor-pointer hover:bg-[#1a1a1a]"
+                    >
                       {listing.status === 'published' ? (
                         <>
                           <Pause className="w-4 h-4 mr-2" />
@@ -220,7 +261,7 @@ export function MyListings() {
                       )}
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onClick={() => handleDelete(listing.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(listing.id); }}
                       className="text-destructive cursor-pointer hover:bg-[#1a1a1a]"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
