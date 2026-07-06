@@ -17,9 +17,10 @@ interface HeaderProps {
   onCreateClick: () => void;
   isVerified: boolean;
   onMenuClick?: () => void;
+  unreadCount?: number;
 }
 
-export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified, onMenuClick }: HeaderProps) {
+export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified, onMenuClick, unreadCount = 0 }: HeaderProps) {
   const [isFocused, setIsFocused] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
@@ -86,30 +87,30 @@ export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified,
           )}
 
           {/* Messages */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="cursor-pointer relative w-10 h-10 rounded-xl hover:bg-[#bb740a]/10 transition-colors"
-              >
-                <MessageSquare className="w-5 h-5 text-muted-foreground" />
-                <Badge className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 flex items-center justify-center text-[10px] bg-[#bb740a] text-white">
-                  3
-                </Badge>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-72 bg-[#121212] border border-[#121212]">
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#bb740a]/10">
-                <span className="font-medium">New message from Sarah</span>
-                <span className="text-xs text-muted-foreground">Is the laptop still available?</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#bb740a]/10">
-                <span className="font-medium">Price offer from David</span>
-                <span className="text-xs text-muted-foreground">Would you take 20,000 for the textbook?</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="hidden md:block">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="cursor-pointer relative w-10 h-10 rounded-xl hover:bg-[#bb740a]/10 transition-colors"
+                >
+                  <MessageSquare className="w-5 h-5 text-muted-foreground" />
+                  {unreadCount > 0 && (
+                    <Badge className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 flex items-center justify-center text-[10px] bg-[#bb740a] text-white">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </Badge>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-72 bg-[#121212] border border-[#121212]">
+                <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#bb740a]/10 cursor-pointer" onClick={() => window.location.href='/dashboard/messages'}>
+                  <span className="font-medium">{unreadCount > 0 ? 'New messages' : 'Go to Messages'}</span>
+                  <span className="text-xs text-muted-foreground">{unreadCount > 0 ? `You have ${unreadCount} unread message${unreadCount > 1 ? 's' : ''}` : 'No unread messages'}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
           {/* Notifications */}
           <DropdownMenu>

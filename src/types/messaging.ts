@@ -14,7 +14,7 @@ export interface ConversationListing {
   thumbnail: string | null;
 }
 
-/** Shape returned by GET /api/messaging/conversations/ and the start endpoint */
+/** Shape returned by GET /api/v1/conversation/ and the start endpoint */
 export interface Conversation {
   id: string;
   listing: ConversationListing;

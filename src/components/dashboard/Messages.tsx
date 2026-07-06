@@ -11,6 +11,7 @@ import {
   Loader2,
   ChevronLeft,
   MessageSquare,
+  Trash2,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ import {
   getConversation,
   listMessages,
   sendMessage,
+  deleteMessage,
   archiveConversation,
   unarchiveConversation,
 } from '@/lib/messaging';
@@ -102,6 +104,11 @@ export function Messages({
   const [threadLoading, setThreadLoading] = useState(false);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
+
+  // ── delete-message state ───────────────────────────────────────────────────
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deletingMsgId, setDeletingMsgId] = useState<string | null>(null);
+  const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null);
 
   // ── mobile layout ──────────────────────────────────────────────────────────
   // On small screens we show either the list OR the thread, not both.
@@ -220,6 +227,29 @@ export function Messages({
       setNewMessage(body); // restore so user can retry
     } finally {
       setSending(false);
+    }
+  };
+
+  // ── delete a single message ────────────────────────────────────────────────
+  const handleDeleteMessage = async (msgId: string) => {
+    if (!accessToken || !selectedConvId || deletingMsgId) return;
+    setDeletingMsgId(msgId);
+    setConfirmDeleteId(null);
+    // Optimistic removal
+    setMessages((prev) => prev.filter((m) => m.id !== msgId));
+    try {
+      await deleteMessage(accessToken, selectedConvId, msgId);
+    } catch (err: any) {
+      // Rollback on failure by re-fetching
+      toast.error(err.message ?? 'Could not delete message.');
+      try {
+        const msgs = await listMessages(accessToken, selectedConvId);
+        setMessages(msgs);
+      } catch {
+        // ignore
+      }
+    } finally {
+      setDeletingMsgId(null);
     }
   };
 
@@ -522,51 +552,102 @@ export function Messages({
                       const showAvatar =
                         index === 0 ||
                         messages[index - 1].is_mine !== msg.is_mine;
+                      const isConfirming = confirmDeleteId === msg.id;
+                      const isDeleting = deletingMsgId === msg.id;
+                      const isHovered = hoveredMsgId === msg.id;
                       return (
                         <div
                           key={msg.id}
-                          className={`flex ${msg.is_mine ? 'justify-end' : 'justify-start'} items-end gap-2`}
+                          onMouseEnter={() => msg.is_mine && setHoveredMsgId(msg.id)}
+                          onMouseLeave={() => setHoveredMsgId(null)}
                         >
-                          {!msg.is_mine && showAvatar && (
-                            <Avatar className="w-7 h-7 flex-shrink-0">
-                              <AvatarImage
-                                src={resolveAvatar(msg.sender.avatar)}
-                              />
-                              <AvatarFallback className="text-[10px] bg-[#1a1a1a]">
-                                {`${msg.sender.first_name?.[0] ?? ''}${msg.sender.last_name?.[0] ?? ''}`.toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                          )}
-                          {!msg.is_mine && !showAvatar && (
-                            <div className="w-7" />
+                          {/* Inline delete-confirmation bar */}
+                          {isConfirming && (
+                            <div className="flex justify-end items-center gap-2 mb-1.5 pr-1">
+                              <span className="text-xs text-[#a0a0a0]">Delete this message?</span>
+                              <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                className="text-xs px-2.5 py-1 rounded-lg bg-[#1a1a1a] text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={() => handleDeleteMessage(msg.id)}
+                                className="text-xs px-2.5 py-1 rounded-lg bg-red-500/15 text-red-400 hover:bg-red-500/25 font-medium transition-colors"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           )}
 
                           <div
-                            className={`max-w-[70%] px-4 py-2.5 rounded-2xl ${msg.is_mine
-                                ? 'bg-[#20e0bb] text-black rounded-br-md'
-                                : 'bg-[#1a1a1a] text-foreground rounded-bl-md'
-                              }`}
+                            className={`flex ${
+                              msg.is_mine ? 'justify-end' : 'justify-start'
+                            } items-end gap-2`}
                           >
-                            <p className="text-sm whitespace-pre-wrap break-words">
-                              {msg.body}
-                            </p>
-                            <div
-                              className={`flex items-center gap-1 mt-1 ${msg.is_mine ? 'justify-end' : ''}`}
-                            >
-                              <span
-                                className={`text-[10px] ${msg.is_mine ? 'text-black/60' : 'text-muted-foreground'}`}
+                            {!msg.is_mine && showAvatar && (
+                              <Avatar className="w-7 h-7 flex-shrink-0">
+                                <AvatarImage src={resolveAvatar(msg.sender.avatar)} />
+                                <AvatarFallback className="text-[10px] bg-[#1a1a1a]">
+                                  {`${msg.sender.first_name?.[0] ?? ''}${
+                                    msg.sender.last_name?.[0] ?? ''
+                                  }`.toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                            )}
+                            {!msg.is_mine && !showAvatar && <div className="w-7" />}
+
+                            {/* Trash button – only for own messages, shown on hover */}
+                            {msg.is_mine && (
+                              <button
+                                onClick={() =>
+                                  setConfirmDeleteId(isConfirming ? null : msg.id)
+                                }
+                                disabled={!!isDeleting}
+                                style={{ opacity: isHovered || isConfirming || isDeleting ? 1 : 0 }}
+                                className="transition-opacity duration-150 p-1.5 rounded-lg hover:bg-red-500/15 text-[#777] hover:text-red-400 flex-shrink-0 self-center"
+                                title="Delete message"
                               >
-                                {formatMessageTime(msg.created_at)}
-                              </span>
-                              {msg.is_mine && (
-                                <span className="text-black/60">
-                                  {msg.read_at ? (
-                                    <CheckCheck className="w-3 h-3" />
-                                  ) : (
-                                    <Check className="w-3 h-3 opacity-50" />
-                                  )}
+                                {isDeleting ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            )}
+
+                            <div
+                              className={`max-w-[70%] px-4 py-2.5 rounded-2xl ${
+                                msg.is_mine
+                                  ? 'bg-[#20e0bb] text-black rounded-br-md'
+                                  : 'bg-[#1a1a1a] text-foreground rounded-bl-md'
+                              } ${isDeleting ? 'opacity-40' : ''} transition-opacity`}
+                            >
+                              <p className="text-sm whitespace-pre-wrap break-words">
+                                {msg.body}
+                              </p>
+                              <div
+                                className={`flex items-center gap-1 mt-1 ${
+                                  msg.is_mine ? 'justify-end' : ''
+                                }`}
+                              >
+                                <span
+                                  className={`text-[10px] ${
+                                    msg.is_mine ? 'text-black/60' : 'text-muted-foreground'
+                                  }`}
+                                >
+                                  {formatMessageTime(msg.created_at)}
                                 </span>
-                              )}
+                                {msg.is_mine && (
+                                  <span className="text-black/60">
+                                    {msg.read_at ? (
+                                      <CheckCheck className="w-3 h-3" />
+                                    ) : (
+                                      <Check className="w-3 h-3 opacity-50" />
+                                    )}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>

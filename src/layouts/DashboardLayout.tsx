@@ -9,7 +9,10 @@ import { useVerification } from '@/hooks/useVerification';
 import type { ViewMode } from '@/types';
 import { Toaster } from '@/components/dashboard/ui/sonner';
 import { toast } from 'sonner';
-import { Search, Plus, MessageSquare, User } from 'lucide-react';
+import { Search, Plus, MessageSquare, User, X } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { listConversations } from '@/lib/messaging';
+import { useEffect } from 'react';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -27,6 +30,61 @@ export default function DashboardLayout() {
     isPending,
     isUnverified,
   } = useVerification();
+  
+  const { user, accessToken } = useAuth();
+  const [hideBanner, setHideBanner] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user && accessToken) {
+      listConversations(accessToken, false)
+        .then((conversations) => {
+          const count = conversations.reduce((acc, conv) => acc + conv.unread_count, 0);
+          setUnreadCount(count);
+        })
+        .catch(err => console.error('Failed to fetch unread count:', err));
+      
+      // We could also poll this every minute or so, but doing it on mount is a good start.
+      const interval = setInterval(() => {
+        listConversations(accessToken, false)
+          .then((conversations) => {
+            const count = conversations.reduce((acc, conv) => acc + conv.unread_count, 0);
+            setUnreadCount(count);
+          })
+          .catch(() => {});
+      }, 60000); // 1 minute interval
+
+      return () => clearInterval(interval);
+    }
+  }, [user, accessToken]);
+
+  // Calculate Completion Percentage
+  const calculateCompletion = () => {
+    if (!user) return 100; // default hidden if not logged in
+    let score = 0;
+    const profile = (user as any)?.profile_details || {};
+    
+    // Bio (15%)
+    if ((user as any).bio && (user as any).bio.trim() !== '') score += 15;
+    
+    // Neighborhood (15%)
+    if (profile.neighborhood && profile.neighborhood.trim() !== '') score += 15;
+    
+    // Languages (15%)
+    if (profile.languages && profile.languages.length > 0) score += 15;
+    
+    // Social Links (15%)
+    if (profile.socialLinks && Object.values(profile.socialLinks).some(link => typeof link === 'string' && link.trim() !== '')) score += 15;
+    
+    // Contact Preferences (20%)
+    if (profile.contactPrefs && profile.contactPrefs.length > 0) score += 20;
+    
+    // Phone Verification (20%) - falling back to overall verification state if no phone explicitly marked
+    if ((user as any).phone_number || isVerified) score += 20;
+
+    return Math.min(score, 100);
+  };
+  const completionPercentage = calculateCompletion();
 
   // Determine current view mode from pathname
   const getViewMode = (): ViewMode => {
@@ -78,6 +136,7 @@ export default function DashboardLayout() {
       <Sidebar
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
+        unreadCount={unreadCount}
       />
 
       {/* Main Content */}
@@ -89,7 +148,40 @@ export default function DashboardLayout() {
           onCreateClick={handleCreateClick}
           isVerified={isVerified}
           onMenuClick={() => setIsSidebarOpen(true)}
+          unreadCount={unreadCount}
         />
+
+        {/* Profile Completion Banner */}
+        {completionPercentage < 100 && !hideBanner && (
+          <div className="bg-[#bb740a]/10 border-b border-[#bb740a]/20 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in slide-in-from-top-2">
+            <div 
+              className="flex items-center gap-4 cursor-pointer" 
+              onClick={() => navigate('/dashboard/settings')}
+            >
+              <div className="w-10 h-10 rounded-full bg-[#bb740a]/20 flex items-center justify-center shrink-0">
+                <span className="text-[#bb740a] font-bold text-xs">{completionPercentage}%</span>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">Complete your seller profile to build buyer trust!</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">Your profile is currently {completionPercentage}% complete.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 self-end sm:self-auto">
+              <button 
+                onClick={() => navigate('/dashboard/settings')}
+                className="px-4 py-2 bg-[#bb740a] text-white rounded-lg text-xs font-semibold hover:bg-[#bb740a]/90 transition-colors whitespace-nowrap shadow-sm shadow-[#bb740a]/20"
+              >
+                Complete Profile
+              </button>
+              <button 
+                onClick={() => setHideBanner(true)}
+                className="text-muted-foreground hover:text-foreground p-1 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Content Area */}
         <main className="flex-1 overflow-auto scrollbar-thin pb-[72px] md:pb-0">
@@ -190,7 +282,14 @@ export default function DashboardLayout() {
                   isActive ? 'text-[#bb740a]' : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+                <div className="relative">
+                  <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+                  {item.id === 'messages' && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#bb740a] rounded-full text-white text-[8px] font-bold flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </div>
                 <span className="text-[10px] font-medium">{item.label}</span>
               </button>
             );

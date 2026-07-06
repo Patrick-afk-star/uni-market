@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Clock, Eye, MessageSquare, Heart, AlertCircle, Flag, Loader2, Edit, Trash2, Pause, Play } from 'lucide-react';
+import { ChevronLeft, Clock, Eye, MessageSquare, Heart, AlertCircle, Flag, Loader2, Edit, Trash2, Pause, Play, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -363,6 +363,53 @@ export default function ListingDetailPage() {
                 <Heart className="w-5 h-5" />
               </Button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Global Transaction Safety Card */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 pb-28 md:pb-12">
+        <div className="bg-[#0a0a0a] border border-white/[0.08] rounded-2xl p-6 relative overflow-hidden">
+          {/* Decorative glow */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#177865]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="flex items-start gap-4 mb-5">
+            <div className="w-10 h-10 rounded-xl bg-[#177865]/15 border border-[#177865]/25 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-[#177865]" />
+            </div>
+            <div>
+              <h3 className="font-bold text-foreground text-base">Marketplace Safety Reminder</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">UniMarket is committed to keeping student transactions safe. Please follow these guidelines.</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+            {[
+              { icon: '🏫', title: 'Meet on Campus', body: 'Always conduct transactions in public, well-lit areas on campus or in busy common spaces.' },
+              { icon: '🔍', title: 'Verify Before You Pay', body: 'Inspect the item thoroughly in person before making any payment. Never pay in advance for unseen goods.' },
+              { icon: '💬', title: 'Use Platform Messaging', body: 'Keep all communication within UniMarket. Avoid switching to unmonitored channels before a deal is confirmed.' },
+              { icon: '🚫', title: 'No Wire Transfers', body: 'Avoid sending money via untraceable methods. Prefer cash on delivery or verified mobile money in person.' },
+              { icon: '✅', title: 'Trust Verified Sellers', body: 'Look for the Verified Student badge. Verified sellers have had their student status confirmed by UniMarket.' },
+              { icon: '📦', title: 'Check Item Condition', body: 'Test electronics, check book editions, and confirm item condition matches the listing before completing a deal.' },
+            ].map((tip, i) => (
+              <div key={i} className="flex gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] transition-colors">
+                <span className="text-xl shrink-0 mt-0.5">{tip.icon}</span>
+                <div>
+                  <p className="text-xs font-semibold text-foreground">{tip.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{tip.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-[#bb740a] shrink-0" />
+              <p className="text-xs text-muted-foreground">See something suspicious? Help keep our community safe.</p>
+            </div>
+            <button
+              onClick={() => toast.info('Thank you for helping keep UniMarket safe. Our team will review your report.')}
+              className="flex items-center gap-1.5 text-xs font-semibold text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/15 border border-red-500/20 px-4 py-2 rounded-xl transition-all whitespace-nowrap shrink-0"
+            >
+              <Flag className="w-3.5 h-3.5" /> Report Suspicious Activity
+            </button>
           </div>
         </div>
       </div>

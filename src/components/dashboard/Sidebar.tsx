@@ -20,11 +20,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 interface SidebarProps {
   isOpen?: boolean;
   setIsOpen?: (isOpen: boolean) => void;
+  unreadCount?: number;
 }
 
 export function Sidebar({
   isOpen,
   setIsOpen,
+  unreadCount = 0,
 }: SidebarProps) {
   const navRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
@@ -115,7 +117,11 @@ export function Sidebar({
                   }`}
               />
               <span className="flex-1 text-left">{item.label}</span>
-              {isActive && (
+              {item.id === 'messages' && unreadCount > 0 ? (
+                <span className="w-5 h-5 rounded-full bg-[#bb740a] text-white text-[10px] font-bold flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              ) : isActive && (
                 <div className="w-1.5 h-1.5 rounded-full bg-[#bb740a]" />
               )}
             </button>

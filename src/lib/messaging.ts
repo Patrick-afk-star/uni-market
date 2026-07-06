@@ -24,14 +24,14 @@ async function handleResponse<T>(res: Response): Promise<T> {
 // ─── API functions ────────────────────────────────────────────────────────────
 
 /**
- * POST /messaging/conversations/start/
+ * POST /conversation/start/
  * Returns 200 (existing) or 201 (new) with the Conversation object.
  */
 export async function startConversation(
   token: string,
   listingId: string
 ): Promise<Conversation> {
-  const res = await fetch(getApiUrl('/messaging/conversations/start/'), {
+  const res = await fetch(getApiUrl('/conversation/start/'), {
     method: 'POST',
     headers: authHeaders(token),
     body: JSON.stringify({ listing_id: listingId }),
@@ -40,49 +40,49 @@ export async function startConversation(
 }
 
 /**
- * GET /messaging/conversations/?archived=false
+ * GET /conversation/?archived=false
  */
 export async function listConversations(
   token: string,
   archived = false
 ): Promise<Conversation[]> {
   const res = await fetch(
-    getApiUrl(`/messaging/conversations/?archived=${archived}`),
+    getApiUrl(`/conversation/?archived=${archived}`),
     { headers: authHeaders(token) }
   );
   return handleResponse<Conversation[]>(res);
 }
 
 /**
- * GET /messaging/conversations/{id}/
+ * GET /conversation/{id}/
  * Also marks the other person's messages as read server-side.
  */
 export async function getConversation(
   token: string,
   id: string
 ): Promise<Conversation> {
-  const res = await fetch(getApiUrl(`/messaging/conversations/${id}/`), {
+  const res = await fetch(getApiUrl(`/conversation/${id}/`), {
     headers: authHeaders(token),
   });
   return handleResponse<Conversation>(res);
 }
 
 /**
- * GET /messaging/conversations/{id}/messages/
+ * GET /conversation/{id}/messages/
  */
 export async function listMessages(
   token: string,
   conversationId: string
 ): Promise<Message[]> {
   const res = await fetch(
-    getApiUrl(`/messaging/conversations/${conversationId}/messages/`),
+    getApiUrl(`/conversation/${conversationId}/messages/`),
     { headers: authHeaders(token) }
   );
   return handleResponse<Message[]>(res);
 }
 
 /**
- * POST /messaging/conversations/{id}/messages/
+ * POST /conversation/{id}/messages/
  */
 export async function sendMessage(
   token: string,
@@ -90,7 +90,7 @@ export async function sendMessage(
   body: string
 ): Promise<Message> {
   const res = await fetch(
-    getApiUrl(`/messaging/conversations/${conversationId}/messages/`),
+    getApiUrl(`/conversation/${conversationId}/messages/`),
     {
       method: 'POST',
       headers: authHeaders(token),
@@ -101,28 +101,43 @@ export async function sendMessage(
 }
 
 /**
- * POST /messaging/conversations/{id}/archive/
+ * DELETE /conversation/{conversationId}/messages/{messageId}/
+ */
+export async function deleteMessage(
+  token: string,
+  conversationId: string,
+  messageId: string
+): Promise<void> {
+  const res = await fetch(
+    getApiUrl(`/conversation/${conversationId}/messages/${messageId}/`),
+    { method: 'DELETE', headers: authHeaders(token) }
+  );
+  return handleResponse<void>(res);
+}
+
+/**
+ * POST /conversation/{id}/archive/
  */
 export async function archiveConversation(
   token: string,
   id: string
 ): Promise<void> {
   const res = await fetch(
-    getApiUrl(`/messaging/conversations/${id}/archive/`),
+    getApiUrl(`/conversation/${id}/archive/`),
     { method: 'POST', headers: authHeaders(token) }
   );
   return handleResponse<void>(res);
 }
 
 /**
- * DELETE /messaging/conversations/{id}/archive/
+ * DELETE /conversation/{id}/archive/
  */
 export async function unarchiveConversation(
   token: string,
   id: string
 ): Promise<void> {
   const res = await fetch(
-    getApiUrl(`/messaging/conversations/${id}/archive/`),
+    getApiUrl(`/conversation/${id}/archive/`),
     { method: 'DELETE', headers: authHeaders(token) }
   );
   return handleResponse<void>(res);

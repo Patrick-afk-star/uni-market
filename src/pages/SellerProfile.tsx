@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageCircle, Loader2, AlertCircle, GraduationCap, Package, MapPin } from "lucide-react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { 
+  ArrowLeft, MessageCircle, Loader2, AlertCircle, GraduationCap, 
+  Package, MapPin, Share2, Clock, Link as LinkIcon, Star, ShieldCheck, 
+  Mail, Phone, MessageSquare, Instagram, Facebook, Twitter, Github, Linkedin, Copy, ChevronRight
+} from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -20,16 +24,23 @@ interface SellerProfileData {
   } | null;
   bio: string | null;
   date_joined: string | null;
+  province?: string;
+  district?: string;
+  languages?: string[];
+  socialLinks?: Record<string, string>;
+  contactPrefs?: string[];
+  privacySettings?: Record<string, boolean>;
 }
 
 export default function SellerProfile() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const [seller, setSeller] = useState<SellerProfileData | null>(null);
   const [sellerProducts, setSellerProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showShareTray, setShowShareTray] = useState(false);
 
   const resolveImageUrl = (url: string): string => {
     if (!url) return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
@@ -78,23 +89,44 @@ export default function SellerProfile() {
         }
         const profileData = await profileRes.json();
         
-        const sellerObj = {
+        let sellerObj: SellerProfileData = {
           id: profileData.id || id,
           name: profileData.name || profileData.display_name || profileData.first_name || "Student Seller",
           avatar_url: profileData.avatar_url || null,
           account_type: profileData.account_type || "student",
           student_profile: profileData.student_profile || (profileData.university ? { university: profileData.university } : null),
           bio: profileData.bio || "",
-          date_joined: profileData.date_joined || profileData.created_at || null,
+          date_joined: profileData.date_joined || profileData.created_at || new Date().toISOString(),
+          province: profileData.profile_details?.province || profileData.province || "Kigali City", // Fallback/Mock
+          district: profileData.profile_details?.district || profileData.district || "Kicukiro", // Fallback/Mock
+          languages: profileData.profile_details?.languages || profileData.languages || ["English", "Kinyarwanda"],
+          contactPrefs: profileData.profile_details?.contactPrefs || profileData.contactPrefs || ["UniMarket Chat", "WhatsApp"],
+          socialLinks: profileData.profile_details?.socialLinks || profileData.socialLinks || {},
+          privacySettings: profileData.privacy_settings || { showPhone: true, showUniversity: true },
         };
+
+        // Merge with current user's profile details if viewing own profile
+        const isSelf = user?.id === sellerObj.id || (user as any)?.pk === sellerObj.id;
+        if (isSelf && (user as any)?.profile_details) {
+          const pd = (user as any).profile_details;
+          sellerObj = {
+            ...sellerObj,
+            province: pd.province || sellerObj.province,
+            district: pd.district || sellerObj.district,
+            languages: pd.languages && pd.languages.length > 0 ? pd.languages : sellerObj.languages,
+            contactPrefs: pd.contactPrefs && pd.contactPrefs.length > 0 ? pd.contactPrefs : sellerObj.contactPrefs,
+            socialLinks: pd.socialLinks || sellerObj.socialLinks,
+            privacySettings: (user as any).privacy_settings || sellerObj.privacySettings,
+          };
+        }
+
         setSeller(sellerObj);
 
-        // Fetch Seller Listings from /api/v1/listing/
+        // Fetch Seller Listings
         const listingsRes = await fetch(getApiUrl("/api/v1/listing/"), { headers });
         if (listingsRes.ok) {
           const listingsData = await listingsRes.json();
           if (Array.isArray(listingsData)) {
-            // Filter by seller ID
             const filtered = listingsData
               .filter((item: any) => {
                 const sellerId = item.seller_info?.id || item.seller_id;
@@ -133,7 +165,7 @@ export default function SellerProfile() {
     };
 
     fetchProfileAndListings();
-  }, [id, accessToken]);
+  }, [id, accessToken, user]);
 
   if (isLoading) {
     return (
@@ -160,137 +192,323 @@ export default function SellerProfile() {
   }
 
   const initial = seller.name ? seller.name.charAt(0).toUpperCase() : "S";
+  const isSelf = user?.id === seller.id || (user as any)?.pk === seller.id;
+
+  const calculateCompletion = () => {
+    let score = 0;
+    if (seller.bio) score += 15;
+    if (seller.district && seller.province) score += 15;
+    if (seller.languages && seller.languages.length > 0) score += 15;
+    if (seller.socialLinks && Object.values(seller.socialLinks).some(v => v)) score += 15;
+    if (seller.contactPrefs && seller.contactPrefs.length > 0) score += 20;
+    if (seller.account_type === 'student') score += 20; // Using student verification as phone verification proxy
+    return Math.min(score, 100);
+  };
+  const completionPercent = calculateCompletion();
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(`https://uni-marketrwanda.online/profile/${seller.id}`);
+    toast.success("Profile link copied to clipboard!");
+    setShowShareTray(false);
+  };
+
+  const getSocialIcon = (platform: string) => {
+    switch (platform) {
+      case 'linkedin': return <Linkedin className="w-4 h-4" />;
+      case 'github': return <Github className="w-4 h-4" />;
+      case 'instagram': return <Instagram className="w-4 h-4" />;
+      case 'facebook': return <Facebook className="w-4 h-4" />;
+      case 'x': return <Twitter className="w-4 h-4" />;
+      default: return <LinkIcon className="w-4 h-4" />;
+    }
+  };
+
+  const getContactIcon = (pref: string) => {
+    switch (pref) {
+      case 'UniMarket Chat': return <MessageSquare className="w-4 h-4" />;
+      case 'WhatsApp': return <MessageCircle className="w-4 h-4 text-green-500" />;
+      case 'Phone Call': return <Phone className="w-4 h-4" />;
+      case 'Email': return <Mail className="w-4 h-4" />;
+      default: return <MessageSquare className="w-4 h-4" />;
+    }
+  };
+
+  // Mock tenure
+  const joinDate = new Date(seller.date_joined || new Date());
+  const formattedDate = joinDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="max-w-5xl mx-auto py-8 px-4 md:px-6 animate-in fade-in duration-500 space-y-10">
-      <div>
-        {/* Back Navigation */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-6 group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back
-        </button>
+    <div className="max-w-7xl mx-auto py-8 px-4 md:px-6 animate-in fade-in duration-500">
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors mb-6 group w-fit"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+        Back
+      </button>
 
-        {/* Profile Card */}
-        <Card className="bg-[#0f0f0f] border-white/[0.06] p-6 md:p-8 rounded-2xl relative overflow-hidden">
-          {/* Subtle Background Glow */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-[#bb740a]/5 rounded-full blur-3xl pointer-events-none" />
+      {/* Banner / Cover */}
+      <div className="w-full h-48 md:h-64 rounded-t-3xl bg-gradient-to-r from-[#0a0a0a] via-[#1a1a1a] to-[#2a2a2a] relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div className="absolute top-4 right-4 z-10">
+          <div className="relative">
+            <Button 
+              variant="secondary" 
+              size="icon" 
+              className="rounded-full bg-black/40 backdrop-blur-md border-white/10 hover:bg-black/60 text-white shadow-lg"
+              onClick={() => setShowShareTray(!showShareTray)}
+            >
+              <Share2 className="w-4 h-4" />
+            </Button>
+            {showShareTray && (
+              <div className="absolute top-12 right-0 bg-[#121212] border border-white/10 rounded-xl p-2 shadow-2xl w-48 z-50 animate-in slide-in-from-top-2">
+                <button onClick={handleShare} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-white/5 rounded-lg transition-colors">
+                  <Copy className="w-4 h-4" /> Copy Link
+                </button>
+                <div className="h-px bg-white/10 my-1 mx-2" />
+                <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-white/5 rounded-lg transition-colors">
+                  <MessageCircle className="w-4 h-4 text-green-500" /> Share via WhatsApp
+                </button>
+                <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-white/5 rounded-lg transition-colors">
+                  <Twitter className="w-4 h-4 text-sky-500" /> Share via X
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
-          <div className="flex flex-col md:flex-row gap-6 items-center md:items-start relative z-10">
-            {/* Avatar Layout */}
-            <Avatar className="w-24 h-24 md:w-28 md:h-28 ring-4 ring-white/[0.04] shrink-0">
-              <AvatarImage src={seller.avatar_url || ""} alt={seller.name} className="object-cover" />
-              <AvatarFallback className="bg-[#2a2a2a] text-[#a0a0a0] text-3xl font-bold">
-                {initial}
-              </AvatarFallback>
-            </Avatar>
-
-            {/* Identity & Bio */}
-            <div className="flex-1 min-w-0 space-y-3 text-center md:text-left">
-              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 justify-center md:justify-start">
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-none">{seller.name}</h2>
-                {seller.account_type === "student" && (
-                  <Badge className="bg-[#177865]/10 text-[#2aa67f] hover:bg-[#177865]/10 border-0 text-[11px] font-semibold w-fit mx-auto md:mx-0 px-2.5 py-0.5 rounded-full">
-                    Verified Student
-                  </Badge>
-                )}
+      <div className="flex flex-col lg:flex-row gap-8 -mt-20 relative z-20 px-2 sm:px-6">
+        
+        {/* LEFT COLUMN: Profile Info & Stats */}
+        <div className="lg:w-[350px] shrink-0 space-y-6">
+          <Card className="bg-[#0f0f0f] border-white/[0.08] p-6 rounded-3xl shadow-xl backdrop-blur-xl">
+            <div className="flex flex-col items-center text-center">
+              <Avatar className="w-32 h-32 ring-4 ring-[#0f0f0f] shadow-2xl mb-4 bg-background">
+                <AvatarImage src={seller.avatar_url || ""} alt={seller.name} className="object-cover" />
+                <AvatarFallback className="bg-[#2a2a2a] text-[#a0a0a0] text-4xl font-bold">
+                  {initial}
+                </AvatarFallback>
+              </Avatar>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">{seller.name}</h1>
+              
+              {/* Rating Block */}
+              <div className="flex items-center gap-1.5 mt-2 cursor-pointer hover:bg-white/5 px-3 py-1.5 rounded-full transition-colors">
+                <Star className="w-4 h-4 fill-[#bb740a] text-[#bb740a]" />
+                <span className="font-semibold text-foreground text-sm">4.9</span>
+                <span className="text-muted-foreground text-sm">(32 Reviews)</span>
+                <ChevronRight className="w-3 h-3 text-muted-foreground ml-1" />
               </div>
 
-              {/* University */}
-              {seller.student_profile?.university && (
-                <div className="flex items-center justify-center md:justify-start text-muted-foreground text-sm gap-2">
-                  <GraduationCap className="w-4 h-4 text-primary shrink-0" />
-                  <span className="truncate">{seller.student_profile.university}</span>
+              {/* Status & Tenure */}
+              <div className="flex flex-col items-center gap-1 mt-4 text-sm">
+                <div className="flex items-center gap-1.5 text-green-500 font-medium">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                  </span>
+                  Active Now
+                </div>
+                <div className="flex items-center gap-1.5 text-muted-foreground text-xs mt-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  Member since {formattedDate}
+                </div>
+              </div>
+
+              {/* Trust Indicators */}
+              <div className="flex flex-wrap justify-center gap-2 mt-5 w-full">
+                {seller.account_type === "student" && (
+                  <Badge className="bg-[#177865]/10 text-[#2aa67f] hover:bg-[#177865]/10 border border-[#177865]/20 px-2.5 py-1">
+                    <ShieldCheck className="w-3 h-3 mr-1.5" /> Verified Student
+                  </Badge>
+                )}
+                <Badge className="bg-blue-500/10 text-blue-400 hover:bg-blue-500/10 border border-blue-500/20 px-2.5 py-1">
+                  Good Standing
+                </Badge>
+              </div>
+
+              {/* Bio */}
+              <p className="text-sm text-foreground/80 mt-6 leading-relaxed">
+                {seller.bio || "No bio provided yet."}
+              </p>
+
+              {/* Action Buttons */}
+              {!isSelf && (
+                <div className="flex gap-2 w-full mt-6">
+                  <Button className="flex-1 bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 font-semibold">
+                    <MessageCircle className="w-4 h-4 mr-2" /> Message
+                  </Button>
                 </div>
               )}
 
-              {/* Bio Section */}
-              <div className="pt-2">
-                <p className="text-sm text-foreground/80 leading-relaxed font-normal">
-                  {seller.bio && seller.bio.trim() !== "" 
-                    ? seller.bio 
-                    : "This seller hasn't added a bio yet."}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 mt-8 justify-end border-t border-white/[0.06] pt-5 relative z-10">
-            <Button 
-              variant="ghost" 
-              className="text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl h-12 order-2 sm:order-1"
-              onClick={() => toast.success("Report submitted. Our moderation team will review this account.")}
-            >
-              Report Seller
-            </Button>
-            <Button 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 h-12 rounded-xl flex items-center justify-center gap-2 order-1 sm:order-2"
-            >
-              <MessageCircle className="w-5 h-5" />
-              Message {seller.name.split(" ")[0]}
-            </Button>
-          </div>
-        </Card>
-      </div>
-
-      {/* Horizontal Divider */}
-      <div className="border-t border-white/[0.06] pt-6">
-        <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-          <Package className="w-5 h-5 text-primary" />
-          Other Listings from this Seller
-        </h3>
-
-        {sellerProducts.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {sellerProducts.map((product) => (
-              <div
-                key={product.id}
-                onClick={() => navigate(`/dashboard/listing/${product.id}`)}
-                className="group bg-[#0f0f0f] rounded-2xl p-3 border border-white/[0.06] hover:border-white/[0.14] transition-all cursor-pointer"
-              >
-                {/* Image */}
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute top-2 left-2">
-                    <Badge className="bg-black/80 backdrop-blur-md text-foreground border-0 text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg">
-                      {product.condition}
-                    </Badge>
+              {/* Self-View Profile Completion Meter */}
+              {isSelf && (
+                <div className="w-full mt-6 pt-6 border-t border-white/[0.06] text-left">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Profile Completion</span>
+                    <span className="text-xs font-bold text-[#bb740a]">{completionPercent}%</span>
                   </div>
-                </div>
-
-                {/* Content */}
-                <div className="space-y-1.5">
-                  <h4 className="font-semibold text-sm text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-                    {product.title}
-                  </h4>
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-base font-bold text-primary">
-                      RWF {product.price.toLocaleString()}
-                    </span>
+                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#bb740a] transition-all duration-300" 
+                      style={{ width: `${completionPercent}%` }}
+                    />
                   </div>
-                  {product.location && (
-                    <div className="flex items-center gap-1 text-[11px] text-muted-foreground truncate">
-                      <MapPin className="w-3 h-3 shrink-0" />
-                      <span>{product.location}</span>
-                    </div>
+                  {completionPercent < 100 && (
+                    <Link to="/dashboard/settings" className="text-xs text-[#bb740a] hover:underline mt-2 inline-block">
+                      Complete your profile →
+                    </Link>
                   )}
                 </div>
-              </div>
-            ))}
+              )}
+            </div>
+          </Card>
+
+          {/* Details Card */}
+          <Card className="bg-[#0f0f0f] border-white/[0.08] p-6 rounded-3xl shadow-xl">
+            <h3 className="font-bold text-foreground mb-4">About & Contact</h3>
+            <div className="space-y-4">
+              
+              {/* University */}
+              {(seller.student_profile?.university || seller.privacySettings?.showUniversity !== false) && (
+                <div className="flex items-start gap-3 text-sm">
+                  <GraduationCap className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <div>
+                    <p className="font-medium text-foreground">University</p>
+                    <p className="text-muted-foreground">{seller.student_profile?.university || "Not specified"}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Residence */}
+              {seller.district && seller.province && (
+                <div className="flex items-start gap-3 text-sm">
+                  <MapPin className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <div>
+                    <p className="font-medium text-foreground">Residence</p>
+                    <p className="text-muted-foreground">📍 {seller.district} District, {seller.province}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Languages */}
+              {seller.languages && seller.languages.length > 0 && (
+                <div className="flex items-start gap-3 text-sm">
+                  <MessageCircle className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <div>
+                    <p className="font-medium text-foreground">Languages</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {seller.languages.map((lang, i) => (
+                        <span key={i} className="text-xs text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full border border-white/5">
+                          {lang}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Contact Preferences */}
+              {seller.contactPrefs && seller.contactPrefs.length > 0 && (
+                <div className="flex items-start gap-3 text-sm pt-4 border-t border-white/[0.06]">
+                  <Phone className="w-5 h-5 text-muted-foreground shrink-0" />
+                  <div>
+                    <p className="font-medium text-foreground">Prefers to be contacted via</p>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {seller.contactPrefs.map((pref, i) => (
+                        <span key={i} className="flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary px-2.5 py-1 rounded-lg border border-white/[0.08]">
+                          {getContactIcon(pref)} {pref}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Social Links */}
+              {seller.socialLinks && Object.values(seller.socialLinks).some(v => v) && (
+                <div className="flex items-center gap-2 pt-4 border-t border-white/[0.06]">
+                  {Object.entries(seller.socialLinks).filter(([_, url]) => url).map(([platform, url], i) => {
+                    const validUrl = url.startsWith('http') ? url : `https://${url}`;
+                    return (
+                      <a 
+                        key={i} 
+                        href={validUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-9 h-9 rounded-full bg-secondary/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                        title={platform}
+                      >
+                        {getSocialIcon(platform)}
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+
+        {/* RIGHT COLUMN: Active Listings */}
+        <div className="flex-1 space-y-6 mt-8 lg:mt-0">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <Package className="w-5 h-5 text-[#bb740a]" />
+              Active Listings ({sellerProducts.length})
+            </h2>
           </div>
-        ) : (
-          <div className="text-center py-12 bg-white/[0.02] border border-dashed border-white/[0.08] rounded-2xl">
-            <Package className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-60" />
-            <p className="text-muted-foreground text-sm font-medium">No other active listings found for this seller.</p>
-          </div>
-        )}
+
+          {sellerProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              {sellerProducts.map((product) => (
+                <div
+                  key={product.id}
+                  onClick={() => navigate(`/dashboard/listing/${product.id}`)}
+                  className="group bg-[#0f0f0f] rounded-2xl p-3 border border-white/[0.06] hover:border-white/[0.14] shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col h-full"
+                >
+                  {/* Image */}
+                  <div className="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden mb-3 bg-[#1a1a1a]">
+                    <img
+                      src={product.image}
+                      alt={product.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute top-2 left-2">
+                      <Badge className="bg-black/80 backdrop-blur-md text-foreground border-0 text-[10px] uppercase font-bold px-2 py-0.5 rounded-lg shadow-sm">
+                        {product.condition}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="space-y-2 flex-1 flex flex-col">
+                    <h4 className="font-semibold text-sm text-foreground line-clamp-2 group-hover:text-[#bb740a] transition-colors leading-snug">
+                      {product.title}
+                    </h4>
+                    <div className="mt-auto pt-2 flex items-baseline justify-between gap-2 border-t border-white/[0.04]">
+                      <span className="text-base font-bold text-foreground">
+                        RWF {product.price.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-[#0f0f0f] border border-dashed border-white/[0.08] rounded-3xl">
+              <Package className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+              <p className="text-foreground font-semibold mb-1">No active listings</p>
+              <p className="text-muted-foreground text-sm max-w-[250px] mx-auto">
+                {isSelf ? "You haven't posted any items for sale yet." : "This seller currently has no items available."}
+              </p>
+              {isSelf && (
+                <Button className="mt-6 rounded-xl bg-[#bb740a] text-white hover:bg-[#bb740a]/90" onClick={() => navigate('/dashboard/create')}>
+                  Create a Listing
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
