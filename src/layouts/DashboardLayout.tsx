@@ -11,6 +11,8 @@ import { Toaster } from '@/components/dashboard/ui/sonner';
 import { toast } from 'sonner';
 import { Search, Plus, MessageSquare, User, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { listConversations } from '@/lib/messaging';
+import { useEffect } from 'react';
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -29,8 +31,32 @@ export default function DashboardLayout() {
     isUnverified,
   } = useVerification();
   
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const [hideBanner, setHideBanner] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user && accessToken) {
+      listConversations(accessToken, false)
+        .then((conversations) => {
+          const count = conversations.reduce((acc, conv) => acc + conv.unread_count, 0);
+          setUnreadCount(count);
+        })
+        .catch(err => console.error('Failed to fetch unread count:', err));
+      
+      // We could also poll this every minute or so, but doing it on mount is a good start.
+      const interval = setInterval(() => {
+        listConversations(accessToken, false)
+          .then((conversations) => {
+            const count = conversations.reduce((acc, conv) => acc + conv.unread_count, 0);
+            setUnreadCount(count);
+          })
+          .catch(() => {});
+      }, 60000); // 1 minute interval
+
+      return () => clearInterval(interval);
+    }
+  }, [user, accessToken]);
 
   // Calculate Completion Percentage
   const calculateCompletion = () => {
@@ -110,6 +136,7 @@ export default function DashboardLayout() {
       <Sidebar
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
+        unreadCount={unreadCount}
       />
 
       {/* Main Content */}
@@ -121,6 +148,7 @@ export default function DashboardLayout() {
           onCreateClick={handleCreateClick}
           isVerified={isVerified}
           onMenuClick={() => setIsSidebarOpen(true)}
+          unreadCount={unreadCount}
         />
 
         {/* Profile Completion Banner */}
@@ -254,7 +282,14 @@ export default function DashboardLayout() {
                   isActive ? 'text-[#bb740a]' : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+                <div className="relative">
+                  <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+                  {item.id === 'messages' && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#bb740a] rounded-full text-white text-[8px] font-bold flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </div>
                 <span className="text-[10px] font-medium">{item.label}</span>
               </button>
             );

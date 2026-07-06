@@ -33,16 +33,12 @@ interface University {
   name: string;
 }
 
-// Province → District data
-const PROVINCE_DISTRICTS: Record<string, string[]> = {
-  "Kigali City": ["Gasabo", "Kicukiro", "Nyarugenge"],
-  "Eastern Province": ["Bugesera", "Gatsibo", "Kayonza", "Kirehe", "Ngoma", "Nyagatare", "Rwamagana"],
-  "Northern Province": ["Burera", "Gakenke", "Gicumbi", "Musanze", "Rulindo"],
-  "Southern Province": ["Gisagara", "Huye", "Kamonyi", "Muhanga", "Nyamagabe", "Nyanza", "Nyaruguru", "Ruhango"],
-  "Western Province": ["Karongi", "Ngororero", "Nyabihu", "Nyamasheke", "Rubavu", "Rusizi", "Rutsiro"],
-};
+interface LocationNode {
+  id: string;
+  name: string;
+  districts: { id: string; name: string }[];
+}
 
-const PROVINCES = Object.keys(PROVINCE_DISTRICTS);
 const AVAILABLE_LANGUAGES = ["English", "French", "Kinyarwanda", "Arabic", "Swahili", "Lingala"];
 const BIO_MAX = 60;
 
@@ -58,6 +54,7 @@ export function SettingsView() {
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Profile fields state
+  const [initialProfile, setInitialProfile] = useState<any>(null);
   const [fullName, setFullName] = useState(user?.first_name || "");
   const [lastName, setLastName] = useState(user?.last_name || "");
   const [bio, setBio] = useState("");
@@ -68,6 +65,7 @@ export function SettingsView() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Residence — Province + District cascading
+  const [locations, setLocations] = useState<LocationNode[]>([]);
   const [province, setProvince] = useState("");
   const [district, setDistrict] = useState("");
 
@@ -129,7 +127,7 @@ export function SettingsView() {
     );
   };
 
-  // Fetch universities
+  // Fetch universities and locations
   useEffect(() => {
     const fetchUnis = async () => {
       try {
@@ -143,8 +141,48 @@ export function SettingsView() {
         console.error("Failed to load universities list:", err);
       }
     };
+    const fetchLocations = async () => {
+      try {
+        const response = await fetch(getApiUrl("/api/v1/locations/province"));
+        if (response.ok) {
+          const data = await response.json();
+          setLocations(data);
+        }
+      } catch (err) {
+        console.error("Failed to load locations:", err);
+      }
+    };
+    const fetchProfile = async () => {
+      if (!accessToken) return;
+      try {
+        const response = await fetch(getApiUrl("/api/v1/profiles/me"), {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setInitialProfile(data);
+          if (data.first_name) setFullName(data.first_name);
+          if (data.last_name) setLastName(data.last_name);
+          if (data.bio) setBio(data.bio);
+          if (data.phone_number) setPhoneNumber(data.phone_number);
+          if (data.avatar_url) setAvatarPreview(data.avatar_url);
+          
+          if (data.province) setProvince(data.province);
+          if (data.district) setDistrict(data.district);
+          if (data.languages_spoken) setLanguages(data.languages_spoken);
+          if (data.social_links) {
+            setSocialLinks(prev => ({ ...prev, ...data.social_links }));
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+      }
+    };
+
     fetchUnis();
-  }, []);
+    fetchLocations();
+    fetchProfile();
+  }, [accessToken]);
 
   // GSAP entry animation
   useEffect(() => {
@@ -175,11 +213,27 @@ export function SettingsView() {
     setIsSavingProfile(true);
     try {
       const formData = new FormData();
-      formData.append("first_name", fullName);
-      formData.append("last_name", lastName);
-      formData.append("phone_number", phone_number);
-      formData.append("bio", bio);
+      if (fullName !== (initialProfile?.first_name || "")) formData.append("first_name", fullName);
+      if (lastName !== (initialProfile?.last_name || "")) formData.append("last_name", lastName);
+      if (phone_number !== (initialProfile?.phone_number || "")) formData.append("phone_number", phone_number);
+      if (bio !== (initialProfile?.bio || "")) formData.append("bio", bio);
       if (avatarFile) formData.append("avatar_url", avatarFile);
+
+      if (province && province !== (initialProfile?.province || "")) formData.append("province", province);
+      if (district && district !== (initialProfile?.district || "")) formData.append("district", district);
+      
+      const currentLanguages = JSON.stringify(languages);
+      const initialLanguages = JSON.stringify(initialProfile?.languages_spoken || []);
+      if (currentLanguages !== initialLanguages) {
+        formData.append("languages_spoken", currentLanguages);
+      }
+      
+      const defaultSocialLinks = { linkedin: "", github: "", instagram: "", facebook: "", x: "", tiktok: "", website: "" };
+      const currentSocialLinks = JSON.stringify(socialLinks);
+      const initialSocialLinks = JSON.stringify({ ...defaultSocialLinks, ...(initialProfile?.social_links || {}) });
+      if (currentSocialLinks !== initialSocialLinks) {
+        formData.append("social_links", currentSocialLinks);
+      }
 
       const res = await fetch(getApiUrl("/api/v1/profiles/me"), {
         method: "PATCH",
@@ -192,11 +246,19 @@ export function SettingsView() {
         throw new Error(errorData.detail || "Failed to update profile");
       }
 
+      const responseData = await res.json();
+
       updateUser({
         first_name: fullName,
         last_name: lastName,
         // @ts-ignore
-        profile_details: { province, district, languages, socialLinks, contactPrefs },
+        profile_details: { 
+          province: responseData.province, 
+          district: responseData.district, 
+          languages: responseData.languages_spoken || languages, 
+          socialLinks: responseData.social_links || socialLinks, 
+          contactPrefs 
+        },
         privacy_settings: privacySettings,
       });
 
@@ -223,15 +285,15 @@ export function SettingsView() {
     setIsSavingAccount(true);
     try {
       const res = await fetch(getApiUrl("/api/v1/auth/password/change/"), {
-        method: "PATCH",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           old_password: currentPassword,
-          new_password: newPassword,
-          confirm_password: confirmPassword,
+          new_password1: newPassword,
+          new_password2: confirmPassword,
         }),
       });
       if (!res.ok) {
@@ -287,7 +349,17 @@ export function SettingsView() {
 
   // Read-only profile display name
   const displayName = [fullName, lastName].filter(Boolean).join(" ") || user?.email || "Your Profile";
-  const locationLabel = district && province ? `${district} District, ${province}` : "";
+  
+  // Find location names (handling cases where province/district state might already be a name or an ID)
+  const selectedProvince = locations.find(l => l.id === province || l.name === province);
+  const selectedProvinceName = selectedProvince?.name || province;
+  const selectedDistrictName = selectedProvince?.districts.find(d => d.id === district || d.name === district)?.name || district;
+  
+  const locationLabel = selectedDistrictName && selectedProvinceName ? `${selectedDistrictName} District, ${selectedProvinceName}` : "";
+
+  // For the select dropdowns in edit mode, we need IDs if they exist.
+  const provinceIdForSelect = selectedProvince?.id || province;
+  const districtIdForSelect = selectedProvince?.districts.find(d => d.id === district || d.name === district)?.id || district;
 
   return (
     <div ref={containerRef} className="w-full max-w-[1200px] mx-auto p-4 md:p-8 space-y-8 settings-entry">
@@ -488,11 +560,11 @@ export function SettingsView() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                           <div className="space-y-2">
                             <label className="text-sm font-semibold text-muted-foreground">First Name</label>
-                            <Input value={fullName} onChange={(e) => setFullName(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:border-[#bb740a]" required />
+                            <Input value={fullName} onChange={(e) => setFullName(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-semibold text-muted-foreground">Last Name</label>
-                            <Input value={lastName} onChange={(e) => setLastName(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:border-[#bb740a]" />
+                            <Input value={lastName} onChange={(e) => setLastName(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-semibold text-muted-foreground">Email Address</label>
@@ -500,7 +572,7 @@ export function SettingsView() {
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-semibold text-muted-foreground">Phone Number</label>
-                            <Input value={phone_number} onChange={(e) => setPhoneNumber(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:border-[#bb740a]" />
+                            <Input value={phone_number} onChange={(e) => setPhoneNumber(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" />
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-semibold text-muted-foreground">University</label>
@@ -535,27 +607,27 @@ export function SettingsView() {
                             <div className="space-y-1.5">
                               <label className="text-xs text-muted-foreground">Province</label>
                               <select
-                                value={province}
+                                value={provinceIdForSelect}
                                 onChange={(e) => handleProvinceChange(e.target.value)}
-                                className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:border-[#bb740a] transition-colors"
+                                className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors"
                               >
                                 <option value="" className="bg-[#0f0f0f]">Select Province...</option>
-                                {PROVINCES.map(p => (
-                                  <option key={p} value={p} className="bg-[#0f0f0f]">{p}</option>
+                                {locations.map(p => (
+                                  <option key={p.id} value={p.id} className="bg-[#0f0f0f]">{p.name}</option>
                                 ))}
                               </select>
                             </div>
                             <div className="space-y-1.5">
                               <label className="text-xs text-muted-foreground">District</label>
                               <select
-                                value={district}
+                                value={districtIdForSelect}
                                 onChange={(e) => setDistrict(e.target.value)}
-                                disabled={!province}
-                                className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                disabled={!provinceIdForSelect}
+                                className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <option value="" className="bg-[#0f0f0f]">Select District...</option>
-                                {province && PROVINCE_DISTRICTS[province].map(d => (
-                                  <option key={d} value={d} className="bg-[#0f0f0f]">{d}</option>
+                                {provinceIdForSelect && locations.find(l => l.id === provinceIdForSelect)?.districts.map(d => (
+                                  <option key={d.id} value={d.id} className="bg-[#0f0f0f]">{d.name}</option>
                                 ))}
                               </select>
                             </div>
@@ -611,7 +683,7 @@ export function SettingsView() {
                                   value={socialLinks[platform as keyof typeof socialLinks]}
                                   onChange={(e) => setSocialLinks({ ...socialLinks, [platform as keyof typeof socialLinks]: e.target.value })}
                                   placeholder="https://"
-                                  className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] pl-20 focus:border-[#bb740a] text-sm"
+                                  className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] pl-20 focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] text-sm"
                                 />
                               </div>
                             ))}
@@ -729,15 +801,15 @@ export function SettingsView() {
                     <form onSubmit={handleSaveAccount} className="space-y-4">
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-muted-foreground">Current Password</label>
-                        <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:border-[#bb740a]" required />
+                        <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
                       </div>
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-muted-foreground">New Password</label>
-                        <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:border-[#bb740a]" required />
+                        <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
                       </div>
                       <div className="space-y-1.5">
                         <label className="text-xs font-medium text-muted-foreground">Confirm New Password</label>
-                        <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:border-[#bb740a]" required />
+                        <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
                       </div>
                       {newPassword && confirmPassword && newPassword !== confirmPassword && (
                         <p className="text-xs text-red-400 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Passwords do not match</p>
@@ -768,7 +840,7 @@ export function SettingsView() {
                         value={secondaryEmail}
                         onChange={(e) => setSecondaryEmail(e.target.value)}
                         placeholder="backup@example.com"
-                        className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:border-[#bb740a]"
+                        className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]"
                       />
                       <p className="text-[11px] text-muted-foreground leading-relaxed">A confirmation link will be sent to verify the new address before it is linked to your account.</p>
                     </div>
