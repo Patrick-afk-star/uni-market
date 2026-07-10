@@ -1,19 +1,17 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import {
   User,
   Lock,
-  GraduationCap,
   Mail,
   Camera,
-  CheckCircle,
   AlertTriangle,
   Shield,
   Trash2,
   Save,
   Loader2,
-  BookOpen,
   Monitor,
   Smartphone,
   Globe,
@@ -24,7 +22,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
-import { useVerification } from "@/hooks/useVerification";
 import { toast } from "sonner";
 import { getApiUrl } from "@/lib/api";
 
@@ -44,20 +41,21 @@ const BIO_MAX = 60;
 
 export function SettingsView() {
   const { user, accessToken, updateUser } = useAuth();
-  const { submitVerification, isVerified, isPending } = useVerification();
+  const location = useLocation();
 
   const [activeTab, setActiveTab] = useState<
-    "profile" | "verification" | "account" | "privacy" | "security"
+    "profile" | "account" | "privacy" | "security"
   >("profile");
 
   // Profile: read/edit mode
   const [isEditMode, setIsEditMode] = useState(false);
+  const [highlightRequired, setHighlightRequired] = useState(false);
 
   // Profile fields state
   const [initialProfile, setInitialProfile] = useState<any>(null);
   const [fullName, setFullName] = useState(user?.first_name || "");
   const [lastName, setLastName] = useState(user?.last_name || "");
-  const [bio, setBio] = useState("");
+  const [bio, setBio] = useState((user as any)?.bio || "");
   const [phone_number, setPhoneNumber] = useState(user?.phone_number || "");
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -65,20 +63,35 @@ export function SettingsView() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Residence — Province + District cascading
+<<<<<<< Updated upstream
   const [locations, setLocations] = useState<LocationNode[]>([]);
   const [province, setProvince] = useState("");
   const [district, setDistrict] = useState("");
+=======
+  const [province, setProvince] = useState((user as any)?.profile_details?.province || "");
+  const [district, setDistrict] = useState((user as any)?.profile_details?.district || "");
+>>>>>>> Stashed changes
 
   // Languages — closed multi-select
-  const [languages, setLanguages] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>((user as any)?.profile_details?.languages || []);
 
   // Social links
-  const [socialLinks, setSocialLinks] = useState({
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>((user as any)?.profile_details?.socialLinks || {
     linkedin: "", github: "", instagram: "", facebook: "", x: "", tiktok: "", website: ""
   });
 
   // Contact Preferences
-  const [contactPrefs, setContactPrefs] = useState<string[]>(["UniMarket Chat"]);
+  const [contactPrefs] = useState<string[]>((user as any)?.profile_details?.contactPrefs || ["UniMarket Chat"]);
+
+  // Sync state if redirected with params
+  useEffect(() => {
+    if (location.state?.editMode) {
+      setIsEditMode(true);
+    }
+    if (location.state?.highlightRequired) {
+      setHighlightRequired(true);
+    }
+  }, [location.state]);
 
   // Privacy Settings state
   const [privacySettings, setPrivacySettings] = useState({
@@ -104,7 +117,6 @@ export function SettingsView() {
   const [universities, setUniversities] = useState<University[]>([]);
   const [selectedUniversityId, setSelectedUniversityId] = useState("");
 
-  const [uploadedIdImage, setUploadedIdImage] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Province change — reset district
@@ -120,6 +132,7 @@ export function SettingsView() {
     );
   };
 
+<<<<<<< Updated upstream
   const toggleContactPref = (pref: string) => {
     if (pref === "UniMarket Chat") return;
     setContactPrefs(prev =>
@@ -128,6 +141,9 @@ export function SettingsView() {
   };
 
   // Fetch universities and locations
+=======
+  // Fetch universities
+>>>>>>> Stashed changes
   useEffect(() => {
     const fetchUnis = async () => {
       try {
@@ -324,19 +340,6 @@ export function SettingsView() {
     }, 800);
   };
 
-  const handleUploadId = () => {
-    const mockImage = "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=250&fit=crop";
-    setUploadedIdImage(mockImage);
-    toast.success("ID image uploaded successfully!");
-  };
-
-  const handleVerifySubmit = () => {
-    if (uploadedIdImage) {
-      submitVerification(uploadedIdImage);
-      toast.success("Verification ID submitted for review!");
-    }
-  };
-
   const handleAvatarClick = () => fileInputRef.current?.click();
 
   const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -373,7 +376,6 @@ export function SettingsView() {
       <div className="flex space-x-2 border-b border-white/[0.08] pb-0 overflow-x-auto scrollbar-hide">
         {[
           { id: "profile", label: "Profile", icon: User },
-          { id: "verification", label: "Verification", icon: GraduationCap },
           { id: "account", label: "Account", icon: Lock },
           { id: "privacy", label: "Privacy", icon: Shield },
           { id: "security", label: "Security", icon: Lock },
@@ -480,16 +482,6 @@ export function SettingsView() {
                           </div>
                         </div>
                       )}
-                      {contactPrefs.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Contact Preferences</p>
-                          <div className="flex flex-wrap gap-2">
-                            {contactPrefs.map(p => (
-                              <span key={p} className="text-xs bg-[#bb740a]/10 border border-[#bb740a]/30 text-[#bb740a] px-2.5 py-1 rounded-full">{p}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                       {Object.values(socialLinks).some(v => v) && (
                         <div className="space-y-2 sm:col-span-2">
                           <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Social Links</p>
@@ -538,7 +530,7 @@ export function SettingsView() {
                       <div className="flex flex-col items-center gap-4">
                         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleAvatarFileChange} className="hidden" />
                         <div
-                          className="relative w-32 h-32 rounded-full overflow-hidden group bg-secondary/50 flex items-center justify-center cursor-pointer border-4 border-secondary transition-all hover:border-[#bb740a]/50 shadow-lg"
+                          className={`relative w-32 h-32 rounded-full overflow-hidden group bg-secondary/50 flex items-center justify-center cursor-pointer border-4 transition-all hover:border-[#bb740a]/50 shadow-lg ${highlightRequired && !avatarPreview ? 'border-red-500/80 ring-2 ring-red-500/40 animate-pulse' : 'border-secondary'}`}
                           onClick={handleAvatarClick}
                         >
                           {avatarPreview ? (
@@ -553,6 +545,9 @@ export function SettingsView() {
                         <Button type="button" variant="outline" size="sm" className="text-xs border-white/10 hover:bg-[#bb740a]/10 hover:text-white rounded-xl" onClick={handleAvatarClick}>
                           Change Picture
                         </Button>
+                        {highlightRequired && !avatarPreview && (
+                          <p className="text-[11px] text-red-400 mt-1 font-semibold">Avatar is required</p>
+                        )}
                       </div>
 
                       {/* Form Fields */}
@@ -571,16 +566,24 @@ export function SettingsView() {
                             <Input type="email" value={email} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
                           </div>
                           <div className="space-y-2">
+<<<<<<< Updated upstream
                             <label className="text-sm font-semibold text-muted-foreground">Phone Number</label>
                             <Input value={phone_number} onChange={(e) => setPhoneNumber(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" />
+=======
+                            <label className="text-sm font-semibold text-muted-foreground flex justify-between">
+                              Phone Number
+                              {highlightRequired && !phone_number && <span className="text-xs text-red-400 font-semibold">Required</span>}
+                            </label>
+                            <Input 
+                              value={phone_number} 
+                              onChange={(e) => setPhoneNumber(e.target.value)} 
+                              className={`bg-secondary/20 h-11 rounded-xl focus:border-[#bb740a] ${highlightRequired && !phone_number ? 'border-red-500/80 ring-1 ring-red-500/40' : 'border-white/[0.08]'}`} 
+                            />
+>>>>>>> Stashed changes
                           </div>
-                          <div className="space-y-2">
+                          <div className="space-y-2 sm:col-span-2">
                             <label className="text-sm font-semibold text-muted-foreground">University</label>
                             <Input value={universities.find((u) => u.id === selectedUniversityId)?.name || "Carnegie Mellon University Africa"} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-sm font-semibold text-muted-foreground">Student ID</label>
-                            <Input value="UM-2026-9923" readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
                           </div>
                         </div>
 
@@ -602,14 +605,24 @@ export function SettingsView() {
 
                         {/* Residence — Province + District */}
                         <div className="space-y-3">
-                          <label className="text-sm font-semibold text-muted-foreground">Residence</label>
+                          <label className="text-sm font-semibold text-muted-foreground flex justify-between">
+                            Residence
+                            {highlightRequired && (!province || !district) && <span className="text-xs text-red-400 font-semibold">Selection Required</span>}
+                          </label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                              <label className="text-xs text-muted-foreground">Province</label>
+                              <label className="text-xs text-muted-foreground flex justify-between">
+                                Province
+                                {highlightRequired && !province && <span className="text-xs text-red-400 font-semibold">Required</span>}
+                              </label>
                               <select
                                 value={provinceIdForSelect}
                                 onChange={(e) => handleProvinceChange(e.target.value)}
+<<<<<<< Updated upstream
                                 className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors"
+=======
+                                className={`w-full h-11 rounded-xl bg-secondary/20 px-3 text-foreground focus:outline-none focus:border-[#bb740a] transition-colors ${highlightRequired && !province ? 'border-red-500/80 ring-1 ring-red-500/40' : 'border-white/[0.08]'}`}
+>>>>>>> Stashed changes
                               >
                                 <option value="" className="bg-[#0f0f0f]">Select Province...</option>
                                 {locations.map(p => (
@@ -618,12 +631,20 @@ export function SettingsView() {
                               </select>
                             </div>
                             <div className="space-y-1.5">
-                              <label className="text-xs text-muted-foreground">District</label>
+                              <label className="text-xs text-muted-foreground flex justify-between">
+                                District
+                                {highlightRequired && !district && <span className="text-xs text-red-400 font-semibold">Required</span>}
+                              </label>
                               <select
                                 value={districtIdForSelect}
                                 onChange={(e) => setDistrict(e.target.value)}
+<<<<<<< Updated upstream
                                 disabled={!provinceIdForSelect}
                                 className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+=======
+                                disabled={!province}
+                                className={`w-full h-11 rounded-xl bg-secondary/20 px-3 text-foreground focus:outline-none focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${highlightRequired && !district ? 'border-red-500/80 ring-1 ring-red-500/40' : 'border-white/[0.08]'}`}
+>>>>>>> Stashed changes
                               >
                                 <option value="" className="bg-[#0f0f0f]">Select District...</option>
                                 {provinceIdForSelect && locations.find(l => l.id === provinceIdForSelect)?.districts.map(d => (
@@ -655,23 +676,6 @@ export function SettingsView() {
                           </div>
                         </div>
 
-                        {/* Contact Preferences */}
-                        <div className="space-y-3">
-                          <label className="text-sm font-semibold text-muted-foreground">Contact Preferences</label>
-                          <div className="flex flex-wrap gap-3">
-                            {["UniMarket Chat", "WhatsApp", "Phone Call", "Email"].map(pref => (
-                              <button
-                                key={pref}
-                                type="button"
-                                onClick={() => toggleContactPref(pref)}
-                                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${contactPrefs.includes(pref) ? 'bg-[#bb740a]/20 text-[#bb740a] border-[#bb740a]/50' : 'bg-secondary/20 text-muted-foreground border-white/[0.08]'}`}
-                              >
-                                {pref}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
                         {/* Social Links */}
                         <div className="space-y-3">
                           <label className="text-sm font-semibold text-muted-foreground">Social Links</label>
@@ -694,93 +698,22 @@ export function SettingsView() {
                     </div>
 
                     {/* Save at bottom */}
-                    <div className="flex justify-end pt-6 border-t border-white/[0.05] gap-3">
-                      <Button type="button" variant="outline" onClick={() => setIsEditMode(false)} className="rounded-xl px-6 h-12 border-white/[0.1] hover:bg-white/[0.05]">
-                        Cancel
-                      </Button>
-                      <Button type="submit" disabled={isSavingProfile} className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl px-8 h-12 text-sm font-semibold transition-all shadow-lg hover:shadow-[#bb740a]/20">
-                        {isSavingProfile ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Changes</>}
-                      </Button>
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/[0.05]">
+                      <div className="text-xs text-muted-foreground text-left">
+                        By using this platform, you agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#bb740a] hover:underline font-semibold">UniMarket Rwanda Terms of Service</a>.
+                      </div>
+                      <div className="flex justify-end gap-3 w-full sm:w-auto">
+                        <Button type="button" variant="outline" onClick={() => setIsEditMode(false)} className="rounded-xl px-6 h-12 border-white/[0.1] hover:bg-white/[0.05]">
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={isSavingProfile} className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl px-8 h-12 text-sm font-semibold transition-all shadow-lg hover:shadow-[#bb740a]/20">
+                          {isSavingProfile ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Changes</>}
+                        </Button>
+                      </div>
                     </div>
                   </motion.form>
                 )}
               </AnimatePresence>
-            )}
-
-            {/* ── VERIFICATION TAB ── */}
-            {activeTab === "verification" && (
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-xl font-semibold text-foreground">Student Verification</h2>
-                  <p className="text-sm text-muted-foreground">Verify your student status to unlock selling and messaging features.</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                    <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-4 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#bb740a]/10 rounded-full blur-3xl" />
-                      <div className="flex items-center gap-3 mb-2 relative z-10">
-                        {isVerified ? (
-                          <div className="w-10 h-10 rounded-full bg-[#177865]/20 flex items-center justify-center text-[#177865]"><CheckCircle className="w-5 h-5" /></div>
-                        ) : isPending ? (
-                          <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500"><AlertTriangle className="w-5 h-5" /></div>
-                        )}
-                        <div>
-                          <h3 className="font-semibold text-foreground">{isVerified ? "Verified Student" : isPending ? "Verification Pending" : "Unverified"}</h3>
-                          <p className="text-xs text-muted-foreground">{isVerified ? "Your student status is active." : isPending ? "We are reviewing your ID." : "Please verify your account."}</p>
-                        </div>
-                      </div>
-                      <div className="space-y-3 pt-4 border-t border-white/[0.05] relative z-10">
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-muted-foreground">Email:</span>
-                          <span className="font-medium text-foreground">{email}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-muted-foreground">Student ID:</span>
-                          <span className="font-medium text-muted-foreground">UM-2026-9923</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-5 rounded-2xl bg-[#bb740a]/5 border border-[#bb740a]/20">
-                      <h4 className="text-sm font-semibold text-[#bb740a] mb-2 flex items-center gap-2"><BookOpen className="w-4 h-4" /> Why verify?</h4>
-                      <ul className="text-xs text-muted-foreground space-y-2 list-disc pl-4">
-                        <li>Create marketplace listings to sell items.</li>
-                        <li>Directly message other verified students.</li>
-                        <li>Build trust within the university community.</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="space-y-6">
-                    {!isVerified && (
-                      <div className="p-6 rounded-2xl border border-white/[0.08] bg-white/[0.01]">
-                        <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2"><Camera className="w-5 h-5 text-[#bb740a]" /> Upload Student ID</h3>
-                        {!uploadedIdImage ? (
-                          <div onClick={handleUploadId} className="border-2 border-dashed border-white/[0.1] hover:border-[#bb740a]/50 rounded-xl h-48 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all bg-secondary/10 group">
-                            <div className="w-12 h-12 rounded-full bg-secondary/50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <Camera className="w-6 h-6 text-muted-foreground group-hover:text-[#bb740a]" />
-                            </div>
-                            <div className="text-center">
-                              <p className="text-sm font-medium text-foreground">Click to browse files</p>
-                              <p className="text-xs text-muted-foreground mt-1">JPG, PNG up to 5MB</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
-                            <div className="relative rounded-xl overflow-hidden border border-white/[0.08] h-48 group">
-                              <img src={uploadedIdImage} alt="Uploaded card" className="w-full h-full object-cover" />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm">
-                                <Button variant="destructive" size="sm" onClick={() => setUploadedIdImage(null)} className="h-8 rounded-lg">Remove Image</Button>
-                              </div>
-                            </div>
-                            <Button onClick={handleVerifySubmit} className="w-full bg-[#177865] hover:bg-[#177865]/90 text-white rounded-xl h-11 font-semibold">Submit for Review</Button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
             )}
 
             {/* ── ACCOUNT TAB ── */}

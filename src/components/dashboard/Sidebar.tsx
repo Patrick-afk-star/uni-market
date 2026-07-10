@@ -36,9 +36,10 @@ export function Sidebar({
   const handleLogout = async () => {
     try {
       await logout();
-      navigate("/");
+      window.location.href = "https://www.uni-marketrwanda.online";
     } catch (error) {
       console.error("Logout failed:", error);
+      window.location.href = "https://www.uni-marketrwanda.online";
     }
   };
 

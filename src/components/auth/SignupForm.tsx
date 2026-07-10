@@ -215,28 +215,30 @@ export default function SignupForm() {
               </label>
             </div>
 
-            <label className="flex items-center gap-2 text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
+            <label className="flex items-start gap-2 text-xs text-[#5f5b52] dark:text-[#b7b1a6] cursor-pointer">
               <input
                 type="checkbox"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="cursor-pointer rounded border-[rgba(18,20,18,0.12)] dark:border-white/10 text-[#d8a24a] dark:text-[#e4b363] focus:ring-[#d8a24a]"
+                className="cursor-pointer mt-0.5 rounded border-[rgba(18,20,18,0.12)] dark:border-white/10 text-[#d8a24a] dark:text-[#e4b363] focus:ring-[#d8a24a]"
                 required
               />
-              I agree to the{" "}
-              <Link
-                to="/terms"
-                className="text-[#d8a24a] dark:text-[#e4b363] underline"
-              >
-                Terms
-              </Link>{" "}
-              and{" "}
-              <Link
-                to="/privacy"
-                className="text-[#d8a24a] dark:text-[#e4b363] underline"
-              >
-                Privacy Policy
-              </Link>
+              <span>
+                By using this platform, you agree to the{" "}
+                <Link
+                  to="/terms"
+                  className="text-[#d8a24a] dark:text-[#e4b363] underline font-semibold"
+                >
+                  UniMarket Rwanda Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to="/privacy"
+                  className="text-[#d8a24a] dark:text-[#e4b363] underline font-semibold"
+                >
+                  Privacy Policy
+                </Link>.
+              </span>
             </label>
 
             <button
