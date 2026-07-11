@@ -361,8 +361,8 @@ export function Messages({
             <button
               onClick={() => setShowArchived((p) => !p)}
               className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${showArchived
-                  ? 'bg-primary/20 text-primary'
-                  : 'bg-[#1a1a1a] text-muted-foreground hover:text-foreground'
+                ? 'bg-primary/20 text-primary'
+                : 'bg-[#1a1a1a] text-muted-foreground hover:text-foreground'
                 }`}
             >
               {showArchived ? 'Active' : 'Archived'}
@@ -380,7 +380,7 @@ export function Messages({
         </div>
 
         {/* Conversation List */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden bg-[#0a0a0a]">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden bg-[#0a0a0a] flex flex-col h-[calc(100vh-3.4rem)] min-h-0">
           {inboxLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="w-6 h-6 text-primary animate-spin" />
@@ -417,13 +417,11 @@ export function Messages({
                   <button
                     key={conv.id}
                     onClick={() => openConversation(conv.id)}
-                    className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all duration-200 text-left ${
-                      indent ? 'pl-5' : ''
-                    } ${
-                      selectedConvId === conv.id
+                    className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all duration-200 text-left ${indent ? 'pl-5' : ''
+                      } ${selectedConvId === conv.id
                         ? 'bg-[#1a1a1a]'
                         : 'hover:bg-[#22debc]/5 cursor-pointer'
-                    }`}
+                      }`}
                   >
                     {indent ? (
                       <div className="w-2 flex-shrink-0 flex items-start pt-3">
@@ -522,7 +520,7 @@ export function Messages({
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           ) : selectedConv ? (
-            <div className="flex flex-col h-full min-h-0">
+            <div className="flex flex-col h-[calc(97vh-3.4rem)] min-h-0">
               {/* Chat Header */}
               <div className="h-16 px-4 border-b border-white/[0.06] flex items-center justify-between bg-[#121212] flex-shrink-0">
                 <div className="flex items-center gap-3">
@@ -663,17 +661,15 @@ export function Messages({
                           )}
 
                           <div
-                            className={`flex ${
-                              msg.is_mine ? 'justify-end' : 'justify-start'
-                            } items-end gap-2`}
+                            className={`flex ${msg.is_mine ? 'justify-end' : 'justify-start'
+                              } items-end gap-2`}
                           >
                             {!msg.is_mine && showAvatar && (
                               <Avatar className="w-7 h-7 flex-shrink-0">
                                 <AvatarImage src={resolveAvatar(msg.sender.avatar)} />
                                 <AvatarFallback className="text-[10px] bg-[#1a1a1a]">
-                                  {`${msg.sender.first_name?.[0] ?? ''}${
-                                    msg.sender.last_name?.[0] ?? ''
-                                  }`.toUpperCase()}
+                                  {`${msg.sender.first_name?.[0] ?? ''}${msg.sender.last_name?.[0] ?? ''
+                                    }`.toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
                             )}
@@ -699,24 +695,21 @@ export function Messages({
                             )}
 
                             <div
-                              className={`max-w-[70%] px-4 py-2.5 rounded-2xl ${
-                                msg.is_mine
-                                  ? 'bg-[#20e0bb] text-black rounded-br-md'
-                                  : 'bg-[#1a1a1a] text-foreground rounded-bl-md'
-                              } ${isDeleting ? 'opacity-40' : ''} transition-opacity`}
+                              className={`max-w-[70%] px-4 py-2.5 rounded-2xl ${msg.is_mine
+                                ? 'bg-[#20e0bb] text-black rounded-br-md'
+                                : 'bg-[#1a1a1a] text-foreground rounded-bl-md'
+                                } ${isDeleting ? 'opacity-40' : ''} transition-opacity`}
                             >
                               <p className="text-sm whitespace-pre-wrap break-words">
                                 {msg.body}
                               </p>
                               <div
-                                className={`flex items-center gap-1 mt-1 ${
-                                  msg.is_mine ? 'justify-end' : ''
-                                }`}
+                                className={`flex items-center gap-1 mt-1 ${msg.is_mine ? 'justify-end' : ''
+                                  }`}
                               >
                                 <span
-                                  className={`text-[10px] ${
-                                    msg.is_mine ? 'text-black/60' : 'text-muted-foreground'
-                                  }`}
+                                  className={`text-[10px] ${msg.is_mine ? 'text-black/60' : 'text-muted-foreground'
+                                    }`}
                                 >
                                   {formatMessageTime(msg.created_at)}
                                 </span>
