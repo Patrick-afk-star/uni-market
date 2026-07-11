@@ -18,6 +18,7 @@ interface SellerProfileData {
   id: string;
   name: string;
   avatar_url: string | null;
+  phone_number?: string;
   account_type: string | null;
   student_profile: {
     university: string | null;
@@ -93,6 +94,7 @@ export default function SellerProfile() {
           id: profileData.id || id,
           name: profileData.name || profileData.display_name || profileData.first_name || "Student Seller",
           avatar_url: profileData.avatar_url || null,
+          phone_number: profileData.phone_number || "",
           account_type: profileData.account_type || "student",
           student_profile: profileData.student_profile || (profileData.university ? { university: profileData.university } : null),
           bio: profileData.bio || "",
@@ -111,6 +113,7 @@ export default function SellerProfile() {
           const pd = (user as any).profile_details;
           sellerObj = {
             ...sellerObj,
+            phone_number: user?.phone_number || sellerObj.phone_number,
             province: pd.province || sellerObj.province,
             district: pd.district || sellerObj.district,
             languages: pd.languages && pd.languages.length > 0 ? pd.languages : sellerObj.languages,
@@ -196,12 +199,10 @@ export default function SellerProfile() {
 
   const calculateCompletion = () => {
     let score = 0;
-    if (seller.bio) score += 15;
-    if (seller.district && seller.province) score += 15;
-    if (seller.languages && seller.languages.length > 0) score += 15;
-    if (seller.socialLinks && Object.values(seller.socialLinks).some(v => v)) score += 15;
-    if (seller.contactPrefs && seller.contactPrefs.length > 0) score += 20;
-    if (seller.account_type === 'student') score += 20; // Using student verification as phone verification proxy
+    if (seller.avatar_url && seller.avatar_url.trim() !== '') score += 25;
+    if (seller.phone_number && seller.phone_number.trim() !== '') score += 25;
+    if (seller.student_profile?.university || (isSelf && user?.has_completed_profile)) score += 25;
+    if (seller.province && seller.province.trim() !== '' && seller.district && seller.district.trim() !== '') score += 25;
     return Math.min(score, 100);
   };
   const completionPercent = calculateCompletion();
@@ -355,7 +356,7 @@ export default function SellerProfile() {
                     />
                   </div>
                   {completionPercent < 100 && (
-                    <Link to="/dashboard/settings" className="text-xs text-[#bb740a] hover:underline mt-2 inline-block">
+                    <Link to="/dashboard/settings" state={{ editMode: true, highlightRequired: true }} className="text-xs text-[#bb740a] hover:underline mt-2 inline-block">
                       Complete your profile →
                     </Link>
                   )}

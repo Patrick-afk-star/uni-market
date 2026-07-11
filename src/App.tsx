@@ -12,6 +12,8 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 
 // Public Pages
 import HomePage from '@/pages/HomePage';
+import TermsPage from '@/pages/TermsPage';
+import PrivacyPage from '@/pages/PrivacyPage';
 
 // Dashboard Pages
 import ListingDetailPage from '@/pages/ListingDetailPage';
@@ -48,6 +50,10 @@ export default function App() {
             {/* Public Routes */}
             <Route element={<PublicLayout />}>
               <Route path="/" element={<HomePage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/terms-of-service" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPage />} />
             </Route>
 
             {/* Auth Routes */}

@@ -1,19 +1,17 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
 import {
   User,
   Lock,
-  GraduationCap,
   Mail,
   Camera,
-  CheckCircle,
   AlertTriangle,
   Shield,
   Trash2,
   Save,
   Loader2,
-  BookOpen,
   Monitor,
   Smartphone,
   Globe,
@@ -24,7 +22,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
-import { useVerification } from "@/hooks/useVerification";
 import { toast } from "sonner";
 import { getApiUrl } from "@/lib/api";
 
@@ -44,20 +41,21 @@ const BIO_MAX = 60;
 
 export function SettingsView() {
   const { user, accessToken, updateUser } = useAuth();
-  const { submitVerification, isVerified, isPending } = useVerification();
+  const location = useLocation();
 
   const [activeTab, setActiveTab] = useState<
-    "profile" | "verification" | "account" | "privacy" | "security"
+    "profile" | "account" | "privacy" | "security"
   >("profile");
 
   // Profile: read/edit mode
   const [isEditMode, setIsEditMode] = useState(false);
+  const [highlightRequired, setHighlightRequired] = useState(false);
 
   // Profile fields state
   const [initialProfile, setInitialProfile] = useState<any>(null);
   const [fullName, setFullName] = useState(user?.first_name || "");
   const [lastName, setLastName] = useState(user?.last_name || "");
-  const [bio, setBio] = useState("");
+  const [bio, setBio] = useState((user as any)?.bio || "");
   const [phone_number, setPhoneNumber] = useState(user?.phone_number || "");
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -70,24 +68,35 @@ export function SettingsView() {
   const [district, setDistrict] = useState("");
 
   // Languages — closed multi-select
-  const [languages, setLanguages] = useState<string[]>([]);
+  const [languages, setLanguages] = useState<string[]>((user as any)?.profile_details?.languages || []);
 
   // Social links
-  const [socialLinks, setSocialLinks] = useState({
+  const [socialLinks, setSocialLinks] = useState<Record<string, string>>((user as any)?.profile_details?.socialLinks || {
     linkedin: "", github: "", instagram: "", facebook: "", x: "", tiktok: "", website: ""
   });
 
   // Contact Preferences
-  const [contactPrefs, setContactPrefs] = useState<string[]>(["UniMarket Chat"]);
+  const [contactPrefs] = useState<string[]>((user as any)?.profile_details?.contactPrefs || ["UniMarket Chat"]);
+
+  // Sync state if redirected with params
+  useEffect(() => {
+    if (location.state?.editMode) {
+      setIsEditMode(true);
+    }
+    if (location.state?.highlightRequired) {
+      setHighlightRequired(true);
+    }
+  }, [location.state]);
 
   // Privacy Settings state
   const [privacySettings, setPrivacySettings] = useState({
-    showPhone: true,
+    showPhone: false,
     showEmail: false,
     showUniversity: true,
     allowDMs: true,
     emailNotifs: true,
   });
+  const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
 
   // Account settings
   const [email] = useState(user?.email || "");
@@ -95,16 +104,18 @@ export function SettingsView() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSavingAccount, setIsSavingAccount] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
-  // Secondary email
-  const [secondaryEmail, setSecondaryEmail] = useState("");
-  const [isSavingSecondary, setIsSavingSecondary] = useState(false);
+  // Delete account confirmation dialog
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+
 
   // University state
   const [universities, setUniversities] = useState<University[]>([]);
   const [selectedUniversityId, setSelectedUniversityId] = useState("");
 
-  const [uploadedIdImage, setUploadedIdImage] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Province change — reset district
@@ -120,14 +131,8 @@ export function SettingsView() {
     );
   };
 
-  const toggleContactPref = (pref: string) => {
-    if (pref === "UniMarket Chat") return;
-    setContactPrefs(prev =>
-      prev.includes(pref) ? prev.filter(p => p !== pref) : [...prev, pref]
-    );
-  };
 
-  // Fetch universities and locations
+  // Fetch universities, locations, preferences
   useEffect(() => {
     const fetchUnis = async () => {
       try {
@@ -166,7 +171,7 @@ export function SettingsView() {
           if (data.bio) setBio(data.bio);
           if (data.phone_number) setPhoneNumber(data.phone_number);
           if (data.avatar_url) setAvatarPreview(data.avatar_url);
-          
+
           if (data.province) setProvince(data.province);
           if (data.district) setDistrict(data.district);
           if (data.languages_spoken) setLanguages(data.languages_spoken);
@@ -178,10 +183,31 @@ export function SettingsView() {
         console.error("Failed to load profile:", err);
       }
     };
+    const fetchPreferences = async () => {
+      if (!accessToken) return;
+      try {
+        const response = await fetch(getApiUrl("/api/v1/preferences"), {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setPrivacySettings({
+            showPhone: data.show_phone_number ?? false,
+            showEmail: data.show_email_address ?? false,
+            showUniversity: data.show_university ?? true,
+            allowDMs: data.allow_direct_messages ?? true,
+            emailNotifs: data.email_notifications ?? true,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load preferences:", err);
+      }
+    };
 
     fetchUnis();
     fetchLocations();
     fetchProfile();
+    fetchPreferences();
   }, [accessToken]);
 
   // GSAP entry animation
@@ -221,13 +247,13 @@ export function SettingsView() {
 
       if (province && province !== (initialProfile?.province || "")) formData.append("province", province);
       if (district && district !== (initialProfile?.district || "")) formData.append("district", district);
-      
+
       const currentLanguages = JSON.stringify(languages);
       const initialLanguages = JSON.stringify(initialProfile?.languages_spoken || []);
       if (currentLanguages !== initialLanguages) {
         formData.append("languages_spoken", currentLanguages);
       }
-      
+
       const defaultSocialLinks = { linkedin: "", github: "", instagram: "", facebook: "", x: "", tiktok: "", website: "" };
       const currentSocialLinks = JSON.stringify(socialLinks);
       const initialSocialLinks = JSON.stringify({ ...defaultSocialLinks, ...(initialProfile?.social_links || {}) });
@@ -252,12 +278,12 @@ export function SettingsView() {
         first_name: fullName,
         last_name: lastName,
         // @ts-ignore
-        profile_details: { 
-          province: responseData.province, 
-          district: responseData.district, 
-          languages: responseData.languages_spoken || languages, 
-          socialLinks: responseData.social_links || socialLinks, 
-          contactPrefs 
+        profile_details: {
+          province: responseData.province,
+          district: responseData.district,
+          languages: responseData.languages_spoken || languages,
+          socialLinks: responseData.social_links || socialLinks,
+          contactPrefs
         },
         privacy_settings: privacySettings,
       });
@@ -311,31 +337,93 @@ export function SettingsView() {
     }
   };
 
-  // Add secondary email
-  const handleSaveSecondaryEmail = async () => {
-    if (!secondaryEmail || !secondaryEmail.includes("@")) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
-    setIsSavingSecondary(true);
-    setTimeout(() => {
-      toast.success(`Confirmation sent to ${secondaryEmail}. Please verify it.`);
-      setIsSavingSecondary(false);
-    }, 800);
-  };
-
-  const handleUploadId = () => {
-    const mockImage = "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=250&fit=crop";
-    setUploadedIdImage(mockImage);
-    toast.success("ID image uploaded successfully!");
-  };
-
-  const handleVerifySubmit = () => {
-    if (uploadedIdImage) {
-      submitVerification(uploadedIdImage);
-      toast.success("Verification ID submitted for review!");
+  // Set password for OAuth users (sends reset link)
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSendingReset(true);
+    try {
+      const res = await fetch(getApiUrl("/api/v1/auth/password/reset/"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user?.email }),
+      });
+      if (!res.ok) throw new Error("Failed to send reset email");
+      toast.success("Password reset link sent! Check your inbox.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send reset email");
+    } finally {
+      setIsSendingReset(false);
     }
   };
+
+  // Delete account
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    try {
+      const res = await fetch(getApiUrl("/api/v1/auth/account/delete"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to delete account");
+      }
+      toast.success("Account deleted. Goodbye!");
+      // logout will clear state
+      setTimeout(() => window.location.href = "/", 1500);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete account");
+    } finally {
+      setIsDeletingAccount(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  // Save privacy preferences
+  const handleSavePrivacy = async () => {
+    if (!accessToken) return;
+    setIsSavingPrivacy(true);
+    try {
+      const res = await fetch(getApiUrl("/api/v1/preferences"), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          show_phone_number: privacySettings.showPhone,
+          show_email_address: privacySettings.showEmail,
+          show_university: privacySettings.showUniversity,
+          allow_direct_messages: privacySettings.allowDMs,
+          email_notifications: privacySettings.emailNotifs,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save preferences");
+      toast.success("Privacy preferences saved!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save preferences");
+    } finally {
+      setIsSavingPrivacy(false);
+    }
+  };
+
+
+
+  // const handleUploadId = () => {
+  //   const mockImage = "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=250&fit=crop";
+  //   setUploadedIdImage(mockImage);
+  //   toast.success("ID image uploaded successfully!");
+  // };
+
+  // const handleVerifySubmit = () => {
+  //   if (uploadedIdImage) {
+  //     submitVerification(uploadedIdImage);
+  //     toast.success("Verification ID submitted for review!");
+  //   }
+  // };
 
   const handleAvatarClick = () => fileInputRef.current?.click();
 
@@ -349,12 +437,12 @@ export function SettingsView() {
 
   // Read-only profile display name
   const displayName = [fullName, lastName].filter(Boolean).join(" ") || user?.email || "Your Profile";
-  
+
   // Find location names (handling cases where province/district state might already be a name or an ID)
   const selectedProvince = locations.find(l => l.id === province || l.name === province);
   const selectedProvinceName = selectedProvince?.name || province;
   const selectedDistrictName = selectedProvince?.districts.find(d => d.id === district || d.name === district)?.name || district;
-  
+
   const locationLabel = selectedDistrictName && selectedProvinceName ? `${selectedDistrictName} District, ${selectedProvinceName}` : "";
 
   // For the select dropdowns in edit mode, we need IDs if they exist.
@@ -373,7 +461,6 @@ export function SettingsView() {
       <div className="flex space-x-2 border-b border-white/[0.08] pb-0 overflow-x-auto scrollbar-hide">
         {[
           { id: "profile", label: "Profile", icon: User },
-          { id: "verification", label: "Verification", icon: GraduationCap },
           { id: "account", label: "Account", icon: Lock },
           { id: "privacy", label: "Privacy", icon: Shield },
           { id: "security", label: "Security", icon: Lock },
@@ -480,16 +567,6 @@ export function SettingsView() {
                           </div>
                         </div>
                       )}
-                      {contactPrefs.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Contact Preferences</p>
-                          <div className="flex flex-wrap gap-2">
-                            {contactPrefs.map(p => (
-                              <span key={p} className="text-xs bg-[#bb740a]/10 border border-[#bb740a]/30 text-[#bb740a] px-2.5 py-1 rounded-full">{p}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                       {Object.values(socialLinks).some(v => v) && (
                         <div className="space-y-2 sm:col-span-2">
                           <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Social Links</p>
@@ -538,7 +615,7 @@ export function SettingsView() {
                       <div className="flex flex-col items-center gap-4">
                         <input type="file" accept="image/*" ref={fileInputRef} onChange={handleAvatarFileChange} className="hidden" />
                         <div
-                          className="relative w-32 h-32 rounded-full overflow-hidden group bg-secondary/50 flex items-center justify-center cursor-pointer border-4 border-secondary transition-all hover:border-[#bb740a]/50 shadow-lg"
+                          className={`relative w-32 h-32 rounded-full overflow-hidden group bg-secondary/50 flex items-center justify-center cursor-pointer border-4 transition-all hover:border-[#bb740a]/50 shadow-lg ${highlightRequired && !avatarPreview ? 'border-red-500/80 ring-2 ring-red-500/40 animate-pulse' : 'border-secondary'}`}
                           onClick={handleAvatarClick}
                         >
                           {avatarPreview ? (
@@ -553,6 +630,9 @@ export function SettingsView() {
                         <Button type="button" variant="outline" size="sm" className="text-xs border-white/10 hover:bg-[#bb740a]/10 hover:text-white rounded-xl" onClick={handleAvatarClick}>
                           Change Picture
                         </Button>
+                        {highlightRequired && !avatarPreview && (
+                          <p className="text-[11px] text-red-400 mt-1 font-semibold">Avatar is required</p>
+                        )}
                       </div>
 
                       {/* Form Fields */}
@@ -574,13 +654,9 @@ export function SettingsView() {
                             <label className="text-sm font-semibold text-muted-foreground">Phone Number</label>
                             <Input value={phone_number} onChange={(e) => setPhoneNumber(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" />
                           </div>
-                          <div className="space-y-2">
+                          <div className="space-y-2 sm:col-span-2">
                             <label className="text-sm font-semibold text-muted-foreground">University</label>
                             <Input value={universities.find((u) => u.id === selectedUniversityId)?.name || "Carnegie Mellon University Africa"} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-sm font-semibold text-muted-foreground">Student ID</label>
-                            <Input value="UM-2026-9923" readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
                           </div>
                         </div>
 
@@ -602,10 +678,16 @@ export function SettingsView() {
 
                         {/* Residence — Province + District */}
                         <div className="space-y-3">
-                          <label className="text-sm font-semibold text-muted-foreground">Residence</label>
+                          <label className="text-sm font-semibold text-muted-foreground flex justify-between">
+                            Residence
+                            {highlightRequired && (!province || !district) && <span className="text-xs text-red-400 font-semibold">Selection Required</span>}
+                          </label>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                              <label className="text-xs text-muted-foreground">Province</label>
+                              <label className="text-xs text-muted-foreground flex justify-between">
+                                Province
+                                {highlightRequired && !province && <span className="text-xs text-red-400 font-semibold">Required</span>}
+                              </label>
                               <select
                                 value={provinceIdForSelect}
                                 onChange={(e) => handleProvinceChange(e.target.value)}
@@ -618,7 +700,10 @@ export function SettingsView() {
                               </select>
                             </div>
                             <div className="space-y-1.5">
-                              <label className="text-xs text-muted-foreground">District</label>
+                              <label className="text-xs text-muted-foreground flex justify-between">
+                                District
+                                {highlightRequired && !district && <span className="text-xs text-red-400 font-semibold">Required</span>}
+                              </label>
                               <select
                                 value={districtIdForSelect}
                                 onChange={(e) => setDistrict(e.target.value)}
@@ -655,23 +740,6 @@ export function SettingsView() {
                           </div>
                         </div>
 
-                        {/* Contact Preferences */}
-                        <div className="space-y-3">
-                          <label className="text-sm font-semibold text-muted-foreground">Contact Preferences</label>
-                          <div className="flex flex-wrap gap-3">
-                            {["UniMarket Chat", "WhatsApp", "Phone Call", "Email"].map(pref => (
-                              <button
-                                key={pref}
-                                type="button"
-                                onClick={() => toggleContactPref(pref)}
-                                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${contactPrefs.includes(pref) ? 'bg-[#bb740a]/20 text-[#bb740a] border-[#bb740a]/50' : 'bg-secondary/20 text-muted-foreground border-white/[0.08]'}`}
-                              >
-                                {pref}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
                         {/* Social Links */}
                         <div className="space-y-3">
                           <label className="text-sm font-semibold text-muted-foreground">Social Links</label>
@@ -694,93 +762,22 @@ export function SettingsView() {
                     </div>
 
                     {/* Save at bottom */}
-                    <div className="flex justify-end pt-6 border-t border-white/[0.05] gap-3">
-                      <Button type="button" variant="outline" onClick={() => setIsEditMode(false)} className="rounded-xl px-6 h-12 border-white/[0.1] hover:bg-white/[0.05]">
-                        Cancel
-                      </Button>
-                      <Button type="submit" disabled={isSavingProfile} className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl px-8 h-12 text-sm font-semibold transition-all shadow-lg hover:shadow-[#bb740a]/20">
-                        {isSavingProfile ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Changes</>}
-                      </Button>
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/[0.05]">
+                      <div className="text-xs text-muted-foreground text-left">
+                        By using this platform, you agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#bb740a] hover:underline font-semibold">UniMarket Rwanda Terms of Service</a>.
+                      </div>
+                      <div className="flex justify-end gap-3 w-full sm:w-auto">
+                        <Button type="button" variant="outline" onClick={() => setIsEditMode(false)} className="rounded-xl px-6 h-12 border-white/[0.1] hover:bg-white/[0.05]">
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={isSavingProfile} className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl px-8 h-12 text-sm font-semibold transition-all shadow-lg hover:shadow-[#bb740a]/20">
+                          {isSavingProfile ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Changes</>}
+                        </Button>
+                      </div>
                     </div>
                   </motion.form>
                 )}
               </AnimatePresence>
-            )}
-
-            {/* ── VERIFICATION TAB ── */}
-            {activeTab === "verification" && (
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-xl font-semibold text-foreground">Student Verification</h2>
-                  <p className="text-sm text-muted-foreground">Verify your student status to unlock selling and messaging features.</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                    <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-4 relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#bb740a]/10 rounded-full blur-3xl" />
-                      <div className="flex items-center gap-3 mb-2 relative z-10">
-                        {isVerified ? (
-                          <div className="w-10 h-10 rounded-full bg-[#177865]/20 flex items-center justify-center text-[#177865]"><CheckCircle className="w-5 h-5" /></div>
-                        ) : isPending ? (
-                          <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-500"><Loader2 className="w-5 h-5 animate-spin" /></div>
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500"><AlertTriangle className="w-5 h-5" /></div>
-                        )}
-                        <div>
-                          <h3 className="font-semibold text-foreground">{isVerified ? "Verified Student" : isPending ? "Verification Pending" : "Unverified"}</h3>
-                          <p className="text-xs text-muted-foreground">{isVerified ? "Your student status is active." : isPending ? "We are reviewing your ID." : "Please verify your account."}</p>
-                        </div>
-                      </div>
-                      <div className="space-y-3 pt-4 border-t border-white/[0.05] relative z-10">
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-muted-foreground">Email:</span>
-                          <span className="font-medium text-foreground">{email}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-muted-foreground">Student ID:</span>
-                          <span className="font-medium text-muted-foreground">UM-2026-9923</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-5 rounded-2xl bg-[#bb740a]/5 border border-[#bb740a]/20">
-                      <h4 className="text-sm font-semibold text-[#bb740a] mb-2 flex items-center gap-2"><BookOpen className="w-4 h-4" /> Why verify?</h4>
-                      <ul className="text-xs text-muted-foreground space-y-2 list-disc pl-4">
-                        <li>Create marketplace listings to sell items.</li>
-                        <li>Directly message other verified students.</li>
-                        <li>Build trust within the university community.</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div className="space-y-6">
-                    {!isVerified && (
-                      <div className="p-6 rounded-2xl border border-white/[0.08] bg-white/[0.01]">
-                        <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2"><Camera className="w-5 h-5 text-[#bb740a]" /> Upload Student ID</h3>
-                        {!uploadedIdImage ? (
-                          <div onClick={handleUploadId} className="border-2 border-dashed border-white/[0.1] hover:border-[#bb740a]/50 rounded-xl h-48 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all bg-secondary/10 group">
-                            <div className="w-12 h-12 rounded-full bg-secondary/50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <Camera className="w-6 h-6 text-muted-foreground group-hover:text-[#bb740a]" />
-                            </div>
-                            <div className="text-center">
-                              <p className="text-sm font-medium text-foreground">Click to browse files</p>
-                              <p className="text-xs text-muted-foreground mt-1">JPG, PNG up to 5MB</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
-                            <div className="relative rounded-xl overflow-hidden border border-white/[0.08] h-48 group">
-                              <img src={uploadedIdImage} alt="Uploaded card" className="w-full h-full object-cover" />
-                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm">
-                                <Button variant="destructive" size="sm" onClick={() => setUploadedIdImage(null)} className="h-8 rounded-lg">Remove Image</Button>
-                              </div>
-                            </div>
-                            <Button onClick={handleVerifySubmit} className="w-full bg-[#177865] hover:bg-[#177865]/90 text-white rounded-xl h-11 font-semibold">Submit for Review</Button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
             )}
 
             {/* ── ACCOUNT TAB ── */}
@@ -796,62 +793,46 @@ export function SettingsView() {
                   <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-5 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 rounded-xl bg-secondary/50 border border-white/[0.05]"><Lock className="w-5 h-5 text-foreground" /></div>
-                      <h3 className="font-semibold text-foreground">Change Password</h3>
+                      <h3 className="font-semibold text-foreground">
+                        {user?.auth_status?.has_password ? "Change Password" : "Set Password"}
+                      </h3>
                     </div>
-                    <form onSubmit={handleSaveAccount} className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">Current Password</label>
-                        <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">New Password</label>
-                        <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">Confirm New Password</label>
-                        <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
-                      </div>
-                      {newPassword && confirmPassword && newPassword !== confirmPassword && (
-                        <p className="text-xs text-red-400 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Passwords do not match</p>
-                      )}
-                      <Button type="submit" disabled={isSavingAccount || !newPassword || newPassword !== confirmPassword} className="w-full bg-secondary hover:bg-secondary/80 text-foreground rounded-xl h-11 mt-2 font-medium">
-                        {isSavingAccount ? "Updating..." : "Update Password"}
-                      </Button>
-                    </form>
+                    {user?.auth_status?.has_password ? (
+                      <form onSubmit={handleSaveAccount} className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">Current Password</label>
+                          <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">New Password</label>
+                          <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">Confirm New Password</label>
+                          <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
+                        </div>
+                        {newPassword && confirmPassword && newPassword !== confirmPassword && (
+                          <p className="text-xs text-red-400 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Passwords do not match</p>
+                        )}
+                        <Button type="submit" disabled={isSavingAccount || !newPassword || newPassword !== confirmPassword} className="w-full bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 mt-2 font-semibold shadow-lg">
+                          {isSavingAccount ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Updating...</> : "Update Password"}
+                        </Button>
+                      </form>
+                    ) : (
+                      <form onSubmit={handleSetPassword} className="space-y-4">
+                        <p className="text-sm text-muted-foreground">You signed in with a social account. Request a password reset link to set a password for your account.</p>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">Your Email</label>
+                          <Input type="email" value={email} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
+                        </div>
+                        <Button type="submit" disabled={isSendingReset} className="w-full bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 font-semibold shadow-lg">
+                          {isSendingReset ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending...</> : "Send Password Reset Link"}
+                        </Button>
+                      </form>
+                    )}
                   </div>
 
-                  {/* Add Secondary Email */}
-                  <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-5 flex flex-col shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-secondary/50 border border-white/[0.05]"><Mail className="w-5 h-5 text-foreground" /></div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">Add Secondary Email</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Backup recovery address for your account</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">Primary Email (read-only)</label>
-                      <Input type="email" value={email} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
-                    </div>
-                    <div className="space-y-2 flex-1">
-                      <label className="text-xs font-medium text-muted-foreground">Secondary / Recovery Email</label>
-                      <Input
-                        type="email"
-                        value={secondaryEmail}
-                        onChange={(e) => setSecondaryEmail(e.target.value)}
-                        placeholder="backup@example.com"
-                        className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]"
-                      />
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">A confirmation link will be sent to verify the new address before it is linked to your account.</p>
-                    </div>
-                    <Button
-                      onClick={handleSaveSecondaryEmail}
-                      disabled={isSavingSecondary || !secondaryEmail}
-                      className="w-full bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 font-semibold"
-                    >
-                      {isSavingSecondary ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending...</> : "Add Secondary Email"}
-                    </Button>
-                  </div>
+
 
                   {/* Export Data */}
                   <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-4 md:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-sm hover:shadow-md transition-shadow">
@@ -859,7 +840,10 @@ export function SettingsView() {
                       <h3 className="font-semibold text-foreground">Export Account Data</h3>
                       <p className="text-xs text-muted-foreground">Download a copy of all your data, including listings, messages, and profile info.</p>
                     </div>
-                    <Button variant="outline" className="border-white/[0.1] hover:bg-white/[0.05] rounded-xl h-11 px-6 whitespace-nowrap shrink-0">Request Data Archive</Button>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-secondary/80 text-muted-foreground uppercase tracking-wider">Coming Soon</span>
+                      <Button variant="outline" disabled className="border-white/[0.1] rounded-xl h-11 px-6 whitespace-nowrap opacity-50 cursor-not-allowed">Request Data Archive</Button>
+                    </div>
                   </div>
 
                   {/* Danger Zone */}
@@ -869,7 +853,7 @@ export function SettingsView() {
                       <p className="text-xs text-muted-foreground">Permanently delete your account and all associated data. This action cannot be undone.</p>
                     </div>
                     <Button variant="destructive" className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 rounded-xl h-11 px-6 whitespace-nowrap transition-colors shrink-0 font-medium"
-                      onClick={() => { if (window.confirm("Are you sure you want to permanently delete your UniMarket account?")) toast.error("Account deletion requested."); }}>
+                      onClick={() => setShowDeleteConfirm(true)}>
                       <Trash2 className="w-4 h-4 mr-2" /> Delete Account
                     </Button>
                   </div>
@@ -915,6 +899,11 @@ export function SettingsView() {
                     );
                   })}
                 </div>
+                <div className="flex justify-end pt-2">
+                  <Button onClick={handleSavePrivacy} disabled={isSavingPrivacy} className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 px-8 font-semibold shadow-lg">
+                    {isSavingPrivacy ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Preferences</>}
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -923,11 +912,11 @@ export function SettingsView() {
               <div className="space-y-8">
                 <div>
                   <h2 className="text-xl font-semibold text-foreground">Security Settings</h2>
-                  <p className="text-sm text-muted-foreground">Manage 2FA and monitor your active login sessions.</p>
+                  <p className="text-sm text-muted-foreground">Advanced security features to protect your account.</p>
                 </div>
                 <div className="space-y-6">
-                  {/* 2FA */}
-                  <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+                  {/* 2FA — Future Feature */}
+                  <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm opacity-70">
                     <div className="flex items-start gap-5">
                       <div className="w-12 h-12 rounded-2xl bg-[#bb740a]/10 flex items-center justify-center text-[#bb740a] shrink-0 border border-[#bb740a]/20">
                         <Shield className="w-6 h-6" />
@@ -935,46 +924,28 @@ export function SettingsView() {
                       <div>
                         <div className="flex items-center gap-3 mb-1.5">
                           <h3 className="font-semibold text-foreground text-base">Two-Factor Authentication</h3>
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary/80 text-muted-foreground uppercase tracking-wider">Disabled</span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary/80 text-muted-foreground uppercase tracking-wider">Coming Soon</span>
                         </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">Protect your account with an extra layer of security.</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">Protect your account with an extra layer of security using an authenticator app or SMS.</p>
                       </div>
                     </div>
-                    <Button variant="outline" className="shrink-0 rounded-xl h-11 px-6 border-white/[0.1] hover:bg-white/[0.05] font-medium">Configure 2FA</Button>
+                    <Button variant="outline" disabled className="shrink-0 rounded-xl h-11 px-6 border-white/[0.1] font-medium opacity-50 cursor-not-allowed">Configure 2FA</Button>
                   </div>
 
-                  {/* Sessions */}
-                  <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden shadow-sm">
-                    <div className="p-6 border-b border-white/[0.05] bg-white/[0.01]">
-                      <h3 className="font-semibold text-foreground">Active Sessions</h3>
-                      <p className="text-xs text-muted-foreground mt-1">Devices currently logged into your account.</p>
-                    </div>
-                    <div className="divide-y divide-white/[0.05]">
-                      <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/[0.01]">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-secondary/80 flex items-center justify-center text-foreground"><Monitor className="w-5 h-5" /></div>
-                          <div>
-                            <div className="flex items-center gap-2.5">
-                              <h4 className="text-sm font-semibold text-foreground">Chrome • Current Device</h4>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#177865]/20 text-[#2aa67f]">Current Session</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">Kigali, Rwanda • Active now</p>
-                          </div>
+                  {/* Sessions — Future Feature */}
+                  <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden shadow-sm opacity-70">
+                    <div className="p-6 border-b border-white/[0.05] bg-white/[0.01] flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <h3 className="font-semibold text-foreground">Active Sessions</h3>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary/80 text-muted-foreground uppercase tracking-wider">Coming Soon</span>
                         </div>
-                      </div>
-                      <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.01] transition-colors">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-secondary/80 flex items-center justify-center text-foreground"><Smartphone className="w-5 h-5" /></div>
-                          <div>
-                            <h4 className="text-sm font-semibold text-foreground">iOS • Safari</h4>
-                            <p className="text-xs text-muted-foreground mt-1">Kigali, Rwanda • Last active 2 hours ago</p>
-                          </div>
-                        </div>
-                        <Button variant="ghost" className="text-xs text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl h-9 px-4">Log out</Button>
+                        <p className="text-xs text-muted-foreground mt-1">View and manage devices currently logged into your account.</p>
                       </div>
                     </div>
-                    <div className="p-5 border-t border-white/[0.05] flex justify-end bg-white/[0.01]">
-                      <Button variant="outline" className="text-xs rounded-xl h-10 px-5 border-white/[0.1] hover:bg-white/[0.05]">Log Out All Other Devices</Button>
+                    <div className="p-8 flex flex-col items-center justify-center text-center gap-3">
+                      <Monitor className="w-10 h-10 text-muted-foreground opacity-30" />
+                      <p className="text-sm text-muted-foreground">Session management will be available in a future update.</p>
                     </div>
                   </div>
                 </div>
@@ -984,6 +955,63 @@ export function SettingsView() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#0f0f0f] border border-red-500/20 rounded-2xl p-7 max-w-md w-full shadow-2xl"
+            >
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">Delete Account</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">This action is permanent and cannot be undone.</p>
+                </div>
+              </div>
+              <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/15 mb-6 space-y-2">
+                <p className="text-sm text-foreground font-medium">You are about to permanently delete:</p>
+                <ul className="text-xs text-muted-foreground space-y-1.5 list-disc pl-4">
+                  <li>Your profile and all account data</li>
+                  <li>All your marketplace listings</li>
+                  <li>All your messages and conversations</li>
+                </ul>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 rounded-xl h-11 border-white/[0.1] hover:bg-white/[0.05]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={isDeletingAccount}
+                  onClick={handleDeleteAccount}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-xl h-11 font-semibold"
+                >
+                  {isDeletingAccount ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Deleting...</> : "Yes, Delete My Account"}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

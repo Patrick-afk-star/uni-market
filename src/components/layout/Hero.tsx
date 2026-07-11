@@ -3,12 +3,58 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { getApiUrl } from "@/lib/api";
-import { ShoppingCart, Eye } from "lucide-react";
+import {
+  ShoppingCart,
+  Eye,
+  Search,
+  MapPin,
+  Star,
+  ArrowRight,
+  CheckCircle2,
+  ShieldCheck,
+  Package,
+  Zap,
+  BookOpen,
+  Monitor,
+  Sofa,
+  Shirt,
+  PenLine,
+  Bike,
+  UtensilsCrossed,
+  Trophy,
+  Mail,
+  ExternalLink,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  Electronics: <Monitor className="w-5 h-5" />,
+  Furniture: <Sofa className="w-5 h-5" />,
+  Textbooks: <BookOpen className="w-5 h-5" />,
+  Clothing: <Shirt className="w-5 h-5" />,
+  Stationery: <PenLine className="w-5 h-5" />,
+  Bicycles: <Bike className="w-5 h-5" />,
+  Kitchen: <UtensilsCrossed className="w-5 h-5" />,
+  Sports: <Trophy className="w-5 h-5" />,
+};
+
+const CATEGORY_COLORS: Record<string, { bg: string; text: string; glow: string }> = {
+  Electronics: { bg: "rgba(99,102,241,0.12)", text: "#818cf8", glow: "rgba(99,102,241,0.3)" },
+  Furniture:   { bg: "rgba(234,179,8,0.1)",   text: "#f59e0b", glow: "rgba(234,179,8,0.3)"  },
+  Textbooks:   { bg: "rgba(34,197,94,0.1)",   text: "#4ade80", glow: "rgba(34,197,94,0.3)"  },
+  Clothing:    { bg: "rgba(236,72,153,0.1)",  text: "#f472b6", glow: "rgba(236,72,153,0.3)" },
+  Stationery:  { bg: "rgba(6,182,212,0.1)",   text: "#22d3ee", glow: "rgba(6,182,212,0.3)"  },
+  Bicycles:    { bg: "rgba(249,115,22,0.1)",  text: "#fb923c", glow: "rgba(249,115,22,0.3)" },
+  Kitchen:     { bg: "rgba(16,185,129,0.1)",  text: "#34d399", glow: "rgba(16,185,129,0.3)" },
+  Sports:      { bg: "rgba(239,68,68,0.1)",   text: "#f87171", glow: "rgba(239,68,68,0.3)"  },
+};
 
 export default function Hero() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [dbListings, setDbListings] = useState<any[]>([]);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "sending" | "sent">("idle");
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -39,8 +85,7 @@ export default function Hero() {
       rating: 4.8,
       location: "KG 15 mins ago",
       university: "UR - Gikondo",
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
       tag: "Like new",
     },
     {
@@ -50,8 +95,7 @@ export default function Hero() {
       rating: 4.9,
       location: "UR Huye",
       university: "UR - Huye",
-      image:
-        "https://plus.unsplash.com/premium_photo-1711051475117-f3a4d3ff6778?auto=format&fit=crop&w=800&q=80",
+      image: "https://plus.unsplash.com/premium_photo-1711051475117-f3a4d3ff6778?auto=format&fit=crop&w=800&q=80",
       tag: "Solid wood",
     },
     {
@@ -61,8 +105,7 @@ export default function Hero() {
       rating: 5.0,
       location: "CMU Africa",
       university: "CMU Africa",
-      image:
-        "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80",
       tag: "Bestseller",
     },
     {
@@ -72,35 +115,39 @@ export default function Hero() {
       rating: 4.9,
       location: "ALU",
       university: "African Leadership University",
-      image:
-        "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=800&q=80",
       tag: "Student discount",
     },
   ];
 
   const mappedDbProducts = dbListings.map((item: any, idx: number) => {
-    const image = item.images && Array.isArray(item.images) && item.images.length > 0
-      ? resolveImageUrl(item.images[0].image)
-      : item.image
-        ? resolveImageUrl(item.image)
-        : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+    const image =
+      item.images && Array.isArray(item.images) && item.images.length > 0
+        ? resolveImageUrl(item.images[0].image)
+        : item.image
+          ? resolveImageUrl(item.image)
+          : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
 
-    const university = item.seller_info?.student_profile?.university || 
-                       item.student_profile?.university || 
-                       item.seller_info?.university || 
-                       "UR - Gikondo";
+    const university =
+      item.seller_info?.student_profile?.university ||
+      item.student_profile?.university ||
+      item.seller_info?.university ||
+      "UR - Gikondo";
 
     return {
       id: item.id || `api-${idx}`,
       name: item.title,
-      price: typeof item.price === "number"
-        ? `${item.price.toLocaleString()} RWF`
-        : `${parseFloat(item.price || "0").toLocaleString()} RWF`,
+      price:
+        typeof item.price === "number"
+          ? `${item.price.toLocaleString()} RWF`
+          : `${parseFloat(item.price || "0").toLocaleString()} RWF`,
       rating: 4.8,
       location: item.location || "Kigali Campus",
-      university: university,
+      university,
       image,
-      tag: item.condition ? (item.condition.charAt(0).toUpperCase() + item.condition.slice(1)) : "Verified",
+      tag: item.condition
+        ? item.condition.charAt(0).toUpperCase() + item.condition.slice(1)
+        : "Verified",
     };
   });
 
@@ -137,12 +184,13 @@ export default function Hero() {
 
   // Compute live category counts from fetched listings
   const categoryNames = ["Electronics", "Furniture", "Textbooks", "Clothing", "Stationery", "Bicycles", "Kitchen", "Sports"];
-  const categories = categoryNames.map(name => {
-    const count = dbListings.filter((item: any) =>
-      (item.category || "").toLowerCase() === name.toLowerCase()
+  const categories = categoryNames.map((name) => {
+    const count = dbListings.filter(
+      (item: any) => (item.category || "").toLowerCase() === name.toLowerCase()
     ).length;
     return { title: name, count };
   });
+
   const universities = [
     "University of Rwanda - Huye",
     "University of Rwanda - Gikondo",
@@ -152,316 +200,522 @@ export default function Hero() {
     "INES Ruhengeri",
     "ULK",
   ];
-  const deals = [
-    { title: "Laptop + Backpack Bundle", detail: "Save 15% + free mouse" },
-    { title: "Textbook Exchange Pack", detail: "3 books for 25,000 RWF" },
-    { title: "Room Essentials Kit", detail: "Bedding, lamp, organizer" },
-  ];
 
-  const testimonials = [
-    {
-      name: "Clarisse I.",
-      school: "UR - Huye",
-      quote:
-        "I sold my laptop in two hours. Met the buyer at the library – super easy!",
-    },
-    {
-      name: "Jean Paul",
-      school: "CMU Africa",
-      quote:
-        "Found a perfect study desk for half the price of a new one. Will definitely use again.",
-    },
-    {
-      name: "Amina K.",
-      school: "ALU",
-      quote:
-        "The student verification makes it feel safe. I’ve bought three items now.",
-    },
-  ];
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    setNewsletterStatus("sending");
+    // Simulate sending – in production wire to your backend or a mailto action
+    await new Promise((r) => setTimeout(r, 900));
+    setNewsletterStatus("sent");
+  };
 
   return (
-    <main className="home-only">
-      {/* Hero Section */}
-      <section className="py-16 md:py-20">
-        <div className="max-w-6xl mx-auto w-[92vw]">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            {/* Left column */}
-            <div className="relative">
-              {/* Decorative gradient orb */}
+    <main
+      className="home-only"
+      style={{ background: "#0D0E12", minHeight: "100vh" }}
+    >
+      {/* ───────────────────────── HERO SECTION ───────────────────────── */}
+      <section
+        className="relative py-20 md:py-28 overflow-hidden"
+        style={{
+          background:
+            "radial-gradient(ellipse at top right, rgba(234,179,8,0.07), transparent 55%), radial-gradient(ellipse at bottom left, rgba(99,102,241,0.05), transparent 60%), #0D0E12",
+        }}
+      >
+        {/* Ambient noise grain */}
+        <div
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")",
+            backgroundSize: "180px",
+          }}
+        />
+        {/* Floating accent orbs */}
+        <div
+          className="pointer-events-none absolute -top-20 right-0 w-[480px] h-[480px] rounded-full opacity-30"
+          style={{ background: "radial-gradient(circle, rgba(234,179,8,0.18), transparent 70%)" }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-32 -left-20 w-[360px] h-[360px] rounded-full opacity-20"
+          style={{ background: "radial-gradient(circle, rgba(99,102,241,0.22), transparent 70%)" }}
+        />
+
+        <div className="relative z-10 max-w-6xl mx-auto w-[92vw]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            {/* LEFT — editorial copy + search */}
+            <div>
+              {/* Trust badge */}
               <div
-                className="absolute -top-5 -left-8 w-36 h-36 rounded-full -z-10"
+                className="inline-flex items-center gap-2 text-xs px-4 py-1.5 rounded-full font-semibold mb-6"
                 style={{
-                  background:
-                    "radial-gradient(circle, rgba(216,162,74,0.3), transparent 70%)",
+                  background: "rgba(234,179,8,0.08)",
+                  border: "1px solid rgba(234,179,8,0.2)",
+                  color: "#F59E0B",
                 }}
-              />
-              <div className="inline-flex items-center gap-2 text-xs px-3.5 py-1.5 rounded-full bg-[rgba(28,110,93,0.1)] text-[#0a4e39] dark:text-[#1f7c5f] font-semibold">
-                <span>Trusted by 18,000+ students</span>
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] animate-pulse"
+                />
+                Trusted by 18,000+ students across Rwanda
               </div>
-              <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight my-3.5">
-                Shop smarter. Sell faster. Right on campus.
+
+              {/* Headline */}
+              <h1
+                className="font-black text-5xl sm:text-6xl md:text-7xl leading-[1.05] tracking-tight mb-5"
+                style={{ color: "#F1F5F9" }}
+              >
+                Shop smarter.{" "}
+                <br className="hidden sm:block" />
+                Sell faster.{" "}
+                <span
+                  style={{
+                    background: "linear-gradient(135deg, #F59E0B, #FBBF24, #D97706)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                  }}
+                >
+                  Right on campus.
+                </span>
               </h1>
-              <p className="text-[#5f5b52] dark:text-[#b7b1a6] leading-relaxed">
-                Discover verified student listings, affordable tech, and
-                hostel-ready essentials across Rwanda. Buy now, or list your
-                item in under two minutes.
+
+              <p className="text-base leading-relaxed mb-8" style={{ color: "#94A3B8" }}>
+                Discover verified student listings, affordable tech, and hostel-ready
+                essentials across Rwanda. Buy now, or list your item in under two minutes.
               </p>
 
-              {/* Search */}
-              <form className="flex flex-wrap gap-3 my-5" onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
-                <input
-                  type="text"
-                  placeholder="Search for laptops, textbooks, furniture..."
-                  aria-label="Search products"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 min-w-[14rem] px-4 py-3.5 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
-                />
+              {/* Premium search bar */}
+              <form
+                className="flex gap-2 mb-7"
+                onSubmit={(e) => { e.preventDefault(); handleSearch(); }}
+              >
+                <div
+                  className="flex flex-1 items-center gap-3 px-4 rounded-2xl transition-all duration-200 focus-within:shadow-[0_0_0_2px_rgba(234,179,8,0.4)]"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    backdropFilter: "blur(8px)",
+                  }}
+                >
+                  <Search className="w-4 h-4 shrink-0" style={{ color: "#64748B" }} />
+                  <input
+                    type="text"
+                    placeholder="Search for laptops, textbooks, furniture..."
+                    aria-label="Search products"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-[#475569]"
+                    style={{ color: "#E2E8F0" }}
+                  />
+                </div>
                 <button
-                  className="bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform duration-200 cursor-pointer"
                   type="submit"
+                  className="shrink-0 px-6 py-3 rounded-2xl font-semibold text-sm text-[#0D0E12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(234,179,8,0.4)]"
+                  style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
                 >
                   Search
                 </button>
               </form>
 
-              {/* Stats */}
-              <div className="mt-2.5">
-                <div>
-                  <div className="text-lg font-bold">{dbListings.length > 0 ? dbListings.length.toLocaleString() : "2,600+"}</div>
-                  <div className="text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
-                    Active listings
-                  </div>
-                </div>
+              {/* Live metric ticker */}
+              <div
+                className="inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-semibold"
+                style={{
+                  background: "rgba(234,179,8,0.06)",
+                  border: "1px solid rgba(234,179,8,0.12)",
+                }}
+              >
+                <span className="w-2 h-2 rounded-full bg-[#F59E0B] animate-pulse" />
+                <span style={{ color: "#F59E0B" }}>
+                  {dbListings.length > 0 ? dbListings.length.toLocaleString() : "2,600+"} active listings
+                </span>
+                <span style={{ color: "#475569" }}>right now</span>
               </div>
             </div>
 
-            {/* Right column – featured card */}
-            <div className="bg-[#ffffff] dark:bg-[#151816] p-5 rounded-3xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.4)] relative overflow-hidden">
-              {/* Decorative orb */}
+            {/* RIGHT — floating glass card */}
+            <div
+              className="relative p-6 rounded-3xl"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                backdropFilter: "blur(12px)",
+                boxShadow: "0 32px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
+              }}
+            >
+              {/* Floating glow behind card */}
               <div
-                className="absolute -right-10 -bottom-10 w-36 h-36 rounded-full"
-                style={{
-                  background:
-                    "radial-gradient(circle, rgba(42,166,127,0.25), transparent 70%)",
-                }}
+                className="absolute -top-8 -right-8 w-40 h-40 rounded-full pointer-events-none"
+                style={{ background: "radial-gradient(circle, rgba(234,179,8,0.14), transparent 70%)" }}
               />
-              <div className="flex items-center justify-between font-semibold">
-                <p>Today on UniMarket</p>
-                <span className="bg-[#d8a24a] text-[#3b2a12] px-2.5 py-1 rounded-full text-xs font-bold">
-                  New
+
+              {/* Card header */}
+              <div className="flex items-center justify-between mb-5">
+                <p className="font-bold text-sm" style={{ color: "#F1F5F9" }}>
+                  Today on UniMarket
+                </p>
+                <span
+                  className="px-3 py-1 rounded-full text-xs font-bold animate-pulse"
+                  style={{
+                    background: "rgba(234,179,8,0.15)",
+                    border: "1px solid rgba(234,179,8,0.3)",
+                    color: "#F59E0B",
+                  }}
+                >
+                  ● New
                 </span>
               </div>
-              <div className="grid gap-4 mt-4">
+
+              {/* Product rows */}
+              <div className="grid gap-4">
                 {products.slice(0, 3).map((item) => (
-                  <div key={item.id} className="flex gap-3">
+                  <div
+                    key={item.id}
+                    className="flex gap-3.5 cursor-pointer group"
+                    onClick={() => handleItemClick(item.id)}
+                  >
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-16 h-16 object-cover rounded-xl"
+                      className="w-14 h-14 object-cover rounded-xl shrink-0 group-hover:opacity-90 transition-opacity"
+                      style={{ border: "1px solid rgba(255,255,255,0.06)" }}
                     />
-                    <div>
-                      <h3 className="text-sm font-medium">{item.name}</h3>
-                      <p className="text-xs text-[#5f5b52] dark:text-[#b7b1a6] mt-1">
-                        {item.price} • {item.location}
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-semibold truncate group-hover:text-[#F59E0B] transition-colors" style={{ color: "#E2E8F0" }}>
+                        {item.name}
+                      </h3>
+                      <p className="text-xs mt-1" style={{ color: "#64748B" }}>
+                        <span style={{ color: "#F59E0B" }}>{item.price}</span>
+                        {" · "}
+                        <MapPin className="w-3 h-3 inline-block -mt-px" />
+                        {" "}{item.location}
                       </p>
                     </div>
+                    <ArrowRight className="w-4 h-4 shrink-0 mt-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" style={{ color: "#F59E0B" }} />
                   </div>
                 ))}
               </div>
+
               <button
-                className="w-full mt-4 bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-[11px] font-semibold text-sm hover:-translate-y-px transition-transform"
                 type="button"
-                onClick={() => {
-                  document
-                    .getElementById("featured")
-                    ?.scrollIntoView({ behavior: "smooth" });
+                className="w-full mt-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)]"
+                style={{
+                  background: "rgba(234,179,8,0.08)",
+                  border: "1px solid rgba(234,179,8,0.2)",
+                  color: "#F59E0B",
                 }}
+                onClick={() => document.getElementById("featured")?.scrollIntoView({ behavior: "smooth" })}
               >
-                Browse all listings
+                Browse all listings →
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Categories Section */}
-      <section className="py-14" id="categories">
+      {/* ───────────────────────── CATEGORIES ───────────────────────── */}
+      <section className="py-20" id="categories">
         <div className="max-w-6xl mx-auto w-[92vw]">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5 mb-8">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5 mb-10">
             <div>
-              <p className="uppercase tracking-widest text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
+              <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
                 Categories
               </p>
-              <h2 className="text-3xl font-bold mt-1">Shop by student needs</h2>
-              <p className="text-[#5f5b52] dark:text-[#b7b1a6] max-w-lg mt-2">
-                From tech to hostel essentials, find what matters most this
-                semester.
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight" style={{ color: "#F1F5F9" }}>
+                Shop by student needs
+              </h2>
+              <p className="text-sm mt-2 max-w-md" style={{ color: "#94A3B8" }}>
+                From tech to hostel essentials, find what matters most this semester.
               </p>
             </div>
-            <button className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm hover:-translate-y-px transition-transform">
+            <button
+              className="text-sm font-semibold px-5 py-2.5 rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                color: "#94A3B8",
+              }}
+              onClick={() => handleCategoryClick("All")}
+            >
               View all
             </button>
           </div>
+
+          {/* Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {categories.map((cat) => (
-              <div
-                key={cat.title}
-                className="bg-[#ffffff] dark:bg-[#151816] p-4 rounded-xl flex items-center gap-3 shadow-[0_12px_28px_rgba(20,12,8,0.06)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 cursor-pointer hover:-translate-y-1 transition-transform"
-                onClick={() => handleCategoryClick(cat.title)}
-              >
-                <div className="w-11 h-11 rounded-xl bg-[rgba(28,110,93,0.12)] grid place-items-center font-bold text-[#0a4e39] dark:text-[#1f7c5f]">
-                  {cat.title[0]}
-                </div>
-                <div>
-                  <h3 className="font-semibold">{cat.title}</h3>
-                  <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6]">
+            {categories.map((cat) => {
+              const colors = CATEGORY_COLORS[cat.title] || { bg: "rgba(255,255,255,0.05)", text: "#94A3B8", glow: "rgba(255,255,255,0.1)" };
+              return (
+                <div
+                  key={cat.title}
+                  onClick={() => handleCategoryClick(cat.title)}
+                  className="group relative cursor-pointer p-4 rounded-2xl transition-all duration-300 hover:-translate-y-1"
+                  style={{
+                    background: "#16171E",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.border = `1px solid ${colors.glow}`;
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 12px 32px ${colors.glow}40, inset 0 1px 0 rgba(255,255,255,0.04)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(255,255,255,0.05)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+                  }}
+                >
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-colors"
+                    style={{ background: colors.bg, color: colors.text }}
+                  >
+                    {CATEGORY_ICONS[cat.title]}
+                  </div>
+                  <h3 className="font-bold text-sm" style={{ color: "#E2E8F0" }}>{cat.title}</h3>
+                  <p className="text-xs mt-1" style={{ color: "#64748B" }}>
                     {cat.count} listings
                   </p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Universities Section */}
-      <section className="py-14 bg-white dark:bg-transparent" id="universities">
-        <div className="max-w-6xl mx-auto w-[92vw] grid md:grid-cols-2 gap-6 items-center">
+      {/* ───────────────────────── UNIVERSITY CAMPUS NODE ───────────────────────── */}
+      <section
+        className="py-20"
+        id="universities"
+        style={{ background: "rgba(22,23,30,0.6)" }}
+      >
+        <div className="max-w-6xl mx-auto w-[92vw] grid md:grid-cols-2 gap-10 items-center">
+          {/* Left */}
           <div>
-            <p className="uppercase tracking-widest text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
+            <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
               Your campus
             </p>
-            <h2 className="text-3xl font-bold mt-1">Choose your university</h2>
-            <p className="text-[#5f5b52] dark:text-[#b7b1a6] max-w-lg mt-2">
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3" style={{ color: "#F1F5F9" }}>
+              Choose your university
+            </h2>
+            <p className="text-sm mb-7" style={{ color: "#94A3B8" }}>
               Filter listings and get pickup options that match your campus.
             </p>
-            <div className="flex flex-wrap gap-3 mt-4 items-center">
-              <select
-                aria-label="Select your university"
-                className="flex-1 min-w-[14rem] px-3.5 py-3 rounded-2xl border border-[rgba(28,25,23,0.15)] dark:border-white/15 bg-white dark:bg-[#121412] text-sm focus:outline-none focus:ring-2 focus:ring-[#d8a24a]"
+
+            {/* Custom select with chip */}
+            <div className="flex flex-wrap gap-3 items-center">
+              <div
+                className="flex-1 min-w-[14rem] relative rounded-2xl overflow-hidden"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
               >
-                <option value="All">All universities</option>
-                {universities.map((school) => (
-                  <option key={school} value={school}>
-                    {school}
-                  </option>
-                ))}
-              </select>
-              <span className="bg-[rgba(28,110,93,0.12)] text-[#0a4e39] dark:text-[#1f7c5f] px-3 py-2 rounded-full text-xs font-semibold">
+                <select
+                  aria-label="Select your university"
+                  className="w-full px-4 py-3.5 text-sm bg-transparent outline-none appearance-none cursor-pointer"
+                  style={{ color: "#E2E8F0" }}
+                >
+                  <option value="All" style={{ background: "#16171E" }}>All universities</option>
+                  {universities.map((school) => (
+                    <option key={school} value={school} style={{ background: "#16171E" }}>
+                      {school}
+                    </option>
+                  ))}
+                </select>
+                {/* Arrow icon */}
+                <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#64748B" }}>
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              {/* Micro-chip badge */}
+              <span
+                className="px-3.5 py-2 rounded-full text-xs font-bold"
+                style={{
+                  background: "rgba(234,179,8,0.1)",
+                  border: "1px solid rgba(234,179,8,0.2)",
+                  color: "#F59E0B",
+                }}
+              >
                 Showing: 3
               </span>
             </div>
           </div>
-          <div className="bg-[#f2f6f4] dark:bg-[#151816] p-5 rounded-3xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] dark:shadow-[0_20px_45px_rgba(0,0,0,0.4)]">
-            <h3 className="font-bold text-xl mb-2">Campus perks</h3>
-            <ul className="text-[#5f5b52] dark:text-[#b7b1a6] space-y-2 list-disc pl-5">
-              <li>Verified student badges for trusted listings</li>
-              <li>Pickup points near your lecture halls</li>
-              <li>Deal alerts for your campus community</li>
-            </ul>
+
+          {/* Right — campus perks */}
+          <div
+            className="p-6 rounded-3xl"
+            style={{
+              background: "#16171E",
+              border: "1px solid rgba(255,255,255,0.06)",
+              boxShadow: "0 24px 48px rgba(0,0,0,0.4)",
+            }}
+          >
+            <h3 className="font-bold text-lg mb-5" style={{ color: "#F1F5F9" }}>
+              Campus perks
+            </h3>
+            <div className="space-y-4">
+              {[
+                { icon: <ShieldCheck className="w-4 h-4" />, label: "Verified student badges for trusted listings" },
+                { icon: <MapPin className="w-4 h-4" />, label: "Pickup points near your lecture halls" },
+                { icon: <Zap className="w-4 h-4" />, label: "Deal alerts for your campus community" },
+              ].map((perk, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: "rgba(234,179,8,0.08)", color: "#F59E0B" }}
+                  >
+                    {perk.icon}
+                  </div>
+                  <p className="text-sm" style={{ color: "#94A3B8" }}>{perk.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section
-        className="py-14 relative overflow-hidden border-t border-b border-[rgba(18,20,18,0.12)] dark:border-white/10 bg-white/65 dark:bg-[#171a18]/70"
-        id="featured"
-      >
+      {/* ───────────────────────── FEATURED PRODUCTS ───────────────────────── */}
+      <section className="py-20 relative overflow-hidden" id="featured">
         {/* Animated background orbs */}
         <div
-          className="absolute w-56 h-56 -left-17.5 top-[28%] rounded-full pointer-events-none animate-[featuredFloat_12s_ease-in-out_infinite]"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(42,166,127,0.14), transparent 70%)",
-          }}
+          className="absolute -left-20 top-[30%] w-[340px] h-[340px] rounded-full pointer-events-none animate-[featuredFloat_14s_ease-in-out_infinite]"
+          style={{ background: "radial-gradient(circle, rgba(99,102,241,0.07), transparent 70%)" }}
         />
         <div
-          className="absolute w-44 h-44 -right-12.5 top-[16%] rounded-full pointer-events-none animate-[featuredFloat_14s_ease-in-out_infinite_reverse]"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(216,162,74,0.16), transparent 70%)",
-          }}
+          className="absolute -right-16 top-[10%] w-[280px] h-[280px] rounded-full pointer-events-none animate-[featuredFloat_12s_ease-in-out_infinite_reverse]"
+          style={{ background: "radial-gradient(circle, rgba(234,179,8,0.07), transparent 70%)" }}
         />
+
         <div className="max-w-6xl mx-auto w-[92vw] relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5 mb-8">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5 mb-10">
             <div>
-              <p className="uppercase tracking-widest text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
+              <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
                 Featured
               </p>
-              <h2 className="text-3xl font-bold mt-1">
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight" style={{ color: "#F1F5F9" }}>
                 Handpicked for high value
               </h2>
-              <p className="text-[#5f5b52] dark:text-[#b7b1a6] max-w-lg mt-2">
-                Verified sellers and items in top condition with fair campus
-                pricing.
+              <p className="text-sm mt-2 max-w-md" style={{ color: "#94A3B8" }}>
+                Verified sellers and items in top condition with fair campus pricing.
               </p>
             </div>
-            <button className="bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform">
+            <button
+              className="text-sm font-semibold px-6 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)]"
+              style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)", color: "#0D0E12" }}
+            >
               See more
             </button>
           </div>
+
+          {/* Product grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {products.map((product) => (
               <article
                 key={product.id}
-                className="bg-[#ffffff] dark:bg-[#151816] rounded-2xl overflow-hidden shadow-[0_18px_35px_rgba(20,12,8,0.08)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 hover:-translate-y-1 hover:shadow-[0_24px_40px_rgba(20,12,8,0.12)] transition-transform relative group"
+                className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2"
+                style={{
+                  background: "#16171E",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 24px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(234,179,8,0.2)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 24px rgba(0,0,0,0.4)";
+                }}
               >
-                {/* Sheen effect on hover */}
-                <div className="absolute inset-0 pointer-events-none bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[cardSheen_1.05s_ease] dark:via-white/10" />
-                <div className="relative h-44">
+                {/* Image with gradient overlay */}
+                <div className="relative h-48 overflow-hidden">
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <span className="absolute top-3 left-3 bg-[rgba(28,110,93,0.9)] text-white px-3 py-1.5 rounded-full text-xs font-semibold">
+                  {/* Bottom gradient for price overlay */}
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: "linear-gradient(to top, rgba(13,14,18,0.9) 0%, transparent 55%)" }}
+                  />
+                  {/* Tag badge */}
+                  <span
+                    className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold"
+                    style={{
+                      background: "rgba(13,14,18,0.7)",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      color: "#E2E8F0",
+                      backdropFilter: "blur(6px)",
+                    }}
+                  >
                     {product.tag}
                   </span>
-                </div>
-                <div className="p-4 grid gap-2.5">
-                  <h3 className="font-semibold text-base">{product.name}</h3>
-                  <div className="flex justify-between font-semibold">
-                    <span className="text-[#0a4e39] dark:text-[#1f7c5f]">
+                  {/* Price overlay at bottom of image */}
+                  <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 flex items-end justify-between">
+                    <span className="font-black text-base" style={{ color: "#F59E0B" }}>
                       {product.price}
                     </span>
-                    <span className="bg-[rgba(241,179,92,0.3)] px-2 py-1 rounded-full text-xs">
-                      ★ {product.rating}
+                    <span
+                      className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(234,179,8,0.15)", color: "#FBBF24" }}
+                    >
+                      <Star className="w-3 h-3 fill-current" /> {product.rating}
                     </span>
                   </div>
-                  <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6]">
-                    {product.location}
+                </div>
+
+                {/* Card body */}
+                <div className="p-4 pt-3">
+                  <h3 className="font-bold text-sm mb-1 truncate" style={{ color: "#E2E8F0" }}>
+                    {product.name}
+                  </h3>
+                  <p className="text-xs mb-0.5 flex items-center gap-1" style={{ color: "#64748B" }}>
+                    <MapPin className="w-3 h-3" /> {product.location}
                   </p>
-                  <p className="text-xs text-[#8a847b] dark:text-[#b7b1a6]/80">
+                  <p className="text-xs mb-4" style={{ color: "#475569" }}>
                     {product.university}
                   </p>
-                  <div className="flex flex-col gap-2 mt-3">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="relative w-full group/btn">
-                        <button
-                          className="w-full flex items-center justify-center gap-1.5 bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-xl px-3 py-2 font-semibold text-xs hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
-                          type="button"
-                          onClick={() => handleItemClick(product.id)}
-                        >
-                          <Eye size={14} /> View
-                        </button>
-                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[#111311] dark:bg-[#f4f2ee] text-white dark:text-[#121412] text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none z-10">
-                          Verify to view
-                        </span>
-                      </div>
-                      <div className="relative w-full group/btn">
-                        <button
-                          className="w-full flex items-center justify-center gap-1.5 bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-xl px-3 py-2 font-semibold text-xs shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform disabled:opacity-60 disabled:cursor-not-allowed"
-                          type="button"
-                          onClick={() => handleItemClick(product.id)}
-                        >
-                          <ShoppingCart size={14} /> Buy
-                        </button>
-                        <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[#111311] dark:bg-[#f4f2ee] text-white dark:text-[#121412] text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg opacity-0 group-hover/btn:opacity-100 transition-opacity pointer-events-none z-10">
-                          Verify to buy
-                        </span>
-                      </div>
+
+                  {/* CTA buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="relative group/btn">
+                      <button
+                        type="button"
+                        onClick={() => handleItemClick(product.id)}
+                        className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5"
+                        style={{
+                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          color: "#94A3B8",
+                        }}
+                      >
+                        <Eye size={13} /> View
+                      </button>
+                      <span
+                        className="pointer-events-none absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2.5 py-1.5 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover/btn:opacity-100 transition-opacity"
+                        style={{ background: "#1E2029", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)" }}
+                      >
+                        Verify to view
+                      </span>
+                    </div>
+                    <div className="relative group/btn">
+                      <button
+                        type="button"
+                        onClick={() => handleItemClick(product.id)}
+                        className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(234,179,8,0.4)]"
+                        style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)", color: "#0D0E12" }}
+                      >
+                        <ShoppingCart size={13} /> Buy
+                      </button>
+                      <span
+                        className="pointer-events-none absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2.5 py-1.5 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover/btn:opacity-100 transition-opacity"
+                        style={{ background: "#1E2029", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)" }}
+                      >
+                        Verify to buy
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -469,347 +723,243 @@ export default function Hero() {
             ))}
           </div>
 
-          <div className="mt-6 p-6 bg-white dark:bg-[#151816] rounded-xl shadow-[0_18px_40px_rgba(10,12,11,0.08)]">
-            <h3 className="font-bold text-lg">
-              No listings for this campus yet.
-            </h3>
-            <p className="text-[#5f5b52] dark:text-[#b7b1a6]">
-              Try another university or list the first item.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Deals Section */}
-      <section className="py-14 relative overflow-hidden" id="deals">
-        {/* Background gradient orbs */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute w-44 h-44 -left-10 top-5 rounded-full animate-[floatOrb_10s_ease-in-out_infinite] bg-[radial-gradient(circle,rgba(216,162,74,0.5),transparent_70%)]" />
-          <div className="absolute w-56 h-56 -right-15 top-[30%] rounded-full animate-[floatOrb_10s_ease-in-out_infinite_1.2s] bg-[radial-gradient(circle,rgba(42,166,127,0.38),transparent_70%)]" />
-          <div className="absolute w-40 h-40 left-[35%] -bottom-12.5 rounded-full animate-[floatOrb_10s_ease-in-out_infinite_2.1s] bg-[radial-gradient(circle,rgba(74,166,207,0.32),transparent_70%)]" />
-        </div>
-        <div className="max-w-6xl mx-auto w-[92vw] relative z-10 grid md:grid-cols-2 gap-6 items-center">
-          <article>
-            <p className="uppercase tracking-widest text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
-              Deals of the week
-            </p>
-            <h2 className="text-3xl font-bold mt-1">
-              Bundle up and save on essentials
-            </h2>
-            <p className="text-[#5f5b52] dark:text-[#b7b1a6] max-w-lg mt-2">
-              Curated bundles from verified sellers with free campus delivery
-              for orders over 80,000 RWF.
-            </p>
-            <div className="grid gap-3.5 my-5">
-              {deals.map((deal) => (
-                <div
-                  key={deal.title}
-                  className="bg-white/65 dark:bg-[#151816]/80 border border-[rgba(18,20,18,0.12)] dark:border-white/10 p-3.5 rounded-2xl shadow-[0_10px_20px_rgba(20,12,8,0.06)] hover:-translate-y-1 transition-transform"
-                >
-                  <h4 className="font-semibold">{deal.title}</h4>
-                  <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6]">
-                    {deal.detail}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <button className="bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform">
-              Claim your deal
-            </button>
-          </article>
-          <article className="bg-[#141312] dark:bg-[#0f0f0f] text-[#fdf7ee] p-6 rounded-3xl">
-            <span className="bg-[#d8a24a] text-[#3b2a12] px-2.5 py-1 rounded-full text-xs font-bold">
-              Limited
-            </span>
-            <h3 className="text-2xl font-bold mt-3">Flash Sale</h3>
-            <p className="text-[#fdf7ee]/80 mt-1">
-              Save up to 35% on electronics before Friday.
-            </p>
-            <div className="flex gap-3 mt-4">
-              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-[70px]">
-                <span className="block text-lg font-bold">08</span>
-                <small className="text-white/70 text-xs">Hours</small>
-              </div>
-              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-[70px]">
-                <span className="block text-lg font-bold">24</span>
-                <small className="text-white/70 text-xs">Minutes</small>
-              </div>
-              <div className="bg-white/10 p-2.5 rounded-xl text-center min-w-[70px]">
-                <span className="block text-lg font-bold">52</span>
-                <small className="text-white/70 text-xs">Seconds</small>
-              </div>
-            </div>
-            <button className="w-full mt-4 bg-transparent text-white border border-white/20 rounded-full px-4.5 py-2.75 font-semibold text-sm hover:-translate-y-px transition-transform">
-              Shop electronics
-            </button>
-          </article>
-        </div>
-      </section>
-
-      {/* Payments Section */}
-      <section className="py-14 bg-[#f7f4ee] dark:bg-[#141615]" id="payments">
-        <div className="max-w-6xl mx-auto w-[92vw]">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5 mb-8">
-            <div>
-              <p className="uppercase tracking-widest text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
-                Payments
-              </p>
-              <h2 className="text-3xl font-bold mt-1">
-                Pay the way students do
-              </h2>
-              <p className="text-[#5f5b52] dark:text-[#b7b1a6] max-w-lg mt-2">
-                Choose trusted local options including MoMo and face-to-face
-                exchange on campus.
-              </p>
-            </div>
-            <button className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm hover:-translate-y-px transition-transform">
-              Payment help
-            </button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              {
-                title: "MTN MoMo",
-                desc: "Instant mobile money with escrow protection.",
-                tag: "Most used",
-              },
-              {
-                title: "Airtel Money",
-                desc: "Quick transfers for verified student sellers.",
-                tag: null,
-              },
-              {
-                title: "Face-to-face",
-                desc: "Meet on campus and pay in person.",
-                tag: "Campus pickup",
-              },
-              {
-                title: "Bank transfer",
-                desc: "For higher-value items and bundles.",
-                tag: null,
-              },
-            ].map((method, idx) => (
+          {/* Beautiful empty state */}
+          {products.length === 0 && (
+            <div
+              className="mt-6 flex flex-col items-center justify-center py-20 rounded-3xl text-center"
+              style={{
+                background: "#16171E",
+                border: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
               <div
-                key={idx}
-                className="bg-[#ffffff] dark:bg-[#151816] p-5 rounded-xl shadow-[0_16px_30px_rgba(20,12,8,0.08)] border border-[rgba(18,20,18,0.12)] dark:border-white/10 hover:-translate-y-1 hover:shadow-[0_22px_36px_rgba(20,12,8,0.12)] transition-transform"
+                className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
+                style={{ background: "rgba(234,179,8,0.06)", border: "1px solid rgba(234,179,8,0.12)" }}
               >
-                <h3 className="font-bold">{method.title}</h3>
-                <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6] mt-1">
-                  {method.desc}
-                </p>
-                {method.tag && (
-                  <span
-                    className={`inline-block mt-2 text-xs px-2.5 py-1 rounded-full font-semibold ${method.tag === "Most used"
-                      ? "bg-[rgba(28,110,93,0.12)] text-[#0a4e39] dark:text-[#1f7c5f]"
-                      : "bg-[rgba(241,179,92,0.3)] text-[#7a4a10]"
-                      }`}
-                  >
-                    {method.tag}
-                  </span>
-                )}
+                <Package className="w-9 h-9" style={{ color: "#F59E0B" }} />
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works + Testimonials */}
-      <section className="py-14">
-        <div className="max-w-6xl mx-auto w-[92vw] grid md:grid-cols-2 gap-6">
-          <div className="bg-[#ffffff] dark:bg-[#151816] p-6 rounded-3xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] border border-[rgba(18,20,18,0.12)] dark:border-white/10">
-            <p className="uppercase tracking-widest text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
-              How it works
-            </p>
-            <h2 className="text-3xl font-bold mt-1">
-              Secure, student-focused commerce
-            </h2>
-            <p className="text-[#5f5b52] dark:text-[#b7b1a6] mt-2">
-              Every seller is verified, with easy chat and optional campus
-              delivery to keep transactions smooth.
-            </p>
-            <div className="grid gap-4 mt-5">
-              {[
-                {
-                  num: 1,
-                  title: "Verify your campus",
-                  desc: "Use your student email to unlock listings.",
-                },
-                {
-                  num: 2,
-                  title: "Chat and pay safely",
-                  desc: "Secure chat and escrow for peace of mind.",
-                },
-                {
-                  num: 3,
-                  title: "Pick up or deliver",
-                  desc: "Meet on campus or schedule delivery.",
-                },
-              ].map((step) => (
-                <div key={step.num} className="flex gap-3">
-                  <span className="w-7 h-7 rounded-full bg-[rgba(28,110,93,0.15)] text-[#0a4e39] dark:text-[#1f7c5f] grid place-items-center font-bold">
-                    {step.num}
-                  </span>
-                  <div>
-                    <h4 className="font-semibold">{step.title}</h4>
-                    <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6]">
-                      {step.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
+              <h3 className="font-bold text-lg mb-2" style={{ color: "#E2E8F0" }}>No listings for this campus yet.</h3>
+              <p className="text-sm" style={{ color: "#64748B" }}>Try another university or list the first item.</p>
             </div>
-          </div>
-          <div className="bg-[#ffffff] dark:bg-[#151816] p-6 rounded-3xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] border border-[rgba(18,20,18,0.12)] dark:border-white/10">
-            <p className="uppercase tracking-widest text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
-              Students love us
-            </p>
-            <h2 className="text-3xl font-bold mt-1">Trusted across Rwanda</h2>
-            <div className="grid gap-4 mt-5">
-              {testimonials.map((t) => (
-                <div key={t.name}>
-                  <p className="text-[#5f5b52] dark:text-[#b7b1a6]">
-                    "{t.quote}"
-                  </p>
-                  <span className="block mt-1 text-xs text-[#5f5b52] dark:text-[#b7b1a6]/70">
-                    {t.name} • {t.school}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="py-16" id="support">
-        <div className="max-w-6xl mx-auto w-[92vw] bg-[#d8a24a] dark:bg-[#e4b363] p-6 md:p-8 rounded-3xl grid md:grid-cols-2 gap-5 items-center">
-          <div>
-            <p className="uppercase tracking-widest text-xs text-[#121412]/80">
-              Stay in the loop
-            </p>
-            <h2 className="text-3xl font-bold text-[#121412] mt-1">
-              Get weekly drops and student deals
-            </h2>
-            <p className="text-[#121412]/80 mt-2">
-              Join our newsletter for the latest campus discounts and verified
-              listings.
-            </p>
-          </div>
-          <div className="flex gap-3 flex-wrap">
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 min-w-[12rem] px-3.5 py-3 rounded-full border border-white/20 bg-white/20 text-white placeholder:text-white/70 focus:outline-none focus:ring-2 focus:ring-white"
-            />
-            <button className="bg-white text-[#d8a24a] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-lg hover:-translate-y-px transition-transform">
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Safety Tips */}
+      {/* ───────────────────────── SAFETY TIPS ───────────────────────── */}
       <section
-        className="py-14 bg-white/60 dark:bg-[#171a24]/70 border-t border-[rgba(28,25,23,0.06)] dark:border-white/10"
+        className="py-20"
         id="safety"
+        style={{ background: "rgba(22,23,30,0.6)", borderTop: "1px solid rgba(255,255,255,0.04)" }}
       >
         <div className="max-w-6xl mx-auto w-[92vw]">
-          <div className="mb-8">
-            <p className="uppercase tracking-widest text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
+          <div className="mb-10">
+            <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
               Safety tips
             </p>
-            <h2 className="text-3xl font-bold mt-1">Trade safely on campus</h2>
-            <p className="text-[#5f5b52] dark:text-[#b7b1a6] max-w-lg mt-2">
-              Simple steps that help buyers and sellers stay safe during meetups
-              and payments.
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight" style={{ color: "#F1F5F9" }}>
+              Trade safely on campus
+            </h2>
+            <p className="text-sm mt-2 max-w-md" style={{ color: "#94A3B8" }}>
+              Simple steps that help buyers and sellers stay safe during meetups and payments.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              {
-                title: "Meet in public spots",
-                desc: "Use campus cafés, libraries, or security desks for exchanges.",
-              },
-              {
-                title: "Verify student IDs",
-                desc: "Ask to see a student card before exchanging high‑value items.",
-              },
-              {
-                title: "Use secure payments",
-                desc: "MoMo and escrow help reduce cash risks.",
-              },
-              {
-                title: "Bring a friend",
-                desc: "For first‑time meetups, don’t go alone.",
-              },
+              { title: "Meet in public spots", desc: "Use campus cafés, libraries, or security desks for exchanges.", color: "#F59E0B" },
+              { title: "Verify student IDs", desc: "Ask to see a student card before exchanging high-value items.", color: "#818cf8" },
+              { title: "Use secure payments", desc: "MoMo and escrow help reduce cash risks.", color: "#4ade80" },
+              { title: "Bring a friend", desc: "For first-time meetups, don't go alone.", color: "#f472b6" },
             ].map((tip, idx) => (
               <div
                 key={idx}
-                className="bg-[#ffffff] dark:bg-[#151816] p-4 rounded-xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] border border-[rgba(18,20,18,0.12)] dark:border-white/10"
+                className="p-5 rounded-2xl transition-all duration-200 hover:-translate-y-1"
+                style={{
+                  background: "#16171E",
+                  border: "1px solid rgba(255,255,255,0.05)",
+                }}
               >
-                <h3 className="font-bold">{tip.title}</h3>
-                <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6] mt-1">
-                  {tip.desc}
-                </p>
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center mb-4"
+                  style={{ background: `${tip.color}12`, color: tip.color }}
+                >
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-sm mb-1.5" style={{ color: "#E2E8F0" }}>{tip.title}</h3>
+                <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>{tip.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Help Center */}
-      <section className="py-14 bg-[#fdf7ee] dark:bg-[#171a24]/80" id="help">
-        <div className="max-w-6xl mx-auto w-[92vw] grid md:grid-cols-2 gap-6 items-start">
+      {/* ───────────────────────── HELP CENTER ───────────────────────── */}
+      <section className="py-20" id="help">
+        <div className="max-w-6xl mx-auto w-[92vw] grid md:grid-cols-2 gap-10 items-start">
           <div>
-            <p className="uppercase tracking-widest text-xs text-[#5f5b52] dark:text-[#b7b1a6]">
+            <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
               Help center
             </p>
-            <h2 className="text-3xl font-bold mt-1">
-              Need help? We’ve got you.
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3" style={{ color: "#F1F5F9" }}>
+              Need help? We've got you.
             </h2>
-            <p className="text-[#5f5b52] dark:text-[#b7b1a6] max-w-lg mt-2">
-              Quick answers, support channels, and guides for buying and
-              selling.
+            <p className="text-sm mb-7" style={{ color: "#94A3B8" }}>
+              Quick answers, support channels, and guides for buying and selling.
             </p>
-            <div className="flex flex-wrap gap-3 mt-4">
-              <button className="bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] rounded-full px-4.5 py-2.75 font-semibold text-sm shadow-[0_10px_24px_rgba(216,162,74,0.25)] hover:shadow-[0_14px_24px_rgba(216,162,74,0.3)] hover:-translate-y-px transition-transform">
-                Contact support
-              </button>
-              <button className="bg-[#ffffff] dark:bg-[#171a18] text-[#121412] dark:text-[#f4f2ee] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm hover:-translate-y-px transition-transform">
-                Report an issue
-              </button>
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="mailto:support.unimarketrwanda@gmail.com"
+                className="flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)]"
+                style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)", color: "#0D0E12" }}
+              >
+                <Mail className="w-4 h-4" /> Contact support
+              </a>
+              <a
+                href="mailto:support.unimarketrwanda@gmail.com?subject=Issue+Report"
+                className="flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  color: "#94A3B8",
+                }}
+              >
+                <ExternalLink className="w-4 h-4" /> Report an issue
+              </a>
             </div>
           </div>
-          <div className="bg-[#ffffff] dark:bg-[#151816] p-5 rounded-xl shadow-[0_18px_40px_rgba(10,12,11,0.08)] border border-[rgba(18,20,18,0.12)] dark:border-white/10">
-            <div className="space-y-3.5">
-              <div>
-                <h4 className="font-semibold">How do I verify a student?</h4>
-                <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6]">
-                  Ask for a student card and prefer campus pickup points.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold">What payments are supported?</h4>
-                <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6]">
-                  MTN MoMo, Airtel Money, bank transfer, and face‑to‑face.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold">How do refunds work?</h4>
-                <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6]">
-                  Refunds are handled by the seller; report disputes to support.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold">Can I edit my listing?</h4>
-                <p className="text-sm text-[#5f5b52] dark:text-[#b7b1a6]">
-                  Yes, open your listing and choose Edit details.
-                </p>
-              </div>
+
+          <div
+            className="p-6 rounded-3xl"
+            style={{
+              background: "#16171E",
+              border: "1px solid rgba(255,255,255,0.06)",
+            }}
+          >
+            <div className="space-y-5">
+              {[
+                { q: "How do I verify a student?", a: "Ask for a student card and prefer campus pickup points." },
+                { q: "What payments are supported?", a: "MTN MoMo, Airtel Money, bank transfer, and face-to-face." },
+                { q: "How do refunds work?", a: "Refunds are handled by the seller; report disputes to support." },
+                { q: "Can I edit my listing?", a: "Yes, open your listing and choose Edit details." },
+              ].map((faq, i) => (
+                <div
+                  key={i}
+                  className="pb-5"
+                  style={{ borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none" }}
+                >
+                  <h4 className="font-bold text-sm mb-1.5" style={{ color: "#E2E8F0" }}>{faq.q}</h4>
+                  <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>{faq.a}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
+
+      {/* ───────────────────────── FOOTER / COMPLIANCE ZONE ───────────────────────── */}
+      <footer
+        style={{
+          background: "#0A0B0F",
+          borderTop: "1px solid rgba(255,255,255,0.05)",
+        }}
+      >
+        {/* Newsletter section */}
+        <div className="max-w-6xl mx-auto w-[92vw] py-14">
+          <div
+            className="rounded-3xl p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center justify-between"
+            style={{
+              background: "linear-gradient(135deg, rgba(234,179,8,0.06) 0%, rgba(99,102,241,0.04) 100%)",
+              border: "1px solid rgba(234,179,8,0.12)",
+            }}
+          >
+            {/* Left text */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span
+                  className="text-lg font-black tracking-tight"
+                  style={{ color: "#F1F5F9" }}
+                >
+                  UniMarket Rwanda
+                </span>
+                <span
+                  className="text-xs px-2.5 py-1 rounded-full font-semibold"
+                  style={{ background: "rgba(234,179,8,0.1)", color: "#F59E0B", border: "1px solid rgba(234,179,8,0.2)" }}
+                >
+                  For Students, By Students
+                </span>
+              </div>
+              <p className="text-sm" style={{ color: "#94A3B8" }}>
+                Stay updated with campus drops
+              </p>
+            </div>
+
+            {/* Newsletter form */}
+            {newsletterStatus === "sent" ? (
+              <div
+                className="flex items-center gap-3 px-6 py-3.5 rounded-2xl"
+                style={{ background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", color: "#4ade80" }}
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                <span className="text-sm font-semibold">You're in! Watch for campus drops.</span>
+              </div>
+            ) : (
+              <form
+                className="flex gap-2 flex-wrap md:flex-nowrap w-full md:w-auto"
+                onSubmit={handleNewsletterSubmit}
+              >
+                <div
+                  className="flex flex-1 md:w-64 items-center gap-2 px-4 rounded-2xl transition-all duration-200 focus-within:shadow-[0_0_0_2px_rgba(234,179,8,0.3)]"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <Mail className="w-4 h-4 shrink-0" style={{ color: "#64748B" }} />
+                  <input
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    required
+                    className="flex-1 bg-transparent py-3 text-sm outline-none placeholder:text-[#475569]"
+                    style={{ color: "#E2E8F0" }}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={newsletterStatus === "sending"}
+                  className="shrink-0 px-6 py-3 rounded-2xl text-sm font-bold text-[#0D0E12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.4)] disabled:opacity-60"
+                  style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                >
+                  {newsletterStatus === "sending" ? "Sending…" : "Subscribe"}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom legal bar */}
+        <div
+          className="max-w-6xl mx-auto w-[92vw] py-6 flex flex-col sm:flex-row items-center justify-between gap-4"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+        >
+          <p className="text-xs" style={{ color: "#374151" }}>
+            © {new Date().getFullYear()} UniMarket Rwanda. All rights reserved.
+          </p>
+          <div className="flex items-center gap-6 text-xs font-medium" style={{ color: "#475569" }}>
+            <Link to="/terms" className="hover:text-[#F59E0B] transition-colors">
+              Terms of Service
+            </Link>
+            <span style={{ color: "#1F2937" }}>·</span>
+            <Link to="/privacy" className="hover:text-[#F59E0B] transition-colors">
+              Privacy Policy
+            </Link>
+            <span style={{ color: "#1F2937" }}>·</span>
+            <a href="mailto:support.unimarketrwanda@gmail.com" className="hover:text-[#F59E0B] transition-colors">
+              Support
+            </a>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
