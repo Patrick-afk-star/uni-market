@@ -9,6 +9,11 @@ export interface AuthUser {
   avatar_url?: string;
   has_completed_profile?: boolean;
   is_staff?: boolean;
+  auth_status?: {
+    has_password?: boolean;
+    linked_providers?: string[];
+    has_social?: boolean;
+  };
 }
 
 /** Shape returned by POST /backend/api/v1/auth/login */

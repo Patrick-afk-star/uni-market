@@ -90,12 +90,13 @@ export function SettingsView() {
 
   // Privacy Settings state
   const [privacySettings, setPrivacySettings] = useState({
-    showPhone: true,
+    showPhone: false,
     showEmail: false,
     showUniversity: true,
     allowDMs: true,
     emailNotifs: true,
   });
+  const [isSavingPrivacy, setIsSavingPrivacy] = useState(false);
 
   // Account settings
   const [email] = useState(user?.email || "");
@@ -103,10 +104,13 @@ export function SettingsView() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSavingAccount, setIsSavingAccount] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
-  // Secondary email
-  const [secondaryEmail, setSecondaryEmail] = useState("");
-  const [isSavingSecondary, setIsSavingSecondary] = useState(false);
+  // Delete account confirmation dialog
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+
 
   // University state
   const [universities, setUniversities] = useState<University[]>([]);
@@ -128,7 +132,7 @@ export function SettingsView() {
   };
 
 
-  // Fetch universities and locations
+  // Fetch universities, locations, preferences
   useEffect(() => {
     const fetchUnis = async () => {
       try {
@@ -179,10 +183,31 @@ export function SettingsView() {
         console.error("Failed to load profile:", err);
       }
     };
+    const fetchPreferences = async () => {
+      if (!accessToken) return;
+      try {
+        const response = await fetch(getApiUrl("/api/v1/preferences"), {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setPrivacySettings({
+            showPhone: data.show_phone_number ?? false,
+            showEmail: data.show_email_address ?? false,
+            showUniversity: data.show_university ?? true,
+            allowDMs: data.allow_direct_messages ?? true,
+            emailNotifs: data.email_notifications ?? true,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load preferences:", err);
+      }
+    };
 
     fetchUnis();
     fetchLocations();
     fetchProfile();
+    fetchPreferences();
   }, [accessToken]);
 
   // GSAP entry animation
@@ -312,18 +337,93 @@ export function SettingsView() {
     }
   };
 
-  // Add secondary email
-  const handleSaveSecondaryEmail = async () => {
-    if (!secondaryEmail || !secondaryEmail.includes("@")) {
-      toast.error("Please enter a valid email address.");
-      return;
+  // Set password for OAuth users (sends reset link)
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSendingReset(true);
+    try {
+      const res = await fetch(getApiUrl("/api/v1/auth/password/reset/"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user?.email }),
+      });
+      if (!res.ok) throw new Error("Failed to send reset email");
+      toast.success("Password reset link sent! Check your inbox.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send reset email");
+    } finally {
+      setIsSendingReset(false);
     }
-    setIsSavingSecondary(true);
-    setTimeout(() => {
-      toast.success(`Confirmation sent to ${secondaryEmail}. Please verify it.`);
-      setIsSavingSecondary(false);
-    }, 800);
   };
+
+  // Delete account
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    try {
+      const res = await fetch(getApiUrl("/api/v1/auth/account/delete"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to delete account");
+      }
+      toast.success("Account deleted. Goodbye!");
+      // logout will clear state
+      setTimeout(() => window.location.href = "/", 1500);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete account");
+    } finally {
+      setIsDeletingAccount(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  // Save privacy preferences
+  const handleSavePrivacy = async () => {
+    if (!accessToken) return;
+    setIsSavingPrivacy(true);
+    try {
+      const res = await fetch(getApiUrl("/api/v1/preferences"), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          show_phone_number: privacySettings.showPhone,
+          show_email_address: privacySettings.showEmail,
+          show_university: privacySettings.showUniversity,
+          allow_direct_messages: privacySettings.allowDMs,
+          email_notifications: privacySettings.emailNotifs,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save preferences");
+      toast.success("Privacy preferences saved!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save preferences");
+    } finally {
+      setIsSavingPrivacy(false);
+    }
+  };
+
+
+
+  // const handleUploadId = () => {
+  //   const mockImage = "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&h=250&fit=crop";
+  //   setUploadedIdImage(mockImage);
+  //   toast.success("ID image uploaded successfully!");
+  // };
+
+  // const handleVerifySubmit = () => {
+  //   if (uploadedIdImage) {
+  //     submitVerification(uploadedIdImage);
+  //     toast.success("Verification ID submitted for review!");
+  //   }
+  // };
 
   const handleAvatarClick = () => fileInputRef.current?.click();
 
@@ -693,62 +793,46 @@ export function SettingsView() {
                   <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-5 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 rounded-xl bg-secondary/50 border border-white/[0.05]"><Lock className="w-5 h-5 text-foreground" /></div>
-                      <h3 className="font-semibold text-foreground">Change Password</h3>
+                      <h3 className="font-semibold text-foreground">
+                        {user?.auth_status?.has_password ? "Change Password" : "Set Password"}
+                      </h3>
                     </div>
-                    <form onSubmit={handleSaveAccount} className="space-y-4">
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">Current Password</label>
-                        <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">New Password</label>
-                        <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-muted-foreground">Confirm New Password</label>
-                        <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
-                      </div>
-                      {newPassword && confirmPassword && newPassword !== confirmPassword && (
-                        <p className="text-xs text-red-400 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Passwords do not match</p>
-                      )}
-                      <Button type="submit" disabled={isSavingAccount || !newPassword || newPassword !== confirmPassword} className="w-full bg-secondary hover:bg-secondary/80 text-foreground rounded-xl h-11 mt-2 font-medium">
-                        {isSavingAccount ? "Updating..." : "Update Password"}
-                      </Button>
-                    </form>
+                    {user?.auth_status?.has_password ? (
+                      <form onSubmit={handleSaveAccount} className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">Current Password</label>
+                          <Input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">New Password</label>
+                          <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">Confirm New Password</label>
+                          <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" required />
+                        </div>
+                        {newPassword && confirmPassword && newPassword !== confirmPassword && (
+                          <p className="text-xs text-red-400 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Passwords do not match</p>
+                        )}
+                        <Button type="submit" disabled={isSavingAccount || !newPassword || newPassword !== confirmPassword} className="w-full bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 mt-2 font-semibold shadow-lg">
+                          {isSavingAccount ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Updating...</> : "Update Password"}
+                        </Button>
+                      </form>
+                    ) : (
+                      <form onSubmit={handleSetPassword} className="space-y-4">
+                        <p className="text-sm text-muted-foreground">You signed in with a social account. Request a password reset link to set a password for your account.</p>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">Your Email</label>
+                          <Input type="email" value={email} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
+                        </div>
+                        <Button type="submit" disabled={isSendingReset} className="w-full bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 font-semibold shadow-lg">
+                          {isSendingReset ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending...</> : "Send Password Reset Link"}
+                        </Button>
+                      </form>
+                    )}
                   </div>
 
-                  {/* Add Secondary Email */}
-                  <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-5 flex flex-col shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-secondary/50 border border-white/[0.05]"><Mail className="w-5 h-5 text-foreground" /></div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">Add Secondary Email</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Backup recovery address for your account</p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">Primary Email (read-only)</label>
-                      <Input type="email" value={email} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
-                    </div>
-                    <div className="space-y-2 flex-1">
-                      <label className="text-xs font-medium text-muted-foreground">Secondary / Recovery Email</label>
-                      <Input
-                        type="email"
-                        value={secondaryEmail}
-                        onChange={(e) => setSecondaryEmail(e.target.value)}
-                        placeholder="backup@example.com"
-                        className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]"
-                      />
-                      <p className="text-[11px] text-muted-foreground leading-relaxed">A confirmation link will be sent to verify the new address before it is linked to your account.</p>
-                    </div>
-                    <Button
-                      onClick={handleSaveSecondaryEmail}
-                      disabled={isSavingSecondary || !secondaryEmail}
-                      className="w-full bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 font-semibold"
-                    >
-                      {isSavingSecondary ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending...</> : "Add Secondary Email"}
-                    </Button>
-                  </div>
+
 
                   {/* Export Data */}
                   <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-4 md:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-sm hover:shadow-md transition-shadow">
@@ -756,7 +840,10 @@ export function SettingsView() {
                       <h3 className="font-semibold text-foreground">Export Account Data</h3>
                       <p className="text-xs text-muted-foreground">Download a copy of all your data, including listings, messages, and profile info.</p>
                     </div>
-                    <Button variant="outline" className="border-white/[0.1] hover:bg-white/[0.05] rounded-xl h-11 px-6 whitespace-nowrap shrink-0">Request Data Archive</Button>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-secondary/80 text-muted-foreground uppercase tracking-wider">Coming Soon</span>
+                      <Button variant="outline" disabled className="border-white/[0.1] rounded-xl h-11 px-6 whitespace-nowrap opacity-50 cursor-not-allowed">Request Data Archive</Button>
+                    </div>
                   </div>
 
                   {/* Danger Zone */}
@@ -766,7 +853,7 @@ export function SettingsView() {
                       <p className="text-xs text-muted-foreground">Permanently delete your account and all associated data. This action cannot be undone.</p>
                     </div>
                     <Button variant="destructive" className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 rounded-xl h-11 px-6 whitespace-nowrap transition-colors shrink-0 font-medium"
-                      onClick={() => { if (window.confirm("Are you sure you want to permanently delete your UniMarket account?")) toast.error("Account deletion requested."); }}>
+                      onClick={() => setShowDeleteConfirm(true)}>
                       <Trash2 className="w-4 h-4 mr-2" /> Delete Account
                     </Button>
                   </div>
@@ -812,6 +899,11 @@ export function SettingsView() {
                     );
                   })}
                 </div>
+                <div className="flex justify-end pt-2">
+                  <Button onClick={handleSavePrivacy} disabled={isSavingPrivacy} className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 px-8 font-semibold shadow-lg">
+                    {isSavingPrivacy ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Preferences</>}
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -820,11 +912,11 @@ export function SettingsView() {
               <div className="space-y-8">
                 <div>
                   <h2 className="text-xl font-semibold text-foreground">Security Settings</h2>
-                  <p className="text-sm text-muted-foreground">Manage 2FA and monitor your active login sessions.</p>
+                  <p className="text-sm text-muted-foreground">Advanced security features to protect your account.</p>
                 </div>
                 <div className="space-y-6">
-                  {/* 2FA */}
-                  <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+                  {/* 2FA — Future Feature */}
+                  <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm opacity-70">
                     <div className="flex items-start gap-5">
                       <div className="w-12 h-12 rounded-2xl bg-[#bb740a]/10 flex items-center justify-center text-[#bb740a] shrink-0 border border-[#bb740a]/20">
                         <Shield className="w-6 h-6" />
@@ -832,46 +924,28 @@ export function SettingsView() {
                       <div>
                         <div className="flex items-center gap-3 mb-1.5">
                           <h3 className="font-semibold text-foreground text-base">Two-Factor Authentication</h3>
-                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary/80 text-muted-foreground uppercase tracking-wider">Disabled</span>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary/80 text-muted-foreground uppercase tracking-wider">Coming Soon</span>
                         </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">Protect your account with an extra layer of security.</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">Protect your account with an extra layer of security using an authenticator app or SMS.</p>
                       </div>
                     </div>
-                    <Button variant="outline" className="shrink-0 rounded-xl h-11 px-6 border-white/[0.1] hover:bg-white/[0.05] font-medium">Configure 2FA</Button>
+                    <Button variant="outline" disabled className="shrink-0 rounded-xl h-11 px-6 border-white/[0.1] font-medium opacity-50 cursor-not-allowed">Configure 2FA</Button>
                   </div>
 
-                  {/* Sessions */}
-                  <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden shadow-sm">
-                    <div className="p-6 border-b border-white/[0.05] bg-white/[0.01]">
-                      <h3 className="font-semibold text-foreground">Active Sessions</h3>
-                      <p className="text-xs text-muted-foreground mt-1">Devices currently logged into your account.</p>
-                    </div>
-                    <div className="divide-y divide-white/[0.05]">
-                      <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/[0.01]">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-secondary/80 flex items-center justify-center text-foreground"><Monitor className="w-5 h-5" /></div>
-                          <div>
-                            <div className="flex items-center gap-2.5">
-                              <h4 className="text-sm font-semibold text-foreground">Chrome • Current Device</h4>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#177865]/20 text-[#2aa67f]">Current Session</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">Kigali, Rwanda • Active now</p>
-                          </div>
+                  {/* Sessions — Future Feature */}
+                  <div className="rounded-2xl bg-white/[0.02] border border-white/[0.08] overflow-hidden shadow-sm opacity-70">
+                    <div className="p-6 border-b border-white/[0.05] bg-white/[0.01] flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-3">
+                          <h3 className="font-semibold text-foreground">Active Sessions</h3>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-secondary/80 text-muted-foreground uppercase tracking-wider">Coming Soon</span>
                         </div>
-                      </div>
-                      <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.01] transition-colors">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-secondary/80 flex items-center justify-center text-foreground"><Smartphone className="w-5 h-5" /></div>
-                          <div>
-                            <h4 className="text-sm font-semibold text-foreground">iOS • Safari</h4>
-                            <p className="text-xs text-muted-foreground mt-1">Kigali, Rwanda • Last active 2 hours ago</p>
-                          </div>
-                        </div>
-                        <Button variant="ghost" className="text-xs text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl h-9 px-4">Log out</Button>
+                        <p className="text-xs text-muted-foreground mt-1">View and manage devices currently logged into your account.</p>
                       </div>
                     </div>
-                    <div className="p-5 border-t border-white/[0.05] flex justify-end bg-white/[0.01]">
-                      <Button variant="outline" className="text-xs rounded-xl h-10 px-5 border-white/[0.1] hover:bg-white/[0.05]">Log Out All Other Devices</Button>
+                    <div className="p-8 flex flex-col items-center justify-center text-center gap-3">
+                      <Monitor className="w-10 h-10 text-muted-foreground opacity-30" />
+                      <p className="text-sm text-muted-foreground">Session management will be available in a future update.</p>
                     </div>
                   </div>
                 </div>
@@ -881,6 +955,63 @@ export function SettingsView() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#0f0f0f] border border-red-500/20 rounded-2xl p-7 max-w-md w-full shadow-2xl"
+            >
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">Delete Account</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">This action is permanent and cannot be undone.</p>
+                </div>
+              </div>
+              <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/15 mb-6 space-y-2">
+                <p className="text-sm text-foreground font-medium">You are about to permanently delete:</p>
+                <ul className="text-xs text-muted-foreground space-y-1.5 list-disc pl-4">
+                  <li>Your profile and all account data</li>
+                  <li>All your marketplace listings</li>
+                  <li>All your messages and conversations</li>
+                </ul>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 rounded-xl h-11 border-white/[0.1] hover:bg-white/[0.05]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={isDeletingAccount}
+                  onClick={handleDeleteAccount}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-xl h-11 font-semibold"
+                >
+                  {isDeletingAccount ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Deleting...</> : "Yes, Delete My Account"}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
