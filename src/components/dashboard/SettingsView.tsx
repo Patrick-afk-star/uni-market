@@ -63,14 +63,9 @@ export function SettingsView() {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Residence — Province + District cascading
-<<<<<<< Updated upstream
   const [locations, setLocations] = useState<LocationNode[]>([]);
   const [province, setProvince] = useState("");
   const [district, setDistrict] = useState("");
-=======
-  const [province, setProvince] = useState((user as any)?.profile_details?.province || "");
-  const [district, setDistrict] = useState((user as any)?.profile_details?.district || "");
->>>>>>> Stashed changes
 
   // Languages — closed multi-select
   const [languages, setLanguages] = useState<string[]>((user as any)?.profile_details?.languages || []);
@@ -132,18 +127,8 @@ export function SettingsView() {
     );
   };
 
-<<<<<<< Updated upstream
-  const toggleContactPref = (pref: string) => {
-    if (pref === "UniMarket Chat") return;
-    setContactPrefs(prev =>
-      prev.includes(pref) ? prev.filter(p => p !== pref) : [...prev, pref]
-    );
-  };
 
   // Fetch universities and locations
-=======
-  // Fetch universities
->>>>>>> Stashed changes
   useEffect(() => {
     const fetchUnis = async () => {
       try {
@@ -182,7 +167,7 @@ export function SettingsView() {
           if (data.bio) setBio(data.bio);
           if (data.phone_number) setPhoneNumber(data.phone_number);
           if (data.avatar_url) setAvatarPreview(data.avatar_url);
-          
+
           if (data.province) setProvince(data.province);
           if (data.district) setDistrict(data.district);
           if (data.languages_spoken) setLanguages(data.languages_spoken);
@@ -237,13 +222,13 @@ export function SettingsView() {
 
       if (province && province !== (initialProfile?.province || "")) formData.append("province", province);
       if (district && district !== (initialProfile?.district || "")) formData.append("district", district);
-      
+
       const currentLanguages = JSON.stringify(languages);
       const initialLanguages = JSON.stringify(initialProfile?.languages_spoken || []);
       if (currentLanguages !== initialLanguages) {
         formData.append("languages_spoken", currentLanguages);
       }
-      
+
       const defaultSocialLinks = { linkedin: "", github: "", instagram: "", facebook: "", x: "", tiktok: "", website: "" };
       const currentSocialLinks = JSON.stringify(socialLinks);
       const initialSocialLinks = JSON.stringify({ ...defaultSocialLinks, ...(initialProfile?.social_links || {}) });
@@ -268,12 +253,12 @@ export function SettingsView() {
         first_name: fullName,
         last_name: lastName,
         // @ts-ignore
-        profile_details: { 
-          province: responseData.province, 
-          district: responseData.district, 
-          languages: responseData.languages_spoken || languages, 
-          socialLinks: responseData.social_links || socialLinks, 
-          contactPrefs 
+        profile_details: {
+          province: responseData.province,
+          district: responseData.district,
+          languages: responseData.languages_spoken || languages,
+          socialLinks: responseData.social_links || socialLinks,
+          contactPrefs
         },
         privacy_settings: privacySettings,
       });
@@ -352,12 +337,12 @@ export function SettingsView() {
 
   // Read-only profile display name
   const displayName = [fullName, lastName].filter(Boolean).join(" ") || user?.email || "Your Profile";
-  
+
   // Find location names (handling cases where province/district state might already be a name or an ID)
   const selectedProvince = locations.find(l => l.id === province || l.name === province);
   const selectedProvinceName = selectedProvince?.name || province;
   const selectedDistrictName = selectedProvince?.districts.find(d => d.id === district || d.name === district)?.name || district;
-  
+
   const locationLabel = selectedDistrictName && selectedProvinceName ? `${selectedDistrictName} District, ${selectedProvinceName}` : "";
 
   // For the select dropdowns in edit mode, we need IDs if they exist.
@@ -566,20 +551,8 @@ export function SettingsView() {
                             <Input type="email" value={email} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
                           </div>
                           <div className="space-y-2">
-<<<<<<< Updated upstream
                             <label className="text-sm font-semibold text-muted-foreground">Phone Number</label>
                             <Input value={phone_number} onChange={(e) => setPhoneNumber(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" />
-=======
-                            <label className="text-sm font-semibold text-muted-foreground flex justify-between">
-                              Phone Number
-                              {highlightRequired && !phone_number && <span className="text-xs text-red-400 font-semibold">Required</span>}
-                            </label>
-                            <Input 
-                              value={phone_number} 
-                              onChange={(e) => setPhoneNumber(e.target.value)} 
-                              className={`bg-secondary/20 h-11 rounded-xl focus:border-[#bb740a] ${highlightRequired && !phone_number ? 'border-red-500/80 ring-1 ring-red-500/40' : 'border-white/[0.08]'}`} 
-                            />
->>>>>>> Stashed changes
                           </div>
                           <div className="space-y-2 sm:col-span-2">
                             <label className="text-sm font-semibold text-muted-foreground">University</label>
@@ -618,11 +591,7 @@ export function SettingsView() {
                               <select
                                 value={provinceIdForSelect}
                                 onChange={(e) => handleProvinceChange(e.target.value)}
-<<<<<<< Updated upstream
                                 className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors"
-=======
-                                className={`w-full h-11 rounded-xl bg-secondary/20 px-3 text-foreground focus:outline-none focus:border-[#bb740a] transition-colors ${highlightRequired && !province ? 'border-red-500/80 ring-1 ring-red-500/40' : 'border-white/[0.08]'}`}
->>>>>>> Stashed changes
                               >
                                 <option value="" className="bg-[#0f0f0f]">Select Province...</option>
                                 {locations.map(p => (
@@ -638,13 +607,8 @@ export function SettingsView() {
                               <select
                                 value={districtIdForSelect}
                                 onChange={(e) => setDistrict(e.target.value)}
-<<<<<<< Updated upstream
                                 disabled={!provinceIdForSelect}
                                 className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-=======
-                                disabled={!province}
-                                className={`w-full h-11 rounded-xl bg-secondary/20 px-3 text-foreground focus:outline-none focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${highlightRequired && !district ? 'border-red-500/80 ring-1 ring-red-500/40' : 'border-white/[0.08]'}`}
->>>>>>> Stashed changes
                               >
                                 <option value="" className="bg-[#0f0f0f]">Select District...</option>
                                 {provinceIdForSelect && locations.find(l => l.id === provinceIdForSelect)?.districts.map(d => (
