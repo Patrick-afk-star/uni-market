@@ -47,12 +47,38 @@ const CATEGORY_COLORS: Record<string, { bg: string; text: string; glow: string }
   Sports:      { bg: "rgba(239,68,68,0.1)",   text: "#f87171", glow: "rgba(239,68,68,0.3)"  },
 };
 
+interface University {
+  id: string;
+  name: string;
+  abreviation: string;
+}
+
 export default function Hero() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [dbListings, setDbListings] = useState<any[]>([]);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [apiUniversities, setApiUniversities] = useState<University[]>([]);
+  const [isLoadingUnis, setIsLoadingUnis] = useState<boolean>(true);
+  const [selectedUniId, setSelectedUniId] = useState<string>("All");
+
+  useEffect(() => {
+    const fetchUniversities = async () => {
+      try {
+        const response = await fetch(getApiUrl("/api/v1/universities"));
+        if (response.ok) {
+          const data = await response.json();
+          setApiUniversities(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch universities:", err);
+      } finally {
+        setIsLoadingUnis(false);
+      }
+    };
+    fetchUniversities();
+  }, []);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -187,15 +213,17 @@ export default function Hero() {
     return { title: name, count };
   });
 
-  const universities = [
-    "University of Rwanda - Huye",
-    "University of Rwanda - Gikondo",
-    "University of Rwanda - Nyarugenge",
-    "CMU Africa",
-    "African Leadership University",
-    "INES Ruhengeri",
-    "ULK",
-  ];
+  // Filter products by selected university
+  const filteredProducts = products.filter((product) => {
+    if (selectedUniId === "All") return true;
+    const selectedUni = apiUniversities.find((u) => u.id === selectedUniId);
+    if (!selectedUni) return false;
+    const pUni = (product.university || "").toLowerCase();
+    const uName = (selectedUni.name || "").toLowerCase();
+    const uAbbr = (selectedUni.abreviation || "").toLowerCase();
+    const uId = (selectedUni.id || "").toLowerCase();
+    return pUni.includes(uName) || uName.includes(pUni) || pUni.includes(uAbbr) || uAbbr.includes(pUni) || pUni.includes(uId);
+  });
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -511,13 +539,22 @@ export default function Hero() {
                   aria-label="Select your university"
                   className="w-full px-4 py-3.5 text-sm bg-transparent outline-none appearance-none cursor-pointer"
                   style={{ color: "#E2E8F0" }}
+                  value={selectedUniId}
+                  onChange={(e) => setSelectedUniId(e.target.value)}
+                  disabled={isLoadingUnis}
                 >
-                  <option value="All" style={{ background: "#16171E" }}>All universities</option>
-                  {universities.map((school) => (
-                    <option key={school} value={school} style={{ background: "#16171E" }}>
-                      {school}
-                    </option>
-                  ))}
+                  {isLoadingUnis ? (
+                    <option value="All" style={{ background: "#16171E" }}>Loading campuses...</option>
+                  ) : (
+                    <>
+                      <option value="All" style={{ background: "#16171E" }}>All universities</option>
+                      {apiUniversities.map((school) => (
+                        <option key={school.id} value={school.id} style={{ background: "#16171E" }}>
+                          {school.name}
+                        </option>
+                      ))}
+                    </>
+                  )}
                 </select>
                 {/* Arrow icon */}
                 <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#64748B" }}>
@@ -535,7 +572,7 @@ export default function Hero() {
                   color: "#F59E0B",
                 }}
               >
-                Showing: 3
+                Showing: {filteredProducts.length}
               </span>
             </div>
           </div>
@@ -609,7 +646,7 @@ export default function Hero() {
 
           {/* Product grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <article
                 key={product.id}
                 className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2"
