@@ -126,11 +126,9 @@ export default function Hero() {
           ? resolveImageUrl(item.image)
           : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
 
-    const university =
-      item.seller_info?.student_profile?.university ||
-      item.student_profile?.university ||
-      item.seller_info?.university ||
-      "UR - Gikondo";
+    const sellerProfile = item.seller_info || item.seller || item.user || {};
+    const district = sellerProfile.district || sellerProfile.profile_details?.district || "Kigali";
+    const university = sellerProfile.university || sellerProfile.profile_details?.university || "UR - Gikondo";
 
     return {
       id: item.id || `api-${idx}`,
@@ -140,7 +138,7 @@ export default function Hero() {
           ? `${item.price.toLocaleString()} RWF`
           : `${parseFloat(item.price || "0").toLocaleString()} RWF`,
       rating: 4.8,
-      location: item.location || "Kigali Campus",
+      location: `${district} Campus`,
       university,
       image,
       tag: item.condition

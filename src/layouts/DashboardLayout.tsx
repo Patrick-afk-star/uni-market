@@ -64,16 +64,16 @@ export default function DashboardLayout() {
     let score = 0;
     const profile = (user as any)?.profile_details || {};
     
-    // 8 fields: Avatar Image, First Name, Last Name, Phone Number, University, Province, District, Languages
+    // 8 fields: Avatar Image, First Name, Last Name, Email, Phone Number, University Name, Province, and District
     const fields = [
       Boolean(user.avatar_url && user.avatar_url.trim() !== ''),
       Boolean(user.first_name && user.first_name.trim() !== ''),
       Boolean(user.last_name && user.last_name.trim() !== ''),
+      Boolean(user.email && user.email.trim() !== ''),
       Boolean(user.phone_number && user.phone_number.trim() !== ''),
       Boolean(user.has_completed_profile),
       Boolean(profile.province && profile.province.trim() !== ''),
-      Boolean(profile.district && profile.district.trim() !== ''),
-      Boolean(profile.languages && Array.isArray(profile.languages) && profile.languages.length > 0)
+      Boolean(profile.district && profile.district.trim() !== '')
     ];
 
     const completedFieldsCount = fields.filter(Boolean).length;

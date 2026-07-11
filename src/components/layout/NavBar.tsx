@@ -38,18 +38,6 @@ export default function Navbar() {
             >
               Featured
             </a>
-            <a
-              href="#deals"
-              className="text-[#5f5b52] dark:text-[#b7b1a6] hover:text-[#121412] dark:hover:text-[#f4f2ee] bg-transparent border-none cursor-pointer text-sm"
-            >
-              Deals
-            </a>
-            <a
-              href="#support"
-              className="text-[#5f5b52] dark:text-[#b7b1a6] hover:text-[#121412] dark:hover:text-[#f4f2ee] bg-transparent border-none cursor-pointer text-sm"
-            >
-              Support
-            </a>
           </nav>
 
           {/* Actions */}
@@ -86,8 +74,6 @@ export default function Navbar() {
             <nav className="flex flex-col gap-3" aria-label="Mobile">
               <a href="#categories" onClick={() => setIsMenuOpen(false)} className="text-[#5f5b52] dark:text-[#b7b1a6] hover:text-[#121412] dark:hover:text-[#f4f2ee] text-sm">Categories</a>
               <a href="#featured" onClick={() => setIsMenuOpen(false)} className="text-[#5f5b52] dark:text-[#b7b1a6] hover:text-[#121412] dark:hover:text-[#f4f2ee] text-sm">Featured</a>
-              <a href="#deals" onClick={() => setIsMenuOpen(false)} className="text-[#5f5b52] dark:text-[#b7b1a6] hover:text-[#121412] dark:hover:text-[#f4f2ee] text-sm">Deals</a>
-              <a href="#support" onClick={() => setIsMenuOpen(false)} className="text-[#5f5b52] dark:text-[#b7b1a6] hover:text-[#121412] dark:hover:text-[#f4f2ee] text-sm">Support</a>
             </nav>
             <div className="flex flex-col gap-2.5 mt-2">
               <Link to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5">Sign in</Link>
