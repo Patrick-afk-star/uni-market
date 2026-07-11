@@ -288,6 +288,32 @@ export function Messages({
     return name.includes(q) || title.includes(q);
   });
 
+  // ── group by other_party ───────────────────────────────────────────────────
+  // Each group: the most-recent conversation is primary, rest are secondary.
+  type ConvGroup = { primary: Conversation; rest: Conversation[] };
+  const groupedConversations: ConvGroup[] = [];
+  const groupMap = new Map<string, ConvGroup>();
+  for (const conv of filteredConversations) {
+    const pid = conv.other_party.id;
+    if (!groupMap.has(pid)) {
+      const g: ConvGroup = { primary: conv, rest: [] };
+      groupMap.set(pid, g);
+      groupedConversations.push(g);
+    } else {
+      groupMap.get(pid)!.rest.push(conv);
+    }
+  }
+
+  // Track which groups are expanded to show secondary conversations
+  // (stored as a Set of other_party.id strings)
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const toggleGroup = (pid: string) =>
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(pid)) next.delete(pid); else next.add(pid);
+      return next;
+    });
+
   // ─── Verification gate ───────────────────────────────────────────────────
   if (!isVerified) {
     return (
@@ -374,54 +400,110 @@ export function Messages({
             </div>
           ) : (
             <div className="p-2 space-y-1">
-              {filteredConversations.map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => openConversation(conv.id)}
-                  className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all duration-200 text-left group ${selectedConvId === conv.id
-                      ? 'bg-[#1a1a1a]'
-                      : 'hover:bg-[#22debc]/5 cursor-pointer'
+              {groupedConversations.map(({ primary, rest }) => {
+                const pid = primary.other_party.id;
+                const isExpanded = expandedGroups.has(pid);
+                const totalUnread =
+                  primary.unread_count +
+                  rest.reduce((s, c) => s + c.unread_count, 0);
+
+                const ConvRow = ({
+                  conv,
+                  indent = false,
+                }: {
+                  conv: Conversation;
+                  indent?: boolean;
+                }) => (
+                  <button
+                    key={conv.id}
+                    onClick={() => openConversation(conv.id)}
+                    className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all duration-200 text-left ${
+                      indent ? 'pl-5' : ''
+                    } ${
+                      selectedConvId === conv.id
+                        ? 'bg-[#1a1a1a]'
+                        : 'hover:bg-[#22debc]/5 cursor-pointer'
                     }`}
-                >
-                  {/* Avatar */}
-                  <div className="relative flex-shrink-0">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage
-                        src={resolveAvatar(conv.other_party.avatar)}
-                        alt={conv.other_party.first_name}
-                      />
-                      <AvatarFallback className="bg-[#1a1a1a] text-foreground text-sm font-semibold">
-                        {partyInitials(conv)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
+                  >
+                    {indent ? (
+                      <div className="w-2 flex-shrink-0 flex items-start pt-3">
+                        <div className="w-px h-full bg-white/10" />
+                      </div>
+                    ) : (
+                      <div className="relative flex-shrink-0">
+                        <Avatar className="w-12 h-12">
+                          <AvatarImage
+                            src={resolveAvatar(conv.other_party.avatar)}
+                            alt={conv.other_party.first_name}
+                          />
+                          <AvatarFallback className="bg-[#1a1a1a] text-foreground text-sm font-semibold">
+                            {partyInitials(conv)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                    )}
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-foreground truncate text-sm">
-                        {conv.other_party.first_name} {conv.other_party.last_name}
-                      </span>
-                      <span className="text-xs text-[#a0a0a0] flex-shrink-0">
-                        {formatTime(conv.last_message_at)}
-                      </span>
+                    <div className="flex-1 min-w-0">
+                      {!indent && (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium text-foreground truncate text-sm">
+                            {conv.other_party.first_name}{' '}
+                            {conv.other_party.last_name}
+                          </span>
+                          <span className="text-xs text-[#a0a0a0] flex-shrink-0">
+                            {formatTime(conv.last_message_at)}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-xs text-[#a0a0a0] truncate mt-0.5">
+                        {conv.listing.title}
+                      </p>
+                      <p className="text-sm text-[#a0a0a0] truncate mt-1">
+                        {conv.last_message_preview ?? 'No messages yet'}
+                      </p>
                     </div>
-                    <p className="text-xs text-[#a0a0a0] truncate mt-0.5">
-                      {conv.listing.title}
-                    </p>
-                    <p className="text-sm text-[#a0a0a0] truncate mt-1">
-                      {conv.last_message_preview ?? 'No messages yet'}
-                    </p>
-                  </div>
 
-                  {/* Unread badge */}
-                  {conv.unread_count > 0 && (
-                    <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-1 font-semibold">
-                      {conv.unread_count > 9 ? '9+' : conv.unread_count}
-                    </span>
-                  )}
-                </button>
-              ))}
+                    {conv.unread_count > 0 && (
+                      <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-1 font-semibold">
+                        {conv.unread_count > 9 ? '9+' : conv.unread_count}
+                      </span>
+                    )}
+                  </button>
+                );
+
+                return (
+                  <div key={pid}>
+                    {/* Primary row */}
+                    <div className="flex items-stretch gap-0">
+                      <div className="flex-1 min-w-0">
+                        <ConvRow conv={primary} />
+                      </div>
+                      {/* Expand toggle only when there are more convs */}
+                      {rest.length > 0 && (
+                        <button
+                          onClick={() => toggleGroup(pid)}
+                          className="flex-shrink-0 px-2 text-[#a0a0a0] hover:text-foreground transition-colors text-xs flex flex-col items-center justify-center gap-0.5"
+                          title={isExpanded ? 'Hide other conversations' : `${rest.length} more conversation${rest.length > 1 ? 's' : ''}`}
+                        >
+                          <span>{rest.length}</span>
+                          <span style={{ fontSize: 9 }}>{isExpanded ? '▲' : '▼'}</span>
+                        </button>
+                      )}
+                      {/* Show total unread when collapsed */}
+                      {rest.length > 0 && !isExpanded && totalUnread > 0 && (
+                        <span className="self-start mt-3 mr-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 font-semibold">
+                          {totalUnread > 9 ? '9+' : totalUnread}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Secondary rows (other listings) */}
+                    {isExpanded && rest.map((c) => (
+                      <ConvRow key={c.id} conv={c} indent />
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -440,7 +522,7 @@ export function Messages({
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           ) : selectedConv ? (
-            <>
+            <div className="flex flex-col h-full min-h-0">
               {/* Chat Header */}
               <div className="h-16 px-4 border-b border-white/[0.06] flex items-center justify-between bg-[#121212] flex-shrink-0">
                 <div className="flex items-center gap-3">
@@ -527,8 +609,8 @@ export function Messages({
                 </DropdownMenu>
               </div>
 
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden">
+              {/* Messages – scrollable area, input stays pinned at bottom */}
+              <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
                 <div className="p-5 space-y-4">
                   {/* Listing context banner */}
                   <div className="flex justify-center">
@@ -691,7 +773,7 @@ export function Messages({
                   </Button>
                 </div>
               </div>
-            </>
+            </div>
           ) : null}
         </div>
       ) : (
