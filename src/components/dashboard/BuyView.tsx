@@ -135,6 +135,10 @@ export function BuyView({
             ? resolveImageUrl(item.images[0].image)
             : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
 
+          const sellerProfile = (item as any).seller_info || (item as any).seller || {};
+          const district = sellerProfile.district || (sellerProfile.profile_details?.district) || "Kigali";
+          const university = sellerProfile.university || (sellerProfile.profile_details?.university) || "UR";
+
           return {
             id: item.id ? item.id.toString() : `api-${index}-${item.title}`,
             title: item.title,
@@ -142,11 +146,12 @@ export function BuyView({
             category: mapApiCategory(item.category),
             condition: mapApiCondition(item.condition),
             image,
-            location: "Kigali Campus",
+            location: `${district} Campus`,
             postedAt: "Just now",
             seller: {
-              name: "Verified Student",
-              avatar: ""
+              name: sellerProfile.name || "Verified Student",
+              avatar: sellerProfile.avatar_url || "",
+              university: university
             },
             description: item.title,
             dealType: ["Meet on campus"]
@@ -674,6 +679,11 @@ function ProductCard({
           </span>
           <span>{product.postedAt}</span>
         </div>
+        {product.seller.university && (
+          <div className="text-[9px] sm:text-[10px] text-white/40 truncate">
+            {product.seller.university}
+          </div>
+        )}
 
         {/* Seller & Action */}
         <div className="flex items-center justify-between pt-2 border-t border-white/[0.08]">

@@ -8,7 +8,6 @@ import {
   Eye,
   Search,
   MapPin,
-  Star,
   ArrowRight,
   CheckCircle2,
   ShieldCheck,
@@ -25,7 +24,6 @@ import {
   Mail,
   ExternalLink,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Electronics: <Monitor className="w-5 h-5" />,
@@ -653,16 +651,9 @@ export default function Hero() {
                   >
                     {product.tag}
                   </span>
-                  {/* Price overlay at bottom of image */}
                   <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 flex items-end justify-between">
                     <span className="font-black text-base" style={{ color: "#F59E0B" }}>
                       {product.price}
-                    </span>
-                    <span
-                      className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(234,179,8,0.15)", color: "#FBBF24" }}
-                    >
-                      <Star className="w-3 h-3 fill-current" /> {product.rating}
                     </span>
                   </div>
                 </div>
@@ -934,29 +925,6 @@ export default function Hero() {
                 </button>
               </form>
             )}
-          </div>
-        </div>
-
-        {/* Bottom legal bar */}
-        <div
-          className="max-w-6xl mx-auto w-[92vw] py-6 flex flex-col sm:flex-row items-center justify-between gap-4"
-          style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
-        >
-          <p className="text-xs" style={{ color: "#374151" }}>
-            © {new Date().getFullYear()} UniMarket Rwanda. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6 text-xs font-medium" style={{ color: "#475569" }}>
-            <Link to="/terms" className="hover:text-[#F59E0B] transition-colors">
-              Terms of Service
-            </Link>
-            <span style={{ color: "#1F2937" }}>·</span>
-            <Link to="/privacy" className="hover:text-[#F59E0B] transition-colors">
-              Privacy Policy
-            </Link>
-            <span style={{ color: "#1F2937" }}>·</span>
-            <a href="mailto:support.unimarketrwanda@gmail.com" className="hover:text-[#F59E0B] transition-colors">
-              Support
-            </a>
           </div>
         </div>
       </footer>
