@@ -64,17 +64,20 @@ export default function DashboardLayout() {
     let score = 0;
     const profile = (user as any)?.profile_details || {};
     
-    // Avatar Image (25%)
-    if (user.avatar_url && user.avatar_url.trim() !== '') score += 25;
-    
-    // Phone Number (25%)
-    if (user.phone_number && user.phone_number.trim() !== '') score += 25;
-    
-    // University affiliation (25%)
-    if (user.has_completed_profile) score += 25;
-    
-    // Residence (Province & District) (25%)
-    if (profile.province && profile.province.trim() !== '' && profile.district && profile.district.trim() !== '') score += 25;
+    // 8 fields: Avatar Image, First Name, Last Name, Phone Number, University, Province, District, Languages
+    const fields = [
+      Boolean(user.avatar_url && user.avatar_url.trim() !== ''),
+      Boolean(user.first_name && user.first_name.trim() !== ''),
+      Boolean(user.last_name && user.last_name.trim() !== ''),
+      Boolean(user.phone_number && user.phone_number.trim() !== ''),
+      Boolean(user.has_completed_profile),
+      Boolean(profile.province && profile.province.trim() !== ''),
+      Boolean(profile.district && profile.district.trim() !== ''),
+      Boolean(profile.languages && Array.isArray(profile.languages) && profile.languages.length > 0)
+    ];
+
+    const completedFieldsCount = fields.filter(Boolean).length;
+    score = Math.round((completedFieldsCount / 8) * 100);
 
     return Math.min(score, 100);
   };

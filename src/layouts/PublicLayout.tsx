@@ -18,7 +18,9 @@ export default function PublicLayout() {
           </div>
           <div className="flex flex-wrap justify-center gap-6 text-[#b7b1a6]/80">
             <Link to="/terms" className="hover:text-foreground transition-colors font-medium hover:underline">Terms of Service</Link>
+            <span className="text-white/20">·</span>
             <Link to="/privacy" className="hover:text-foreground transition-colors font-medium hover:underline">Privacy Policy</Link>
+            <span className="text-white/20">·</span>
             <a href="mailto:support.unimarketrwanda@gmail.com" className="hover:text-foreground transition-colors font-medium hover:underline">Support</a>
           </div>
           <p>© {new Date().getFullYear()} UniMarket Rwanda. All Rights Reserved.</p>

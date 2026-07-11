@@ -44,6 +44,7 @@ export interface Product {
   seller: {
     name: string;
     avatar: string;
+    university?: string;
   };
   description?: string;
   dealType: DealType[];
