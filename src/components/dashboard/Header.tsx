@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   searchQuery: string;
@@ -18,12 +19,14 @@ interface HeaderProps {
   isVerified: boolean;
   onMenuClick?: () => void;
   unreadCount?: number;
+  unreadNotificationCount?: number;
 }
 
-export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified, onMenuClick, unreadCount = 0 }: HeaderProps) {
+export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified, onMenuClick, unreadCount = 0, unreadNotificationCount = 0 }: HeaderProps) {
   const [isFocused, setIsFocused] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (headerRef.current) {
@@ -113,28 +116,19 @@ export function Header({ searchQuery, setSearchQuery, onCreateClick, isVerified,
           </div>
 
           {/* Notifications */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="cursor-pointer relative w-10 h-10 rounded-xl hover:bg-[#bb740a]/10 transition-colors"
-              >
-                <Bell className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-[#bb740a]" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-72 bg-[#121212] border border-[#121212]">
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#bb740a]/10">
-                <span className="font-medium">Listing viewed 50 times</span>
-                <span className="text-xs text-muted-foreground">Your MacBook Pro is getting attention!</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-1 py-3 hover:bg-[#bb740a]/10">
-                <span className="font-medium">New follower</span>
-                <span className="text-xs text-muted-foreground">Marie started following your listings</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/dashboard/notifications')}
+            className="cursor-pointer relative w-10 h-10 rounded-xl hover:bg-[#bb740a]/10 transition-colors"
+          >
+            <Bell className="w-5 h-5 text-muted-foreground" />
+            {unreadNotificationCount > 0 && (
+              <Badge className="absolute -top-0.5 -right-0.5 w-4 h-4 p-0 flex items-center justify-center text-[10px] bg-[#bb740a] text-white">
+                {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
+              </Badge>
+            )}
+          </Button>
 
           {/* Create Button */}
           <Button

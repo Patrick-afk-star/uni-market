@@ -34,25 +34,35 @@ export default function DashboardLayout() {
   const { user, accessToken } = useAuth();
   const [hideBanner, setHideBanner] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   useEffect(() => {
     if (user && accessToken) {
-      listConversations(accessToken, false)
-        .then((conversations) => {
+      const fetchUnreadCounts = async () => {
+        try {
+          const conversations = await listConversations(accessToken, false);
           const count = conversations.reduce((acc, conv) => acc + conv.unread_count, 0);
           setUnreadCount(count);
-        })
-        .catch(err => console.error('Failed to fetch unread count:', err));
+        } catch (err) {
+          console.error('Failed to fetch unread messages count:', err);
+        }
+
+        try {
+          const res = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/v1/notifications/unread-count`, {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setUnreadNotificationCount(data.result || 0);
+          }
+        } catch (err) {
+          console.error('Failed to fetch unread notifications count:', err);
+        }
+      };
+
+      fetchUnreadCounts();
       
-      // We could also poll this every minute or so, but doing it on mount is a good start.
-      const interval = setInterval(() => {
-        listConversations(accessToken, false)
-          .then((conversations) => {
-            const count = conversations.reduce((acc, conv) => acc + conv.unread_count, 0);
-            setUnreadCount(count);
-          })
-          .catch(() => {});
-      }, 60000); // 1 minute interval
+      const interval = setInterval(fetchUnreadCounts, 60000); // 1 minute interval
 
       return () => clearInterval(interval);
     }
@@ -146,6 +156,7 @@ export default function DashboardLayout() {
           isVerified={isVerified}
           onMenuClick={() => setIsSidebarOpen(true)}
           unreadCount={unreadCount}
+          unreadNotificationCount={unreadNotificationCount}
         />
 
         {/* Profile Completion Banner */}

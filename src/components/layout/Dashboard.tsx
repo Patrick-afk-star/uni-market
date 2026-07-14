@@ -23,7 +23,7 @@ interface DashboardProduct {
   name: string;
   price: string;
   rating: number;
-  location: string;
+  location: { university: string, campus: string };
   university: string;
   image: string;
   tag: string;
@@ -60,7 +60,7 @@ export default function Dashboard() {
             name: item.title,
             price: item.price,
             rating: 4.5,
-            location: "Campus",
+            location: { university: "Various Universities", campus: "Campus" },
             university: "Various Universities",
             image: resolveImageUrl(imageUrl),
             tag: item.condition,

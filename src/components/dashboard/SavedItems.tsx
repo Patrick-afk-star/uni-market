@@ -72,7 +72,7 @@ export function SavedItems() {
                 category: mapApiCategory(listing.category),
                 condition: mapApiCondition(listing.condition),
                 image,
-                location: "Kigali Campus",
+                location: { university: "UR", campus: "Kigali Campus" },
                 postedAt: "Saved",
                 seller: {
                   name: "Verified Student",
@@ -184,7 +184,7 @@ export function SavedItems() {
 
               <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-[#898989]">
                 <MapPin className="w-3 h-3 shrink-0" />
-                <span className="truncate">{product.location}</span>
+                <span className="truncate">{product.location.campus}</span>
               </div>
             </div>
           </div>

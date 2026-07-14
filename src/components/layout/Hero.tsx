@@ -107,7 +107,7 @@ export default function Hero() {
       name: "Wireless Headphones",
       price: "28,000 RWF",
       rating: 4.8,
-      location: "KG 15 mins ago",
+      location: { university: "UR - Gikondo", campus: "KG 15 mins ago" },
       university: "UR - Gikondo",
       image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
       tag: "Like new",
@@ -117,7 +117,7 @@ export default function Hero() {
       name: "Minimal Study Desk",
       price: "85,000 RWF",
       rating: 4.9,
-      location: "UR Huye",
+      location: { university: "UR - Huye", campus: "UR Huye" },
       university: "UR - Huye",
       image: "https://plus.unsplash.com/premium_photo-1711051475117-f3a4d3ff6778?auto=format&fit=crop&w=800&q=80",
       tag: "Solid wood",
@@ -127,7 +127,7 @@ export default function Hero() {
       name: "Programming Books (set of 5)",
       price: "12,000 RWF",
       rating: 5.0,
-      location: "CMU Africa",
+      location: { university: "CMU Africa", campus: "CMU Africa" },
       university: "CMU Africa",
       image: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80",
       tag: "Bestseller",
@@ -137,7 +137,7 @@ export default function Hero() {
       name: "MacBook Air M1",
       price: "750,000 RWF",
       rating: 4.9,
-      location: "ALU",
+      location: { university: "African Leadership University", campus: "ALU" },
       university: "African Leadership University",
       image: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=800&q=80",
       tag: "Student discount",
@@ -164,7 +164,10 @@ export default function Hero() {
           ? `${item.price.toLocaleString()} RWF`
           : `${parseFloat(item.price || "0").toLocaleString()} RWF`,
       rating: 4.8,
-      location: `${district} Campus`,
+      location: { 
+        university: item.location?.university || university, 
+        campus: item.location?.campus || `${district} Campus` 
+      },
       university,
       image,
       tag: item.condition
@@ -414,7 +417,7 @@ export default function Hero() {
                         <span style={{ color: "#F59E0B" }}>{item.price}</span>
                         {" · "}
                         <MapPin className="w-3 h-3 inline-block -mt-px" />
-                        {" "}{item.location}
+                        {" "}{item.location.university} - {item.location.campus}
                       </p>
                     </div>
                     <ArrowRight className="w-4 h-4 shrink-0 mt-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" style={{ color: "#F59E0B" }} />
@@ -699,10 +702,10 @@ export default function Hero() {
                     {product.name}
                   </h3>
                   <p className="text-xs mb-0.5 flex items-center gap-1" style={{ color: "#64748B" }}>
-                    <MapPin className="w-3 h-3" /> {product.location}
+                    <MapPin className="w-3 h-3" /> {product.location.university}
                   </p>
                   <p className="text-xs mb-4" style={{ color: "#475569" }}>
-                    {product.university}
+                    {product.location.campus}
                   </p>
 
                   {/* CTA buttons */}

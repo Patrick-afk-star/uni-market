@@ -146,7 +146,7 @@ export function BuyView({
             category: mapApiCategory(item.category),
             condition: mapApiCondition(item.condition),
             image,
-            location: `${district} Campus`,
+            location: { university: university, campus: `${district} Campus` },
             postedAt: "Just now",
             seller: {
               name: sellerProfile.name || "Verified Student",
@@ -213,7 +213,8 @@ export function BuyView({
         (p) =>
           p.title.toLowerCase().includes(query) ||
           p.category.toLowerCase().includes(query) ||
-          p.location.toLowerCase().includes(query),
+          p.location.campus.toLowerCase().includes(query) ||
+          p.location.university.toLowerCase().includes(query),
       );
     }
 
@@ -675,7 +676,7 @@ function ProductCard({
         <div className="flex items-center justify-between text-[10px] sm:text-xs text-white/60">
           <span className="hidden sm:flex items-center gap-1">
             <MapPin className="w-3 h-3" />
-            {product.location}
+            {product.location.campus}
           </span>
           <span>{product.postedAt}</span>
         </div>

@@ -44,7 +44,10 @@ export interface Product {
   category: Category;
   condition: Condition;
   image: string;
-  location: string;
+  location: {
+    university: string;
+    campus: string;
+  };
   postedAt: string;
   seller: {
     name: string;
@@ -67,7 +70,10 @@ export interface Listing {
   condition: Condition;
   images: ListingImage[];
   description: string;
-  location: string;
+  location: {
+    university: string;
+    campus: string;
+  };
   dealType: DealType[];
   status: 'draft' | 'published' | 'sold';
   createdAt: string;
@@ -86,3 +92,14 @@ export type ViewMode = 'sell' | 'buy';
 export type SellSubView = 'create' | 'listings' | 'analytics' | 'payouts';
 
 export type BuySubView = 'browse' | 'saved' | 'messages' | 'orders' | 'settings';
+
+export interface AppNotification {
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  payload: Record<string, any>;
+  created_at: string;
+  is_read: boolean;
+  read_at: string | null;
+}
