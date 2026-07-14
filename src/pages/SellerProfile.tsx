@@ -22,6 +22,7 @@ interface SellerProfileData {
   account_type: string | null;
   student_profile: {
     university: string | null;
+    campus?: string | null;
   } | null;
   bio: string | null;
   date_joined: string | null;
@@ -96,14 +97,19 @@ export default function SellerProfile() {
           avatar_url: profileData.avatar_url || null,
           phone_number: profileData.phone_number || "",
           account_type: profileData.account_type || "student",
-          student_profile: profileData.student_profile || (profileData.university ? { university: profileData.university } : null),
+          student_profile: profileData.student_profile ? {
+            university: typeof profileData.student_profile.university === 'object' && profileData.student_profile.university !== null 
+              ? profileData.student_profile.university.name 
+              : profileData.student_profile.university,
+            campus: profileData.student_profile.campus
+          } : (profileData.university ? { university: profileData.university } : null),
           bio: profileData.bio || "",
           date_joined: profileData.date_joined || profileData.created_at || new Date().toISOString(),
           province: profileData.profile_details?.province || profileData.province || "Kigali City", // Fallback/Mock
           district: profileData.profile_details?.district || profileData.district || "Kicukiro", // Fallback/Mock
-          languages: profileData.profile_details?.languages || profileData.languages || ["English", "Kinyarwanda"],
+          languages: profileData.profile_details?.languages || profileData.languages_spoken || profileData.languages || ["English", "Kinyarwanda"],
           contactPrefs: profileData.profile_details?.contactPrefs || profileData.contactPrefs || ["UniMarket Chat", "WhatsApp"],
-          socialLinks: profileData.profile_details?.socialLinks || profileData.socialLinks || {},
+          socialLinks: profileData.profile_details?.socialLinks || profileData.social_links || profileData.socialLinks || {},
           privacySettings: profileData.privacy_settings || { showPhone: true, showUniversity: true },
         };
 
@@ -147,7 +153,10 @@ export default function SellerProfile() {
                   category: mapApiCategory(item.category),
                   condition: mapApiCondition(item.condition),
                   image,
-                  location: item.location || "Kigali Campus",
+                  location: {
+                    university: item.location?.university || sellerObj.student_profile?.university || "UR",
+                    campus: item.location?.campus || "Kigali Campus"
+                  },
                   postedAt: "Recently",
                   seller: {
                     name: sellerObj.name,
@@ -370,13 +379,16 @@ export default function SellerProfile() {
             <h3 className="font-bold text-foreground mb-4">About & Contact</h3>
             <div className="space-y-4">
               
-              {/* University */}
+              {/* University & Campus */}
               {(seller.student_profile?.university || seller.privacySettings?.showUniversity !== false) && (
                 <div className="flex items-start gap-3 text-sm">
                   <GraduationCap className="w-5 h-5 text-muted-foreground shrink-0" />
                   <div>
                     <p className="font-medium text-foreground">University</p>
-                    <p className="text-muted-foreground">{seller.student_profile?.university || "Not specified"}</p>
+                    <p className="text-muted-foreground">
+                      {seller.student_profile?.university || "Not specified"}
+                      {seller.student_profile?.campus ? ` - ${seller.student_profile.campus}` : ""}
+                    </p>
                   </div>
                 </div>
               )}

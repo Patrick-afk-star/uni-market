@@ -36,6 +36,11 @@ interface LocationNode {
   districts: { id: string; name: string }[];
 }
 
+interface Campus {
+  id: string;
+  name: string;
+}
+
 const AVAILABLE_LANGUAGES = ["English", "French", "Kinyarwanda", "Arabic", "Swahili", "Lingala"];
 const BIO_MAX = 60;
 
@@ -112,9 +117,12 @@ export function SettingsView() {
 
 
 
-  // University state
+  // University & Campus state
   const [universities, setUniversities] = useState<University[]>([]);
   const [selectedUniversityId, setSelectedUniversityId] = useState("");
+  const [selectedUniversityName, setSelectedUniversityName] = useState("");
+  const [campuses, setCampuses] = useState<Campus[]>([]);
+  const [selectedCampus, setSelectedCampus] = useState("");
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -140,7 +148,6 @@ export function SettingsView() {
         if (response.ok) {
           const data = await response.json();
           setUniversities(data);
-          if (data.length > 0) setSelectedUniversityId(data[0].id);
         }
       } catch (err) {
         console.error("Failed to load universities list:", err);
@@ -178,6 +185,11 @@ export function SettingsView() {
           if (data.social_links) {
             setSocialLinks(prev => ({ ...prev, ...data.social_links }));
           }
+          if (data.student_profile) {
+             setSelectedUniversityId(data.student_profile.university?.id || "");
+             setSelectedUniversityName(data.student_profile.university?.name || "");
+             setSelectedCampus(data.student_profile.campus || "");
+          }
         }
       } catch (err) {
         console.error("Failed to load profile:", err);
@@ -209,6 +221,26 @@ export function SettingsView() {
     fetchProfile();
     fetchPreferences();
   }, [accessToken]);
+
+  // Fetch campuses when university changes
+  useEffect(() => {
+    if (!selectedUniversityId) {
+       setCampuses([]);
+       return;
+    }
+    const fetchCampuses = async () => {
+       try {
+         const response = await fetch(getApiUrl(`/api/v1/universities/${selectedUniversityId}/campus`));
+         if (response.ok) {
+           const data = await response.json();
+           setCampuses(data);
+         }
+       } catch (err) {
+         console.error("Failed to load campuses:", err);
+       }
+    };
+    fetchCampuses();
+  }, [selectedUniversityId]);
 
   // GSAP entry animation
   useEffect(() => {
@@ -259,6 +291,10 @@ export function SettingsView() {
       const initialSocialLinks = JSON.stringify({ ...defaultSocialLinks, ...(initialProfile?.social_links || {}) });
       if (currentSocialLinks !== initialSocialLinks) {
         formData.append("social_links", currentSocialLinks);
+      }
+      
+      if (selectedCampus && selectedCampus !== (initialProfile?.student_profile?.campus || "")) {
+         formData.append("campus", selectedCampus);
       }
 
       const res = await fetch(getApiUrl("/api/v1/profiles/me"), {
@@ -654,9 +690,26 @@ export function SettingsView() {
                             <label className="text-sm font-semibold text-muted-foreground">Phone Number</label>
                             <Input value={phone_number} onChange={(e) => setPhoneNumber(e.target.value)} className="bg-secondary/20 h-11 rounded-xl border-white/[0.08] focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a]" />
                           </div>
-                          <div className="space-y-2 sm:col-span-2">
+                          <div className="space-y-2 sm:col-span-1">
                             <label className="text-sm font-semibold text-muted-foreground">University</label>
-                            <Input value={universities.find((u) => u.id === selectedUniversityId)?.name || "Carnegie Mellon University Africa"} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
+                            <Input value={selectedUniversityName || universities.find((u) => u.id === selectedUniversityId)?.name || "Not set"} readOnly disabled className="bg-secondary/10 h-11 rounded-xl border-transparent text-muted-foreground cursor-not-allowed" />
+                          </div>
+                          <div className="space-y-2 sm:col-span-1">
+                            <label className="text-sm font-semibold text-muted-foreground flex justify-between">
+                                Campus
+                                {highlightRequired && !selectedCampus && <span className="text-xs text-red-400 font-semibold">Required</span>}
+                            </label>
+                            <select
+                                value={selectedCampus}
+                                onChange={(e) => setSelectedCampus(e.target.value)}
+                                disabled={campuses.length === 0}
+                                className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
+                                <option value="" className="bg-[#0f0f0f]">Select Campus...</option>
+                                {campuses.map(c => (
+                                  <option key={c.id} value={c.name} className="bg-[#0f0f0f]">{c.name}</option>
+                                ))}
+                            </select>
                           </div>
                         </div>
 

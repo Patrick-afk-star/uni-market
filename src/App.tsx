@@ -39,6 +39,7 @@ import OrdersPage from '@/pages/dashboard/OrdersPage';
 import CreatePage from '@/pages/dashboard/CreatePage';
 import PayoutsPage from '@/pages/dashboard/PayoutsPage';
 import SettingsPage from '@/pages/dashboard/SettingsPage';
+import NotificationsPage from '@/pages/dashboard/NotificationsPage';
 
 export default function App() {
   return (
@@ -84,6 +85,7 @@ export default function App() {
               <Route path="/dashboard/edit/:id" element={<CreatePage />} />
               <Route path="/dashboard/payouts" element={<PayoutsPage />} />
               <Route path="/dashboard/settings" element={<SettingsPage />} />
+              <Route path="/dashboard/notifications" element={<NotificationsPage />} />
               <Route path="/dashboard/listing/:id" element={<ListingDetailPage />} />
               <Route path="/dashboard/seller/:id" element={<SellerProfile />} />
             </Route>

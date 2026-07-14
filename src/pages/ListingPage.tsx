@@ -11,7 +11,7 @@ interface ListingDetail {
   category: string;
   condition: string;
   description: string;
-  location: string;
+  location: { university: string, campus: string };
   image: string;
   seller: {
     id: string;
@@ -53,13 +53,16 @@ export default function ListingPage() {
                       category: staticMatch.category,
                       condition: staticMatch.condition,
                       description: staticMatch.description || "No description provided.",
-                      location: staticMatch.location,
+                      location: {
+                          university: staticMatch.location.university,
+                          campus: staticMatch.location.campus
+                      },
                       image: resolveImageUrl(staticMatch.image),
                       seller: {
                           id: "seller-1",
                           name: staticMatch.seller.name,
                           avatar: staticMatch.seller.avatar,
-                          university: staticMatch.location
+                          university: staticMatch.location.university
             }
           });
         } else {
@@ -76,7 +79,10 @@ export default function ListingPage() {
                     category: item.category,
                     condition: item.condition,
                     description: item.description || "Freshly listed student item.",
-                    location: item.location || "Main Campus",
+                    location: {
+                        university: item.location?.university || "UR",
+                        campus: item.location?.campus || "Main Campus"
+                    },
                     image: resolveImageUrl(item.image?.image || item.image || item.images?.[0]?.image),
                     seller: { id: "s1", name: "Jean Paul", avatar: "/avatar_student.jpg", university: "UR - Gikondo" }
                 });
@@ -132,7 +138,7 @@ export default function ListingPage() {
             <p className="text-[#5f5b52] leading-relaxed">{listing.description}</p>
             <div className="flex items-center gap-2 text-sm text-[#5f5b52] bg-[#f2f6f4] w-fit px-4 py-2 rounded-xl">
               <MapPin size={16} className="text-[#0a4e39]" />
-              <span>Located at <span className="font-bold text-[#121412]">{listing.location}</span></span>
+              <span>Located at <span className="font-bold text-[#121412]">{listing.location.campus}, {listing.location.university}</span></span>
             </div>
           </div>
 
