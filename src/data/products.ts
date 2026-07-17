@@ -83,7 +83,7 @@ export const sampleProducts: Product[] = [
     id: '7',
     title: 'Road Bike - Trek Domane',
     price: 280000,
-    category: 'Other',
+    category: 'Bicycles',
     condition: 'Good',
     image: '/product_bike.jpg',
     location: { university: 'UR', campus: 'Kigali Campus' },
@@ -142,12 +142,14 @@ export const sampleListings: Listing[] = [
 
 export const categories: string[] = [
   'All Categories',
-  'Textbooks',
+  'Bicycles',
+  'Clothing',
   'Electronics',
   'Furniture',
-  'Clothing',
-  'Tickets',
-  'Other',
+  'Kitchen',
+  'Sports',
+  'Stationery',
+  'Textbooks',
 ];
 
 export const conditions: string[] = ['New', 'Like New', 'Good', 'Fair'];

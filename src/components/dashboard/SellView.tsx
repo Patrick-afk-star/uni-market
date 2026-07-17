@@ -346,12 +346,13 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
 
         {/* Description */}
         <div className="composer-panel space-y-3">
-          <Label className="text-sm font-medium text-foreground">Description</Label>
+          <Label className="text-sm font-medium text-foreground">Description (required)</Label>
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe the item, course code, or pickup notes..."
             rows={5}
+            required
             className="rounded-xl bg-[#0f0f0f] border border-white/[0.06] focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 resize-none"
           />
         </div>
