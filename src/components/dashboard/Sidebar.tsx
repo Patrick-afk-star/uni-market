@@ -5,12 +5,16 @@ import {
   Plus,
   List,
   BarChart3,
-  // Wallet,
   Heart,
   MessageSquare,
   User,
   X,
   LogOut,
+  Users,
+  Building2,
+  Tag,
+  MapPin,
+  ShieldCheck,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { currentUser } from "@/data/user";
@@ -54,6 +58,7 @@ export function Sidebar({
   }, []);
 
   const isStaff = user?.is_staff ?? false;
+  const isAdmin = isStaff || (user?.roles?.includes("admin") ?? false);
 
   const navItems = [
     { id: "browse", label: "Explore", icon: Search, path: "/dashboard/browse" },
@@ -64,6 +69,13 @@ export function Sidebar({
     ...(isStaff ? [{ id: "analytics", label: "Analytics", icon: BarChart3, path: "/dashboard/analytics" }] : []),
     { id: "profile", label: "Profile", icon: User, path: "/dashboard/settings" },
   ];
+
+  const adminNavItems = isAdmin ? [
+    { id: "admin-users", label: "Users", icon: Users, path: "/admin/users" },
+    { id: "admin-universities", label: "Universities", icon: Building2, path: "/admin/universities" },
+    { id: "admin-categories", label: "Categories", icon: Tag, path: "/admin/categories" },
+    { id: "admin-locations", label: "Locations", icon: MapPin, path: "/admin/locations" },
+  ] : [];
 
   return (
     <aside
@@ -128,6 +140,44 @@ export function Sidebar({
             </button>
           );
         })}
+
+        {/* Admin Section */}
+        {adminNavItems.length > 0 && (
+          <>
+            <div className="pt-4 pb-1 px-3">
+              <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#bb740a]" />
+                Admin
+              </div>
+            </div>
+            {adminNavItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname.startsWith(item.path);
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    navigate(item.path);
+                    if (setIsOpen) setIsOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group cursor-pointer ${
+                    isActive
+                      ? "bg-[#bb740a]/10 text-[#bb740a]"
+                      : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+                  }`}
+                >
+                  <Icon
+                    className={`w-4 h-4 transition-transform duration-200 group-hover:scale-105 ${
+                      isActive ? "text-[#bb740a]" : ""
+                    }`}
+                  />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#bb740a]" />}
+                </button>
+              );
+            })}
+          </>
+        )}
       </nav>
 
       {/* User Card & Logout */}
