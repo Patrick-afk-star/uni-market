@@ -222,10 +222,12 @@ export default function Hero() {
     const selectedUni = apiUniversities.find((u) => u.id === selectedUniId);
     if (!selectedUni) return false;
     const pUni = (product.university || "").toLowerCase();
+    const pLocUni = (product.location?.university || "").toLowerCase();
     const uName = (selectedUni.name || "").toLowerCase();
     const uAbbr = (selectedUni.abreviation || "").toLowerCase();
     const uId = (selectedUni.id || "").toLowerCase();
-    return pUni.includes(uName) || uName.includes(pUni) || pUni.includes(uAbbr) || uAbbr.includes(pUni) || pUni.includes(uId);
+    return pUni.includes(uName) || uName.includes(pUni) || pUni.includes(uAbbr) || uAbbr.includes(pUni) || pUni.includes(uId) ||
+           pLocUni.includes(uName) || uName.includes(pLocUni) || pLocUni.includes(uAbbr) || uAbbr.includes(pLocUni) || pLocUni.includes(uId);
   });
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
