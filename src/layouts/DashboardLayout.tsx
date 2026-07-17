@@ -69,25 +69,28 @@ export default function DashboardLayout() {
   }, [user, accessToken]);
 
   // Calculate Completion Percentage
+  // Tracks exactly 7 core profile fields. bio, email, and has_completed_profile
+  // are intentionally excluded — they have zero impact on completion state.
   const calculateCompletion = () => {
     if (!user) return 100; // default hidden if not logged in
-    let score = 0;
     const profile = (user as any)?.profile_details || {};
-    
-    // 8 fields: Avatar Image, First Name, Last Name, Email, Phone Number, University Name, Province, and District
+    const studentProfile = (user as any)?.student_profile || {};
+
+    // Exactly 7 tracked fields (bio is explicitly excluded):
+    // 1. avatar_url  2. first_name  3. last_name  4. phone_number
+    // 5. province    6. district    7. campus
     const fields = [
       Boolean(user.avatar_url && user.avatar_url.trim() !== ''),
       Boolean(user.first_name && user.first_name.trim() !== ''),
       Boolean(user.last_name && user.last_name.trim() !== ''),
-      Boolean(user.email && user.email.trim() !== ''),
       Boolean(user.phone_number && user.phone_number.trim() !== ''),
-      Boolean(user.has_completed_profile),
       Boolean(profile.province && profile.province.trim() !== ''),
-      Boolean(profile.district && profile.district.trim() !== '')
+      Boolean(profile.district && profile.district.trim() !== ''),
+      Boolean(studentProfile.campus && studentProfile.campus.trim() !== ''),
     ];
 
     const completedFieldsCount = fields.filter(Boolean).length;
-    score = Math.round((completedFieldsCount / 8) * 100);
+    const score = Math.round((completedFieldsCount / fields.length) * 100);
 
     return Math.min(score, 100);
   };
