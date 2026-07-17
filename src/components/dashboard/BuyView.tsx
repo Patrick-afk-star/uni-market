@@ -84,13 +84,13 @@ export function BuyView({
   };
 
   const mapApiCategory = (cat: string): Category => {
-    if (!cat) return 'Other';
+    if (!cat) return 'Textbooks';
     const normalized = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
-    const validCategories: Category[] = ['Textbooks', 'Electronics', 'Furniture', 'Clothing', 'Tickets', 'Other'];
+    const validCategories: Category[] = ['Bicycles', 'Clothing', 'Electronics', 'Furniture', 'Kitchen', 'Sports', 'Stationery', 'Textbooks'];
     if (validCategories.includes(normalized as Category)) {
       return normalized as Category;
     }
-    return 'Other';
+    return 'Textbooks';
   };
 
   // Fetch listings on mount
@@ -674,11 +674,10 @@ function ProductCard({
         </div>
 
         <div className="flex items-center justify-between text-[10px] sm:text-xs text-white/60">
-          <span className="hidden sm:flex items-center gap-1">
+          <span className="flex items-center gap-1">
             <MapPin className="w-3 h-3" />
             {product.location.campus}
           </span>
-          <span>{product.postedAt}</span>
         </div>
         {product.seller.university && (
           <div className="text-[9px] sm:text-[10px] text-white/40 truncate">

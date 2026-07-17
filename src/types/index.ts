@@ -31,7 +31,7 @@ export interface RefreshResponse {
 }
 
 // ─── Marketplace ─────────────────────────────────────────────────────────────
-export type Category = 'Textbooks' | 'Electronics' | 'Furniture' | 'Clothing' | 'Tickets' | 'Other';
+export type Category = 'Bicycles' | 'Clothing' | 'Electronics' | 'Furniture' | 'Kitchen' | 'Sports' | 'Stationery' | 'Textbooks';
 
 export type Condition = 'New' | 'Like New' | 'Good' | 'Fair';
 

@@ -64,13 +64,13 @@ export default function SellerProfile() {
   };
 
   const mapApiCategory = (cat: string): Category => {
-    if (!cat) return 'Other';
+    if (!cat) return 'Textbooks';
     const normalized = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
-    const validCategories: Category[] = ['Textbooks', 'Electronics', 'Furniture', 'Clothing', 'Tickets', 'Other'];
+    const validCategories: Category[] = ['Bicycles', 'Clothing', 'Electronics', 'Furniture', 'Kitchen', 'Sports', 'Stationery', 'Textbooks'];
     if (validCategories.includes(normalized as Category)) {
       return normalized as Category;
     }
-    return 'Other';
+    return 'Textbooks';
   };
 
   useEffect(() => {
