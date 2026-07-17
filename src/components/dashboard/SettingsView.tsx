@@ -294,7 +294,7 @@ export function SettingsView() {
       }
       
       if (selectedCampus && selectedCampus !== (initialProfile?.student_profile?.campus || "")) {
-         formData.append("campus", selectedCampus);
+         formData.append("campus_id", selectedCampus);
       }
 
       const res = await fetch(getApiUrl("/api/v1/profiles/me"), {
@@ -707,7 +707,7 @@ export function SettingsView() {
                               >
                                 <option value="" className="bg-[#0f0f0f]">Select Campus...</option>
                                 {campuses.map(c => (
-                                  <option key={c.id} value={c.name} className="bg-[#0f0f0f]">{c.name}</option>
+                                  <option key={c.id} value={c.id} className="bg-[#0f0f0f]">{c.name}</option>
                                 ))}
                             </select>
                           </div>
