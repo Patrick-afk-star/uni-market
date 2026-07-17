@@ -1,4 +1,16 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+
+// Resets window scroll position to (0,0) on every route transition.
+// Prevents the browser from retaining scroll position when navigating
+// between routes (e.g. clicking Terms/Privacy links from the footer).
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+  return null;
+}
 
 // Auth
 import { AuthProvider } from '@/context/AuthContext';
@@ -45,6 +57,7 @@ export default function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           {/* Guest-only Routes */}
           <Route element={<GuestRoute />}>
