@@ -16,6 +16,7 @@ function ScrollToTop() {
 import { AuthProvider } from '@/context/AuthContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import GuestRoute from '@/components/auth/GuestRoute';
+import AdminRoute from '@/components/auth/AdminRoute';
 
 // Layouts
 import PublicLayout from '@/layouts/PublicLayout';
@@ -52,6 +53,12 @@ import CreatePage from '@/pages/dashboard/CreatePage';
 import PayoutsPage from '@/pages/dashboard/PayoutsPage';
 import SettingsPage from '@/pages/dashboard/SettingsPage';
 import NotificationsPage from '@/pages/dashboard/NotificationsPage';
+
+// Admin Pages
+import AdminUsersPage from '@/pages/admin/AdminUsersPage';
+import AdminUniversitiesPage from '@/pages/admin/AdminUniversitiesPage';
+import AdminCategoriesPage from '@/pages/admin/AdminCategoriesPage';
+import AdminLocationsPage from '@/pages/admin/AdminLocationsPage';
 
 export default function App() {
   return (
@@ -106,6 +113,16 @@ export default function App() {
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
+
+          {/* Admin Routes – only accessible to users with the 'admin' role or is_staff */}
+          <Route element={<AdminRoute />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/universities" element={<AdminUniversitiesPage />} />
+              <Route path="/admin/categories" element={<AdminCategoriesPage />} />
+              <Route path="/admin/locations" element={<AdminLocationsPage />} />
+            </Route>
+          </Route>
         </Routes>
       </Router>
     </AuthProvider>

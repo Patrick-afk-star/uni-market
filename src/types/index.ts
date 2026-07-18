@@ -9,6 +9,8 @@ export interface AuthUser {
   avatar_url?: string;
   has_completed_profile?: boolean;
   is_staff?: boolean;
+  /** Array of role strings returned by the login/refresh API, e.g. ["admin", "student"] */
+  roles?: string[];
   auth_status?: {
     has_password?: boolean;
     linked_providers?: string[];
