@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Save,
   ChevronDown,
+  MoreVertical,
 } from "lucide-react";
 
 interface Location {
@@ -59,6 +60,13 @@ export default function AdminLocationsPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | number | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "ok" | "err" } | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | number | null>(null);
+
+  useEffect(() => {
+    const closeMenu = () => setOpenMenuId(null);
+    document.addEventListener("click", closeMenu);
+    return () => document.removeEventListener("click", closeMenu);
+  }, []);
 
   const showToast = (msg: string, type: "ok" | "err" = "ok") => {
     setToast({ msg, type });
@@ -238,8 +246,8 @@ export default function AdminLocationsPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl border border-white/[0.06] overflow-hidden bg-[#0d0d0d]">
+      {/* Grid */}
+      <div className="w-full">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 animate-spin text-[#bb740a]" />
@@ -255,69 +263,88 @@ export default function AdminLocationsPage() {
             <p className="text-sm text-muted-foreground">No locations found.</p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06] text-xs text-muted-foreground uppercase tracking-wider">
-                <th className="px-5 py-3.5 text-left font-semibold">Name</th>
-                <th className="px-5 py-3.5 text-left font-semibold hidden md:table-cell">Province / District</th>
-                <th className="px-5 py-3.5 text-left font-semibold hidden lg:table-cell">University</th>
-                <th className="px-5 py-3.5 text-center font-semibold">Type</th>
-                <th className="px-5 py-3.5 text-right font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">
-              {filtered.map((loc) => (
-                <tr key={loc.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-[#bb740a]/10 border border-[#bb740a]/20 flex items-center justify-center shrink-0">
-                        <MapPin className="w-4 h-4 text-[#bb740a]" />
-                      </div>
-                      <span className="font-semibold text-foreground">{loc.name}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filtered.map((loc) => {
+              const typeBadge = TYPE_BADGE[loc.type ?? "other"] ?? TYPE_BADGE.other;
+              return (
+                <div
+                  key={loc.id}
+                  className="rounded-2xl border border-white/[0.06] bg-[#0d0d0d] p-5 flex flex-col gap-3 hover:border-white/[0.1] transition-all group"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#bb740a]/10 border border-[#bb740a]/20 flex items-center justify-center shrink-0">
+                      <MapPin className="w-5 h-5 text-[#bb740a]" />
                     </div>
-                  </td>
-                  <td className="px-5 py-4 hidden md:table-cell">
-                    <span className="text-sm text-muted-foreground">
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === loc.id ? null : loc.id);
+                        }}
+                        className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-white hover:bg-white/[0.1] transition-all"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
+                      {openMenuId === loc.id && (
+                        <div
+                          className="absolute right-0 top-full mt-2 w-36 bg-[#121212] rounded-xl shadow-2xl border border-white/[0.08] z-10 overflow-hidden animate-in fade-in slide-in-from-top-2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="px-3 py-2 text-xs font-semibold text-muted-foreground border-b border-white/[0.08]">
+                            Actions
+                          </div>
+                          <button
+                            onClick={() => {
+                              openEdit(loc);
+                              setOpenMenuId(null);
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-white/[0.04] transition-colors"
+                          >
+                            <Pencil className="w-4 h-4" /> Edit
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleDelete(loc);
+                              setOpenMenuId(null);
+                            }}
+                            disabled={deleting === loc.id}
+                            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-white/[0.04] transition-colors disabled:opacity-40"
+                          >
+                            {deleting === loc.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-semibold text-foreground">{loc.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
                       {[loc.province, loc.district].filter(Boolean).join(" › ") || "—"}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 hidden lg:table-cell">
-                    <span className="text-sm text-muted-foreground">{loc.university || "—"}</span>
-                  </td>
-                  <td className="px-5 py-4 text-center">
+                    </p>
+                    {loc.university && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                        Uni: {loc.university}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="mt-auto pt-2">
                     <span
-                      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border capitalize ${
-                        TYPE_BADGE[loc.type ?? "other"] ?? TYPE_BADGE.other
-                      }`}
+                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border capitalize ${typeBadge}`}
                     >
                       {loc.type ?? "other"}
                     </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openEdit(loc)}
-                        className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-[#bb740a] hover:border-[#bb740a]/30 transition-all"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(loc)}
-                        disabled={deleting === loc.id}
-                        className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-red-400 hover:border-red-500/30 transition-all disabled:opacity-40"
-                      >
-                        {deleting === loc.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
 

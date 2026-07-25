@@ -8,30 +8,24 @@ import {
   ChevronLeft,
   ChevronRight,
   User,
-  Shield,
-  ShieldOff,
-  Mail,
-  Phone,
+
   Calendar,
   AlertCircle,
   CheckCircle2,
   XCircle,
   Loader2,
+  Eye,
+  ChevronDown,
+  MoreVertical,
 } from "lucide-react";
 
 interface AdminUser {
   id: string;
-  pk?: string;
   email: string;
   first_name: string;
   last_name?: string;
-  phone_number?: string;
-  avatar_url?: string;
-  is_staff?: boolean;
   is_active?: boolean;
-  roles?: string[];
   date_joined?: string;
-  has_completed_profile?: boolean;
 }
 
 type StatusFilter = "all" | "active" | "inactive" | "staff";
@@ -47,6 +41,13 @@ export default function AdminUsersPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "ok" | "err" } | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const closeMenu = () => setOpenMenuId(null);
+    document.addEventListener("click", closeMenu);
+    return () => document.removeEventListener("click", closeMenu);
+  }, []);
 
   const PAGE_SIZE = 20;
 
@@ -68,7 +69,7 @@ export default function AdminUsersPage() {
       if (statusFilter !== "all") params.set("filter", statusFilter);
 
       const res = await fetch(
-        getApiUrl(`/api/v1/admin/users/?${params.toString()}`),
+        getApiUrl(`/api/v1/profiles/?${params.toString()}`),
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -98,37 +99,14 @@ export default function AdminUsersPage() {
     setPage(1);
   }, [search, statusFilter]);
 
-  const toggleStaff = async (u: AdminUser) => {
-    if (!accessToken) return;
-    setActionLoading(u.id);
-    try {
-      const res = await fetch(
-        getApiUrl(`/api/v1/admin/users/${u.id}/toggle-staff/`),
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ is_staff: !u.is_staff }),
-        }
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      showToast(`${u.first_name} is now ${!u.is_staff ? "staff" : "a regular user"}.`);
-      fetchUsers();
-    } catch {
-      showToast("Action failed. Please try again.", "err");
-    } finally {
-      setActionLoading(null);
-    }
-  };
+
 
   const toggleActive = async (u: AdminUser) => {
     if (!accessToken) return;
     setActionLoading(u.id);
     try {
       const res = await fetch(
-        getApiUrl(`/api/v1/admin/users/${u.id}/toggle-active/`),
+        getApiUrl(`/api/v1/profiles/${u.id}/toggle-active/`),
         {
           method: "PATCH",
           headers: {
@@ -160,11 +138,10 @@ export default function AdminUsersPage() {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-5 right-5 z-[9999] flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl border animate-in slide-in-from-top-2 ${
-            toast.type === "ok"
-              ? "bg-[#0a0a0a] border-green-500/30 text-green-400"
-              : "bg-[#0a0a0a] border-red-500/30 text-red-400"
-          }`}
+          className={`fixed top-5 right-5 z-[9999] flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl border animate-in slide-in-from-top-2 ${toast.type === "ok"
+            ? "bg-[#0a0a0a] border-green-500/30 text-green-400"
+            : "bg-[#0a0a0a] border-red-500/30 text-red-400"
+            }`}
         >
           {toast.type === "ok" ? (
             <CheckCircle2 className="w-4 h-4 shrink-0" />
@@ -193,26 +170,9 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Filters + Search */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        {/* Status filter chips */}
-        <div className="flex gap-2 flex-wrap">
-          {filters.map((f) => (
-            <button
-              key={f.value}
-              onClick={() => setStatusFilter(f.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-                statusFilter === f.value
-                  ? "bg-[#bb740a] border-[#bb740a] text-white"
-                  : "bg-white/[0.03] border-white/[0.06] text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
+      <div className="flex flex-col sm:flex-row gap-3 justify-between">
         {/* Search */}
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
@@ -221,6 +181,26 @@ export default function AdminUsersPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
           />
+        </div>
+
+        {/* Filters */}
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold text-muted-foreground hidden md:inline-block">Filter:</span>
+
+          <div className="relative">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+              className="px-4 py-2 pr-8 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground appearance-none outline-none focus:border-[#bb740a]/40 transition-colors cursor-pointer"
+            >
+              {filters.map(f => (
+                <option key={f.value} value={f.value} style={{ background: "#0d0d0d" }}>
+                  {f.label === "All" ? "Status" : f.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          </div>
         </div>
       </div>
 
@@ -251,11 +231,9 @@ export default function AdminUsersPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06] text-xs text-muted-foreground uppercase tracking-wider">
-                  <th className="px-5 py-3.5 text-left font-semibold">User</th>
-                  <th className="px-5 py-3.5 text-left font-semibold hidden md:table-cell">Contact</th>
-                  <th className="px-5 py-3.5 text-left font-semibold hidden lg:table-cell">Joined</th>
+                  <th className="px-5 py-3.5 text-left font-semibold">Name</th>
                   <th className="px-5 py-3.5 text-center font-semibold">Status</th>
-                  <th className="px-5 py-3.5 text-center font-semibold">Roles</th>
+                  <th className="px-5 py-3.5 text-left font-semibold hidden md:table-cell">Joined</th>
                   <th className="px-5 py-3.5 text-right font-semibold">Actions</th>
                 </tr>
               </thead>
@@ -265,19 +243,11 @@ export default function AdminUsersPage() {
                     key={u.id}
                     className="hover:bg-white/[0.02] transition-colors"
                   >
-                    {/* User */}
+                    {/* Name */}
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-xl bg-[#bb740a]/10 border border-[#bb740a]/20 flex items-center justify-center shrink-0 overflow-hidden">
-                          {u.avatar_url ? (
-                            <img
-                              src={u.avatar_url}
-                              alt={u.first_name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <User className="w-4 h-4 text-[#bb740a]" />
-                          )}
+                          <User className="w-4 h-4 text-[#bb740a]" />
                         </div>
                         <div className="min-w-0">
                           <p className="font-semibold text-foreground truncate">
@@ -290,108 +260,69 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
 
-                    {/* Contact */}
-                    <td className="px-5 py-4 hidden md:table-cell">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <Mail className="w-3.5 h-3.5 shrink-0" />
-                          <span className="text-xs truncate max-w-[160px]">{u.email}</span>
-                        </div>
-                        {u.phone_number && (
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <Phone className="w-3.5 h-3.5 shrink-0" />
-                            <span className="text-xs">{u.phone_number}</span>
-                          </div>
-                        )}
-                      </div>
+                    {/* Status */}
+                    <td className="px-5 py-4 text-center">
+                      {u.is_active !== false ? (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-xs font-semibold text-green-400">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Active
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-red-500/10 border border-red-500/20 rounded-full text-xs font-semibold text-red-400">
+                          <XCircle className="w-3.5 h-3.5" /> Inactive
+                        </span>
+                      )}
                     </td>
 
                     {/* Joined */}
-                    <td className="px-5 py-4 hidden lg:table-cell">
+                    <td className="px-5 py-4 hidden md:table-cell">
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Calendar className="w-3.5 h-3.5 shrink-0" />
                         <span className="text-xs">
                           {u.date_joined
-                            ? new Date(u.date_joined).toLocaleDateString()
+                            ? new Date(u.date_joined).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
                             : "—"}
                         </span>
                       </div>
                     </td>
 
-                    {/* Status */}
-                    <td className="px-5 py-4 text-center">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ${
-                          u.is_active !== false
-                            ? "bg-green-500/10 border-green-500/20 text-green-400"
-                            : "bg-red-500/10 border-red-500/20 text-red-400"
-                        }`}
-                      >
-                        {u.is_active !== false ? (
-                          <><CheckCircle2 className="w-3 h-3" /> Active</>
-                        ) : (
-                          <><XCircle className="w-3 h-3" /> Inactive</>
-                        )}
-                      </span>
-                    </td>
-
-                    {/* Roles */}
-                    <td className="px-5 py-4 text-center">
-                      <div className="flex flex-wrap gap-1 justify-center">
-                        {u.is_staff && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#bb740a]/10 border border-[#bb740a]/20 text-[#bb740a]">
-                            staff
-                          </span>
-                        )}
-                        {u.roles?.map((r) => (
-                          <span
-                            key={r}
-                            className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 border border-indigo-500/20 text-indigo-400"
-                          >
-                            {r}
-                          </span>
-                        ))}
-                        {!u.is_staff && (!u.roles || u.roles.length === 0) && (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
-                      </div>
-                    </td>
-
                     {/* Actions */}
                     <td className="px-5 py-4">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="relative flex items-center justify-end gap-2">
                         <button
-                          onClick={() => toggleStaff(u)}
-                          disabled={actionLoading === u.id}
-                          title={u.is_staff ? "Remove staff" : "Make staff"}
-                          className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-[#bb740a] hover:border-[#bb740a]/30 transition-all disabled:opacity-40"
+                          className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-[#bb740a] hover:bg-[#bb740a]/10 transition-all"
+                          title="View Details"
                         >
-                          {actionLoading === u.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : u.is_staff ? (
-                            <ShieldOff className="w-4 h-4" />
-                          ) : (
-                            <Shield className="w-4 h-4" />
-                          )}
+                          <Eye className="w-4 h-4" />
                         </button>
+
                         <button
-                          onClick={() => toggleActive(u)}
-                          disabled={actionLoading === u.id}
-                          title={u.is_active !== false ? "Deactivate" : "Activate"}
-                          className={`p-2 rounded-lg border transition-all disabled:opacity-40 ${
-                            u.is_active !== false
-                              ? "bg-white/[0.03] border-white/[0.06] text-muted-foreground hover:text-red-400 hover:border-red-500/30"
-                              : "bg-green-500/10 border-green-500/20 text-green-400 hover:bg-green-500/20"
-                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(openMenuId === u.id ? null : u.id);
+                          }}
+                          className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-white hover:bg-white/[0.1] transition-all"
                         >
-                          {actionLoading === u.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : u.is_active !== false ? (
-                            <XCircle className="w-4 h-4" />
-                          ) : (
-                            <CheckCircle2 className="w-4 h-4" />
-                          )}
+                          <MoreVertical className="w-4 h-4" />
                         </button>
+
+                        {openMenuId === u.id && (
+                          <div
+                            className="absolute right-0 top-full mt-2 w-40 bg-[#121212] rounded-xl shadow-2xl border border-white/[0.08] z-10 overflow-hidden animate-in fade-in slide-in-from-top-2 text-left"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground border-b border-white/[0.08]">
+                              Actions
+                            </div>
+                            <button
+                              onClick={() => { toggleActive(u); setOpenMenuId(null); }}
+                              disabled={actionLoading === u.id}
+                              className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors disabled:opacity-40 ${u.is_active !== false ? "text-red-400 hover:bg-red-500/10" : "text-green-400 hover:bg-green-500/10"}`}
+                            >
+                              {actionLoading === u.id ? <Loader2 className="w-4 h-4 animate-spin" /> : (u.is_active !== false ? <XCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />)}
+                              {u.is_active !== false ? "Deactivate" : "Activate"}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </td>
                   </tr>

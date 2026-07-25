@@ -79,14 +79,17 @@ export default function DashboardLayout() {
     // Exactly 7 tracked fields (bio is explicitly excluded):
     // 1. avatar_url  2. first_name  3. last_name  4. phone_number
     // 5. province    6. district    7. campus
+    const isNonEmptyString = (val: unknown): boolean =>
+      typeof val === 'string' && val.trim() !== '';
+
     const fields = [
-      Boolean(user.avatar_url && user.avatar_url.trim() !== ''),
-      Boolean(user.first_name && user.first_name.trim() !== ''),
-      Boolean(user.last_name && user.last_name.trim() !== ''),
-      Boolean(user.phone_number && user.phone_number.trim() !== ''),
-      Boolean(profile.province && profile.province.trim() !== ''),
-      Boolean(profile.district && profile.district.trim() !== ''),
-      Boolean(studentProfile.campus && studentProfile.campus.trim() !== ''),
+      isNonEmptyString(user.avatar_url),
+      isNonEmptyString(user.first_name),
+      isNonEmptyString(user.last_name),
+      isNonEmptyString(user.phone_number),
+      isNonEmptyString(profile.province),
+      isNonEmptyString(profile.district),
+      isNonEmptyString(studentProfile.campus),
     ];
 
     const completedFieldsCount = fields.filter(Boolean).length;

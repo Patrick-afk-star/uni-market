@@ -86,7 +86,13 @@ export default function Hero() {
         const res = await fetch(getApiUrl("/api/v1/listing/"));
         if (res.ok) {
           const data = await res.json();
-          setDbListings(data);
+          if (data && typeof data === 'object' && Array.isArray(data.results)) {
+            setDbListings(data.results);
+          } else if (Array.isArray(data)) {
+            setDbListings(data);
+          } else {
+            setDbListings([]);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch homepage listings:", err);
@@ -228,7 +234,7 @@ export default function Hero() {
     const uId = (selectedUni.id || "").toLowerCase();
     return pUni.includes(uName) || uName.includes(pUni) || pUni.includes(uAbbr) || uAbbr.includes(pUni) || pUni.includes(uId) ||
            pLocUni.includes(uName) || uName.includes(pLocUni) || pLocUni.includes(uAbbr) || uAbbr.includes(pLocUni) || pLocUni.includes(uId);
-  });
+  }).slice(0, 12);
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

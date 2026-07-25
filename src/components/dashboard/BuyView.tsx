@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Search,
@@ -93,86 +93,109 @@ export function BuyView({
     return 'Textbooks';
   };
 
+  const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
+  const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const fetchListings = useCallback(async (url: string = getApiUrl("/api/v1/listing/"), append = false) => {
+    if (isInitializing || !accessToken) return;
+    
+    try {
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+      
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      interface ApiListingImage {
+        image: string;
+      }
+      
+      interface ApiListingItem {
+        id: string;
+        title: string;
+        price: string;
+        category: string;
+        condition: string;
+        status: string;
+        images: ApiListingImage[];
+      }
+
+      const rawData = await res.json();
+      
+      let items: ApiListingItem[] = [];
+      if (rawData && typeof rawData === 'object' && Array.isArray(rawData.results)) {
+        items = rawData.results;
+        setNextPageUrl(rawData.next);
+        setPrevPageUrl(rawData.previous);
+      } else if (Array.isArray(rawData)) {
+        items = rawData;
+        setNextPageUrl(null);
+        setPrevPageUrl(null);
+      } else {
+        items = [];
+      }
+
+      const mapped: Product[] = items.map((item, index) => {
+        const image = item.images && Array.isArray(item.images) && item.images.length > 0
+          ? resolveImageUrl(item.images[0].image)
+          : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+
+        const sellerProfile = (item as any).seller_info || (item as any).seller || {};
+        const district = sellerProfile.district || (sellerProfile.profile_details?.district) || "Kigali";
+        const university = sellerProfile.university || (sellerProfile.profile_details?.university) || "UR";
+
+        return {
+          id: item.id ? item.id.toString() : `api-${index}-${item.title}`,
+          title: item.title,
+          price: parseFloat(item.price) || 0,
+          category: mapApiCategory(item.category),
+          condition: mapApiCondition(item.condition),
+          image,
+          location: { university: university, campus: `${district} Campus` },
+          postedAt: "Just now",
+          seller: {
+            name: sellerProfile.name || "Verified Student",
+            avatar: sellerProfile.avatar_url || "",
+            university: university
+          },
+          description: item.title,
+          dealType: ["Meet on campus"]
+        };
+      });
+
+      if (append) {
+        setAllProducts(prev => [...prev, ...mapped]);
+      } else {
+        setAllProducts(mapped);
+      }
+      setError(null);
+    } catch (err) {
+      console.error("Failed to fetch listings:", err);
+      setError("Failed to load live listings. Showing offline demo data.");
+      if (!append) setAllProducts(sampleProducts);
+      toast.error("Failed to load live listings. Displaying offline demo data.");
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
+    }
+  }, [accessToken, isInitializing]);
+
   // Fetch listings on mount
   useEffect(() => {
-    if (isInitializing || !accessToken) {
-      return;
-    }
-
     let active = true;
-    const fetchListings = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(getApiUrl("/api/v1/listing/"), {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        
-        interface ApiListingImage {
-          image: string;
-        }
-        
-        interface ApiListingItem {
-          id: string;
-          title: string;
-          price: string;
-          category: string;
-          condition: string;
-          status: string;
-          images: ApiListingImage[];
-        }
-
-        const data: ApiListingItem[] = await res.json();
-        
-        if (!active) return;
-
-        const mapped: Product[] = data.map((item, index) => {
-          const image = item.images && Array.isArray(item.images) && item.images.length > 0
-            ? resolveImageUrl(item.images[0].image)
-            : "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
-
-          const sellerProfile = (item as any).seller_info || (item as any).seller || {};
-          const district = sellerProfile.district || (sellerProfile.profile_details?.district) || "Kigali";
-          const university = sellerProfile.university || (sellerProfile.profile_details?.university) || "UR";
-
-          return {
-            id: item.id ? item.id.toString() : `api-${index}-${item.title}`,
-            title: item.title,
-            price: parseFloat(item.price) || 0,
-            category: mapApiCategory(item.category),
-            condition: mapApiCondition(item.condition),
-            image,
-            location: { university: university, campus: `${district} Campus` },
-            postedAt: "Just now",
-            seller: {
-              name: sellerProfile.name || "Verified Student",
-              avatar: sellerProfile.avatar_url || "",
-              university: university
-            },
-            description: item.title,
-            dealType: ["Meet on campus"]
-          };
-        });
-
-        setAllProducts(mapped);
-        setError(null);
-      } catch (err) {
-        console.error("Failed to fetch listings:", err);
-        setError("Failed to load live listings. Showing offline demo data.");
-        setAllProducts(sampleProducts);
-        toast.error("Failed to load live listings. Displaying offline demo data.");
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
-      }
-    };
 
     const fetchSavedListings = async () => {
+      if (isInitializing || !accessToken) return;
       try {
         const res = await fetch(getApiUrl("/api/v1/listing/saved"), {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -196,10 +219,25 @@ export function BuyView({
 
     fetchListings();
     fetchSavedListings();
+    
     return () => {
       active = false;
     };
-  }, [accessToken, isInitializing]);
+  }, [fetchListings, accessToken, isInitializing]);
+
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastElementRef = useCallback((node: HTMLDivElement | null) => {
+    if (loading || isLoadingMore) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && nextPageUrl) {
+        if (window.innerWidth < 768) {
+          fetchListings(nextPageUrl, true);
+        }
+      }
+    });
+    if (node) observer.current.observe(node);
+  }, [loading, isLoadingMore, nextPageUrl, fetchListings]);
 
   // Filter products based on search and filters
   useEffect(() => {
@@ -592,20 +630,59 @@ export function BuyView({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              isSaved={savedItems.has(product.id)}
-              onToggleSave={() => toggleSave(product.id)}
-              isVerified={isVerified}
-              onMessageClick={handleMessageClick}
-              onVerificationRequired={onVerificationRequired}
-              onClick={() => navigate(`/dashboard/listing/${product.id}`)}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+            {filteredProducts.map((product, index) => {
+              const isLastElement = index === filteredProducts.length - 1;
+              return (
+                <div
+                  key={product.id}
+                  ref={isLastElement ? lastElementRef : null}
+                >
+                  <ProductCard
+                    product={product}
+                    isSaved={savedItems.has(product.id)}
+                    onToggleSave={() => toggleSave(product.id)}
+                    isVerified={isVerified}
+                    onMessageClick={handleMessageClick}
+                    onVerificationRequired={onVerificationRequired}
+                    onClick={() => navigate(`/dashboard/listing/${product.id}`)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          
+          {isLoadingMore && (
+            <div className="flex justify-center py-4 md:hidden">
+              <div className="w-6 h-6 border-2 border-[#bb740a] border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+
+          {/* Desktop Pagination Controls */}
+          <div className="hidden md:flex justify-center items-center gap-4 pt-8">
+            <Button
+              variant="outline"
+              disabled={!prevPageUrl}
+              onClick={() => {
+                if (prevPageUrl) fetchListings(prevPageUrl, false);
+              }}
+              className="border-white/[0.06] bg-[#0f0f0f] hover:bg-[#1a1a1a]"
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!nextPageUrl}
+              onClick={() => {
+                if (nextPageUrl) fetchListings(nextPageUrl, false);
+              }}
+              className="border-white/[0.06] bg-[#0f0f0f] hover:bg-[#1a1a1a]"
+            >
+              Next
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );

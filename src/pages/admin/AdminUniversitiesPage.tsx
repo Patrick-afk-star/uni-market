@@ -199,73 +199,105 @@ export default function AdminUniversitiesPage() {
         />
       </div>
 
-      {/* Grid */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-6 h-6 animate-spin text-[#bb740a]" />
-        </div>
-      ) : error ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <AlertCircle className="w-8 h-8 text-red-400" />
-          <p className="text-sm text-red-400">{error}</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-3">
-          <Building2 className="w-8 h-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">No universities found.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((u) => (
-            <div
-              key={u.id}
-              className="rounded-2xl border border-white/[0.06] bg-[#0d0d0d] p-5 flex flex-col gap-3 hover:border-white/[0.1] transition-all"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#bb740a]/10 border border-[#bb740a]/20 flex items-center justify-center shrink-0">
-                  <Building2 className="w-5 h-5 text-[#bb740a]" />
-                </div>
-                <div className="flex gap-1.5 shrink-0">
-                  <button
-                    onClick={() => openEdit(u)}
-                    className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-[#bb740a] hover:border-[#bb740a]/30 transition-all"
+      {/* Table */}
+      <div className="rounded-2xl border border-white/[0.06] overflow-hidden bg-[#0d0d0d]">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-6 h-6 animate-spin text-[#bb740a]" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <AlertCircle className="w-8 h-8 text-red-400" />
+            <p className="text-sm text-red-400">{error}</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Building2 className="w-8 h-8 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">No universities found.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06] text-xs text-muted-foreground uppercase tracking-wider">
+                  <th className="px-5 py-3.5 text-left font-semibold">Name</th>
+                  <th className="px-5 py-3.5 text-left font-semibold hidden md:table-cell">Location</th>
+                  <th className="px-5 py-3.5 text-left font-semibold hidden lg:table-cell">Website</th>
+                  <th className="px-5 py-3.5 text-right font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04]">
+                {filtered.map((u) => (
+                  <tr
+                    key={u.id}
+                    className="hover:bg-white/[0.02] transition-colors"
                   >
-                    <Pencil className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(u)}
-                    disabled={deleting === u.id}
-                    className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-red-400 hover:border-red-500/30 transition-all disabled:opacity-40"
-                  >
-                    {deleting === u.id ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">{u.name}</h3>
-                <span className="text-xs text-[#bb740a] font-bold">{u.abreviation}</span>
-                {u.location && (
-                  <p className="text-xs text-muted-foreground mt-1">{u.location}</p>
-                )}
-                {u.website && (
-                  <a
-                    href={u.website}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs text-indigo-400 hover:underline mt-0.5 block truncate"
-                  >
-                    {u.website}
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                    {/* Name */}
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-[#bb740a]/10 border border-[#bb740a]/20 flex items-center justify-center shrink-0 overflow-hidden">
+                          <Building2 className="w-4 h-4 text-[#bb740a]" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-foreground truncate">
+                            {u.name}
+                          </p>
+                          <span className="text-xs text-muted-foreground font-bold">{u.abreviation}</span>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Location */}
+                    <td className="px-5 py-4 hidden md:table-cell text-muted-foreground text-sm">
+                      {u.location ? u.location : "—"}
+                    </td>
+
+                    {/* Website */}
+                    <td className="px-5 py-4 hidden lg:table-cell">
+                      {u.website ? (
+                        <a
+                          href={u.website}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-indigo-400 hover:underline text-xs truncate max-w-[200px] inline-block align-bottom"
+                        >
+                          {u.website}
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-5 py-4">
+                      <div className="relative flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => openEdit(u)}
+                          className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-[#bb740a] hover:bg-white/[0.1] transition-all"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(u)}
+                          disabled={deleting === u.id}
+                          className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-red-400 hover:border-red-500/30 transition-all disabled:opacity-40"
+                        >
+                          {deleting === u.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Modal */}
       {showModal && (
