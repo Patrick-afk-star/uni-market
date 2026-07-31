@@ -345,17 +345,17 @@ export function Messages({
 
   // ─── Main layout ──────────────────────────────────────────────────────────
   return (
-    <div className="flex h-full min-h-0 overflow-hidden">
+    <div className="flex-1 flex h-full min-h-0 overflow-hidden bg-background">
       {/* ── Conversation Sidebar ───────────────────────────────────────────── */}
       <div
         className={`
           ${mobileShowThread ? 'hidden md:flex' : 'flex'}
-          w-full md:w-[340px] lg:w-[380px] border-r border-white/[0.06]
-          flex-col bg-[#0a0a0a] overflow-hidden flex-shrink-0
+          w-full md:w-[340px] lg:w-[380px] border-r border-border
+          flex-col bg-card overflow-hidden flex-shrink-0
         `}
       >
         {/* Header */}
-        <div className="p-5 border-b border-white/[0.06] flex-shrink-0 bg-[#0a0a0a]">
+        <div className="p-5 border-b border-border flex-shrink-0 bg-card">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-xl font-bold text-foreground">Messages</h1>
             <button
@@ -419,13 +419,13 @@ export function Messages({
                     onClick={() => openConversation(conv.id)}
                     className={`w-full flex items-start gap-3 p-3 rounded-xl transition-all duration-200 text-left ${indent ? 'pl-5' : ''
                       } ${selectedConvId === conv.id
-                        ? 'bg-[#1a1a1a]'
-                        : 'hover:bg-[#22debc]/5 cursor-pointer'
+                        ? 'bg-secondary'
+                        : 'hover:bg-secondary/60 cursor-pointer'
                       }`}
                   >
                     {indent ? (
                       <div className="w-2 flex-shrink-0 flex items-start pt-3">
-                        <div className="w-px h-full bg-white/10" />
+                        <div className="w-px h-full bg-border" />
                       </div>
                     ) : (
                       <div className="relative flex-shrink-0">
@@ -434,7 +434,7 @@ export function Messages({
                             src={resolveAvatar(conv.other_party.avatar)}
                             alt={conv.other_party.first_name}
                           />
-                          <AvatarFallback className="bg-[#1a1a1a] text-foreground text-sm font-semibold">
+                          <AvatarFallback className="bg-secondary text-foreground text-sm font-semibold">
                             {partyInitials(conv)}
                           </AvatarFallback>
                         </Avatar>
@@ -448,21 +448,21 @@ export function Messages({
                             {conv.other_party.first_name}{' '}
                             {conv.other_party.last_name}
                           </span>
-                          <span className="text-xs text-[#a0a0a0] flex-shrink-0">
+                          <span className="text-xs text-muted-foreground flex-shrink-0">
                             {formatTime(conv.last_message_at)}
                           </span>
                         </div>
                       )}
-                      <p className="text-xs text-[#a0a0a0] truncate mt-0.5">
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">
                         {conv.listing.title}
                       </p>
-                      <p className="text-sm text-[#a0a0a0] truncate mt-1">
+                      <p className="text-sm text-muted-foreground truncate mt-1">
                         {conv.last_message_preview ?? 'No messages yet'}
                       </p>
                     </div>
 
                     {conv.unread_count > 0 && (
-                      <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 mt-1 font-semibold">
+                      <span className="w-5 h-5 rounded-full bg-[#bb740a] text-white text-xs flex items-center justify-center flex-shrink-0 mt-1 font-semibold">
                         {conv.unread_count > 9 ? '9+' : conv.unread_count}
                       </span>
                     )}
@@ -480,7 +480,7 @@ export function Messages({
                       {rest.length > 0 && (
                         <button
                           onClick={() => toggleGroup(pid)}
-                          className="flex-shrink-0 px-2 text-[#a0a0a0] hover:text-foreground transition-colors text-xs flex flex-col items-center justify-center gap-0.5"
+                          className="flex-shrink-0 px-2 text-muted-foreground hover:text-foreground transition-colors text-xs flex flex-col items-center justify-center gap-0.5"
                           title={isExpanded ? 'Hide other conversations' : `${rest.length} more conversation${rest.length > 1 ? 's' : ''}`}
                         >
                           <span>{rest.length}</span>
@@ -489,7 +489,7 @@ export function Messages({
                       )}
                       {/* Show total unread when collapsed */}
                       {rest.length > 0 && !isExpanded && totalUnread > 0 && (
-                        <span className="self-start mt-3 mr-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center flex-shrink-0 font-semibold">
+                        <span className="self-start mt-3 mr-1 w-5 h-5 rounded-full bg-[#bb740a] text-white text-xs flex items-center justify-center flex-shrink-0 font-semibold">
                           {totalUnread > 9 ? '9+' : totalUnread}
                         </span>
                       )}
@@ -517,12 +517,12 @@ export function Messages({
         >
           {threadLoading ? (
             <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              <Loader2 className="w-8 h-8 text-[#bb740a] animate-spin" />
             </div>
           ) : selectedConv ? (
-            <div className="flex flex-col h-[calc(97vh-3.4rem)] min-h-0">
+            <div className="flex flex-col h-full min-h-0 flex-1">
               {/* Chat Header */}
-              <div className="h-16 px-4 border-b border-white/[0.06] flex items-center justify-between bg-[#121212] flex-shrink-0">
+              <div className="h-16 px-4 border-b border-border flex items-center justify-between bg-card flex-shrink-0">
                 <div className="flex items-center gap-3">
                   {/* Mobile back button */}
                   <button
@@ -540,7 +540,7 @@ export function Messages({
                       src={resolveAvatar(selectedConv.other_party.avatar)}
                       alt={selectedConv.other_party.first_name}
                     />
-                    <AvatarFallback className="bg-[#1a1a1a] text-foreground text-xs font-semibold">
+                    <AvatarFallback className="bg-secondary text-foreground text-xs font-semibold">
                       {partyInitials(selectedConv)}
                     </AvatarFallback>
                   </Avatar>
@@ -556,7 +556,7 @@ export function Messages({
                 </div>
 
                 {/* Listing mini-card */}
-                <div className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-xl bg-[#1a1a1a] mr-2">
+                <div className="hidden md:flex items-center gap-3 px-3 py-1.5 rounded-xl bg-secondary border border-border mr-2">
                   {selectedConv.listing.thumbnail && (
                     <img
                       src={resolveAvatar(selectedConv.listing.thumbnail)}
@@ -568,7 +568,7 @@ export function Messages({
                     <p className="text-xs font-medium text-foreground truncate max-w-[120px]">
                       {selectedConv.listing.title}
                     </p>
-                    <p className="text-xs text-primary">
+                    <p className="text-xs font-semibold text-[#bb740a]">
                       RWF{' '}
                       {Number(selectedConv.listing.price).toLocaleString()}
                     </p>
@@ -581,15 +581,15 @@ export function Messages({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="w-9 h-9 rounded-xl hover:bg-[#22debc]/10"
+                      className="w-9 h-9 rounded-xl hover:bg-secondary"
                     >
-                      <MoreHorizontal className="w-4 h-4" />
+                      <MoreHorizontal className="w-4 h-4 text-foreground" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-[#121212] border-white/[0.08]">
+                  <DropdownMenuContent align="end" className="bg-popover border-border text-popover-foreground">
                     <DropdownMenuItem
                       onClick={() => handleArchiveToggle(selectedConv)}
-                      className="cursor-pointer hover:bg-[#1a1a1a] gap-2"
+                      className="cursor-pointer hover:bg-secondary gap-2"
                     >
                       {selectedConv.is_archived ? (
                         <>
@@ -612,8 +612,8 @@ export function Messages({
                 <div className="p-5 space-y-4">
                   {/* Listing context banner */}
                   <div className="flex justify-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1a1a1a] border border-white/[0.06] text-xs text-muted-foreground">
-                      <Shield className="w-3 h-3 text-primary flex-shrink-0" />
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary border border-border text-xs text-muted-foreground">
+                      <Shield className="w-3 h-3 text-[#bb740a] flex-shrink-0" />
                       Conversation about{' '}
                       <span className="font-medium text-foreground truncate max-w-[160px]">
                         {selectedConv.listing.title}
@@ -696,8 +696,8 @@ export function Messages({
 
                             <div
                               className={`max-w-[70%] px-4 py-2.5 rounded-2xl ${msg.is_mine
-                                ? 'bg-[#20e0bb] text-black rounded-br-md'
-                                : 'bg-[#1a1a1a] text-foreground rounded-bl-md'
+                                ? 'bg-[#bb740a] text-white rounded-br-md shadow-xs'
+                                : 'bg-secondary text-foreground rounded-bl-md border border-border'
                                 } ${isDeleting ? 'opacity-40' : ''} transition-opacity`}
                             >
                               <p className="text-sm whitespace-pre-wrap break-words">
@@ -708,17 +708,17 @@ export function Messages({
                                   }`}
                               >
                                 <span
-                                  className={`text-[10px] ${msg.is_mine ? 'text-black/60' : 'text-muted-foreground'
+                                  className={`text-[10px] ${msg.is_mine ? 'text-white/80' : 'text-muted-foreground'
                                     }`}
                                 >
                                   {formatMessageTime(msg.created_at)}
                                 </span>
                                 {msg.is_mine && (
-                                  <span className="text-black/60">
+                                  <span className="text-white/80">
                                     {msg.read_at ? (
                                       <CheckCheck className="w-3 h-3" />
                                     ) : (
-                                      <Check className="w-3 h-3 opacity-50" />
+                                      <Check className="w-3 h-3 opacity-70" />
                                     )}
                                   </span>
                                 )}
@@ -734,7 +734,7 @@ export function Messages({
               </div>
 
               {/* Input Area */}
-              <div className="p-4 border-t border-white/[0.06] bg-[#121212] flex-shrink-0">
+              <div className="p-4 border-t border-border bg-card flex-shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="flex-1 relative">
                     <Input
@@ -748,7 +748,7 @@ export function Messages({
                         }
                       }}
                       placeholder="Type a message..."
-                      className="h-11 pl-4 pr-4 rounded-xl bg-[#1a1a1a] border-[#1a1a1a] focus:border-[#22debc]/40 focus:ring-[#22debc]/20"
+                      className="h-11 pl-4 pr-4 rounded-xl bg-secondary border-border text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-[#bb740a]/40"
                       disabled={sending}
                     />
                   </div>
@@ -756,7 +756,7 @@ export function Messages({
                     onClick={handleSend}
                     size="icon"
                     disabled={!newMessage.trim() || sending}
-                    className="w-11 h-11 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-50 flex-shrink-0"
+                    className="w-11 h-11 rounded-xl bg-[#bb740a] hover:bg-[#bb740a]/90 text-white disabled:opacity-50 flex-shrink-0 cursor-pointer"
                   >
                     {sending ? (
                       <Loader2 className="w-4 h-4 animate-spin" />

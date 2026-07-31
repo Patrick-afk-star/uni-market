@@ -247,15 +247,14 @@ export default function Hero() {
 
   return (
     <main
-      className="home-only"
-      style={{ background: "#0D0E12", minHeight: "100vh" }}
+      className="home-only min-h-screen bg-background text-foreground"
     >
       {/* ───────────────────────── HERO SECTION ───────────────────────── */}
       <section
         className="relative py-20 md:py-28 overflow-hidden"
         style={{
           background:
-            "radial-gradient(ellipse at top right, rgba(234,179,8,0.07), transparent 55%), radial-gradient(ellipse at bottom left, rgba(99,102,241,0.05), transparent 60%), #0D0E12",
+            "radial-gradient(ellipse at top right, rgba(234,179,8,0.07), transparent 55%), radial-gradient(ellipse at bottom left, rgba(99,102,241,0.05), transparent 60%), var(--background)",
         }}
       >
         {/* Ambient noise grain */}
@@ -298,25 +297,19 @@ export default function Hero() {
 
               {/* Headline */}
               <h1
-                className="font-black text-5xl sm:text-6xl md:text-7xl leading-[1.05] tracking-tight mb-5"
-                style={{ color: "#F1F5F9" }}
+                className="font-black text-5xl sm:text-6xl md:text-7xl leading-[1.05] tracking-tight mb-5 text-foreground"
               >
                 Shop smarter.{" "}
                 <br className="hidden sm:block" />
                 Sell faster.{" "}
                 <span
-                  style={{
-                    background: "linear-gradient(135deg, #F59E0B, #FBBF24, #D97706)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
+                  className="bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 bg-clip-text text-transparent"
                 >
                   Right on campus.
                 </span>
               </h1>
 
-              <p className="text-base leading-relaxed mb-8" style={{ color: "#94A3B8" }}>
+              <p className="text-base leading-relaxed mb-8 text-muted-foreground">
                 Discover verified student listings, affordable tech, and hostel-ready
                 essentials across Rwanda. Buy now, or list your item in under two minutes.
               </p>
@@ -327,22 +320,16 @@ export default function Hero() {
                 onSubmit={(e) => { e.preventDefault(); handleSearch(); }}
               >
                 <div
-                  className="flex flex-1 items-center gap-3 px-4 rounded-2xl transition-all duration-200 focus-within:shadow-[0_0_0_2px_rgba(234,179,8,0.4)]"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    backdropFilter: "blur(8px)",
-                  }}
+                  className="flex items-center gap-3 bg-secondary rounded-2xl px-4 py-1.5 focus-within:ring-2 focus-within:ring-[#F59E0B]/30 transition-colors shadow-sm"
                 >
-                  <Search className="w-4 h-4 shrink-0" style={{ color: "#64748B" }} />
+                  <Search className="w-4 h-4 shrink-0 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Search for laptops, textbooks, furniture..."
-                    aria-label="Search products"
+                    placeholder="Search textbook, calculator, bike..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-[#475569]"
-                    style={{ color: "#E2E8F0" }}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    className="flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted-foreground text-foreground"
                   />
                 </div>
                 <button
@@ -356,29 +343,19 @@ export default function Hero() {
 
               {/* Live metric ticker */}
               <div
-                className="inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-semibold"
-                style={{
-                  background: "rgba(234,179,8,0.06)",
-                  border: "1px solid rgba(234,179,8,0.12)",
-                }}
+                className="inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl text-sm font-semibold bg-amber-500/10 text-amber-500"
               >
                 <span className="w-2 h-2 rounded-full bg-[#F59E0B] animate-pulse" />
-                <span style={{ color: "#F59E0B" }}>
+                <span>
                   {dbListings.length > 0 ? dbListings.length.toLocaleString() : "2,600+"} active listings
                 </span>
-                <span style={{ color: "#475569" }}>right now</span>
+                <span className="text-muted-foreground">right now</span>
               </div>
             </div>
 
             {/* RIGHT — floating glass card */}
             <div
-              className="relative p-6 rounded-3xl"
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.07)",
-                backdropFilter: "blur(12px)",
-                boxShadow: "0 32px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
-              }}
+              className="relative p-6 rounded-3xl bg-secondary/80 dark:bg-zinc-900/80 backdrop-blur-md shadow-xl"
             >
               {/* Floating glow behind card */}
               <div
@@ -388,16 +365,11 @@ export default function Hero() {
 
               {/* Card header */}
               <div className="flex items-center justify-between mb-5">
-                <p className="font-bold text-sm" style={{ color: "#F1F5F9" }}>
+                <p className="font-bold text-sm text-foreground">
                   Today on UniMarket
                 </p>
                 <span
-                  className="px-3 py-1 rounded-full text-xs font-bold animate-pulse"
-                  style={{
-                    background: "rgba(234,179,8,0.15)",
-                    border: "1px solid rgba(234,179,8,0.3)",
-                    color: "#F59E0B",
-                  }}
+                  className="px-3 py-1 rounded-full text-xs font-bold animate-pulse bg-amber-500/15 text-amber-500"
                 >
                   ● New
                 </span>
@@ -414,17 +386,19 @@ export default function Hero() {
                     <img
                       src={item.image}
                       alt={item.name}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+                      }}
                       className="w-14 h-14 object-cover rounded-xl shrink-0 group-hover:opacity-90 transition-opacity"
-                      style={{ border: "1px solid rgba(255,255,255,0.06)" }}
                     />
                     <div className="min-w-0">
-                      <h3 className="text-sm font-semibold truncate group-hover:text-[#F59E0B] transition-colors" style={{ color: "#E2E8F0" }}>
+                      <h3 className="text-sm font-semibold truncate group-hover:text-[#F59E0B] transition-colors text-foreground">
                         {item.name}
                       </h3>
-                      <p className="text-xs mt-1" style={{ color: "#64748B" }}>
+                      <p className="text-xs mt-1 text-muted-foreground">
                         <span style={{ color: "#F59E0B" }}>{item.price}</span>
                         {" · "}
-                        <MapPin className="w-3 h-3 inline-block -mt-px" />
+                        <MapPin className="w-3 h-3 inline-block -mt-px text-muted-foreground" />
                         {" "}{item.location.university} - {item.location.campus}
                       </p>
                     </div>
@@ -435,12 +409,7 @@ export default function Hero() {
 
               <button
                 type="button"
-                className="w-full mt-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)]"
-                style={{
-                  background: "rgba(234,179,8,0.08)",
-                  border: "1px solid rgba(234,179,8,0.2)",
-                  color: "#F59E0B",
-                }}
+                className="w-full mt-5 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.25)] bg-amber-500/10 text-amber-500"
                 onClick={() => document.getElementById("featured")?.scrollIntoView({ behavior: "smooth" })}
               >
                 Browse all listings →
@@ -459,7 +428,7 @@ export default function Hero() {
               <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
                 Categories
               </p>
-              <h2 className="text-3xl md:text-4xl font-black tracking-tight" style={{ color: "#F1F5F9" }}>
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
                 Shop by student needs
               </h2>
               <p className="text-sm mt-2 max-w-md" style={{ color: "#94A3B8" }}>
@@ -467,12 +436,7 @@ export default function Hero() {
               </p>
             </div>
             <button
-              className="text-sm font-semibold px-5 py-2.5 rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
-              style={{
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "#94A3B8",
-              }}
+              className="text-sm font-semibold px-5 py-2.5 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 bg-secondary border border-border text-muted-foreground"
               onClick={() => handleCategoryClick("All")}
             >
               View all
@@ -487,19 +451,7 @@ export default function Hero() {
                 <div
                   key={cat.title}
                   onClick={() => handleCategoryClick(cat.title)}
-                  className="group relative cursor-pointer p-4 rounded-2xl transition-all duration-300 hover:-translate-y-1"
-                  style={{
-                    background: "#16171E",
-                    border: "1px solid rgba(255,255,255,0.05)",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.border = `1px solid ${colors.glow}`;
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = `0 12px 32px ${colors.glow}40, inset 0 1px 0 rgba(255,255,255,0.04)`;
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.border = "1px solid rgba(255,255,255,0.05)";
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-                  }}
+                  className="group relative cursor-pointer p-4 rounded-2xl transition-all duration-300 hover:-translate-y-1 bg-secondary shadow-sm hover:shadow-md"
                 >
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-colors"
@@ -507,8 +459,8 @@ export default function Hero() {
                   >
                     {CATEGORY_ICONS[cat.title]}
                   </div>
-                  <h3 className="font-bold text-sm" style={{ color: "#E2E8F0" }}>{cat.title}</h3>
-                  <p className="text-xs mt-1" style={{ color: "#64748B" }}>
+                  <h3 className="font-bold text-sm text-foreground">{cat.title}</h3>
+                  <p className="text-xs mt-1 text-muted-foreground">
                     {cat.count} listings
                   </p>
                 </div>
@@ -520,47 +472,41 @@ export default function Hero() {
 
       {/* ───────────────────────── UNIVERSITY CAMPUS NODE ───────────────────────── */}
       <section
-        className="py-20"
+        className="py-20 bg-secondary/30"
         id="universities"
-        style={{ background: "rgba(22,23,30,0.6)" }}
       >
         <div className="max-w-6xl mx-auto w-[92vw] grid md:grid-cols-2 gap-10 items-center">
           {/* Left */}
           <div>
-            <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
+            <p className="text-xs uppercase tracking-widest font-semibold mb-2 text-muted-foreground">
               Your campus
             </p>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3" style={{ color: "#F1F5F9" }}>
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3 text-foreground">
               Choose your university
             </h2>
-            <p className="text-sm mb-7" style={{ color: "#94A3B8" }}>
+            <p className="text-sm mb-7 text-muted-foreground">
               Filter listings and get pickup options that match your campus.
             </p>
 
             {/* Custom select with chip */}
             <div className="flex flex-wrap gap-3 items-center">
               <div
-                className="flex-1 min-w-[14rem] relative rounded-2xl overflow-hidden"
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
+                className="flex-1 min-w-[14rem] relative rounded-2xl overflow-hidden bg-secondary shadow-sm"
               >
                 <select
                   aria-label="Select your university"
-                  className="w-full px-4 py-3.5 text-sm bg-transparent outline-none appearance-none cursor-pointer"
-                  style={{ color: "#E2E8F0" }}
+                  className="w-full px-4 py-3.5 text-sm bg-transparent outline-none appearance-none cursor-pointer text-foreground"
                   value={selectedUniId}
                   onChange={(e) => setSelectedUniId(e.target.value)}
                   disabled={isLoadingUnis}
                 >
                   {isLoadingUnis ? (
-                    <option value="All" style={{ background: "#16171E" }}>Loading campuses...</option>
+                    <option value="All" className="bg-popover text-popover-foreground">Loading campuses...</option>
                   ) : (
                     <>
-                      <option value="All" style={{ background: "#16171E" }}>All universities</option>
+                      <option value="All" className="bg-popover text-popover-foreground">All universities</option>
                       {apiUniversities.map((school) => (
-                        <option key={school.id} value={school.id} style={{ background: "#16171E" }}>
+                        <option key={school.id} value={school.id} className="bg-popover text-popover-foreground">
                           {school.name}
                         </option>
                       ))}
@@ -568,7 +514,7 @@ export default function Hero() {
                   )}
                 </select>
                 {/* Arrow icon */}
-                <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" style={{ color: "#64748B" }}>
+                <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                   <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
@@ -576,12 +522,7 @@ export default function Hero() {
               </div>
               {/* Micro-chip badge */}
               <span
-                className="px-3.5 py-2 rounded-full text-xs font-bold"
-                style={{
-                  background: "rgba(234,179,8,0.1)",
-                  border: "1px solid rgba(234,179,8,0.2)",
-                  color: "#F59E0B",
-                }}
+                className="px-3.5 py-2 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500"
               >
                 Showing: {filteredProducts.length}
               </span>
@@ -590,14 +531,9 @@ export default function Hero() {
 
           {/* Right — campus perks */}
           <div
-            className="p-6 rounded-3xl"
-            style={{
-              background: "#16171E",
-              border: "1px solid rgba(255,255,255,0.06)",
-              boxShadow: "0 24px 48px rgba(0,0,0,0.4)",
-            }}
+            className="p-6 rounded-3xl bg-secondary shadow-lg"
           >
-            <h3 className="font-bold text-lg mb-5" style={{ color: "#F1F5F9" }}>
+            <h3 className="font-bold text-lg mb-5 text-foreground">
               Campus perks
             </h3>
             <div className="space-y-4">
@@ -608,12 +544,11 @@ export default function Hero() {
               ].map((perk, i) => (
                 <div key={i} className="flex items-center gap-4">
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ background: "rgba(234,179,8,0.08)", color: "#F59E0B" }}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-amber-500/10 text-amber-500"
                   >
                     {perk.icon}
                   </div>
-                  <p className="text-sm" style={{ color: "#94A3B8" }}>{perk.label}</p>
+                  <p className="text-sm text-muted-foreground">{perk.label}</p>
                 </div>
               ))}
             </div>
@@ -637,19 +572,19 @@ export default function Hero() {
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-5 mb-10">
             <div>
-              <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
+              <p className="text-xs uppercase tracking-widest font-semibold mb-2 text-muted-foreground">
                 Featured
               </p>
-              <h2 className="text-3xl md:text-4xl font-black tracking-tight" style={{ color: "#F1F5F9" }}>
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
                 Handpicked for high value
               </h2>
-              <p className="text-sm mt-2 max-w-md" style={{ color: "#94A3B8" }}>
+              <p className="text-sm mt-2 max-w-md text-muted-foreground">
                 Verified sellers and items in top condition with fair campus pricing.
               </p>
             </div>
             <button
-              className="text-sm font-semibold px-6 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)]"
-              style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)", color: "#0D0E12" }}
+              className="text-sm font-semibold px-6 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)] text-[#0D0E12]"
+              style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
             >
               See more
             </button>
@@ -660,45 +595,30 @@ export default function Hero() {
             {filteredProducts.map((product) => (
               <article
                 key={product.id}
-                className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2"
-                style={{
-                  background: "#16171E",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.boxShadow = "0 24px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(234,179,8,0.2)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 24px rgba(0,0,0,0.4)";
-                }}
+                className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 bg-secondary shadow-md hover:shadow-xl"
               >
                 {/* Image with gradient overlay */}
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={product.image}
                     alt={product.name}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+                    }}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   {/* Bottom gradient for price overlay */}
                   <div
-                    className="absolute inset-0"
-                    style={{ background: "linear-gradient(to top, rgba(13,14,18,0.9) 0%, transparent 55%)" }}
+                    className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"
                   />
                   {/* Tag badge */}
                   <span
-                    className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold"
-                    style={{
-                      background: "rgba(13,14,18,0.7)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      color: "#E2E8F0",
-                      backdropFilter: "blur(6px)",
-                    }}
+                    className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold bg-black/60 text-white backdrop-blur-md"
                   >
                     {product.tag}
                   </span>
                   <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 flex items-end justify-between">
-                    <span className="font-black text-base" style={{ color: "#F59E0B" }}>
+                    <span className="font-black text-base text-[#F59E0B]">
                       {product.price}
                     </span>
                   </div>
@@ -706,13 +626,13 @@ export default function Hero() {
 
                 {/* Card body */}
                 <div className="p-4 pt-3">
-                  <h3 className="font-bold text-sm mb-1 truncate" style={{ color: "#E2E8F0" }}>
+                  <h3 className="font-bold text-sm mb-1 truncate text-foreground">
                     {product.name}
                   </h3>
-                  <p className="text-xs mb-0.5 flex items-center gap-1" style={{ color: "#64748B" }}>
+                  <p className="text-xs mb-0.5 flex items-center gap-1 text-muted-foreground">
                     <MapPin className="w-3 h-3" /> {product.location.university}
                   </p>
-                  <p className="text-xs mb-4" style={{ color: "#475569" }}>
+                  <p className="text-xs mb-4 text-muted-foreground/80">
                     {product.location.campus}
                   </p>
 
@@ -722,37 +642,20 @@ export default function Hero() {
                       <button
                         type="button"
                         onClick={() => handleItemClick(product.id)}
-                        className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 hover:-translate-y-0.5"
-                        style={{
-                          background: "rgba(255,255,255,0.04)",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                          color: "#94A3B8",
-                        }}
+                        className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold bg-background hover:bg-background/80 text-foreground transition-all duration-200 hover:-translate-y-0.5"
                       >
                         <Eye size={13} /> View
                       </button>
-                      <span
-                        className="pointer-events-none absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2.5 py-1.5 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover/btn:opacity-100 transition-opacity"
-                        style={{ background: "#1E2029", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)" }}
-                      >
-                        Verify to view
-                      </span>
                     </div>
                     <div className="relative group/btn">
                       <button
                         type="button"
                         onClick={() => handleItemClick(product.id)}
-                        className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(234,179,8,0.4)]"
-                        style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)", color: "#0D0E12" }}
+                        className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(234,179,8,0.4)] text-[#0D0E12]"
+                        style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
                       >
                         <ShoppingCart size={13} /> Buy
                       </button>
-                      <span
-                        className="pointer-events-none absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2.5 py-1.5 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover/btn:opacity-100 transition-opacity"
-                        style={{ background: "#1E2029", color: "#94A3B8", border: "1px solid rgba(255,255,255,0.08)" }}
-                      >
-                        Verify to buy
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -763,20 +666,15 @@ export default function Hero() {
           {/* Beautiful empty state */}
           {products.length === 0 && (
             <div
-              className="mt-6 flex flex-col items-center justify-center py-20 rounded-3xl text-center"
-              style={{
-                background: "#16171E",
-                border: "1px solid rgba(255,255,255,0.06)",
-              }}
+              className="mt-6 flex flex-col items-center justify-center py-20 rounded-3xl text-center bg-secondary shadow-inner"
             >
               <div
-                className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
-                style={{ background: "rgba(234,179,8,0.06)", border: "1px solid rgba(234,179,8,0.12)" }}
+                className="w-20 h-20 rounded-full flex items-center justify-center mb-5 bg-amber-500/10 text-amber-500"
               >
-                <Package className="w-9 h-9" style={{ color: "#F59E0B" }} />
+                <Package className="w-9 h-9" />
               </div>
-              <h3 className="font-bold text-lg mb-2" style={{ color: "#E2E8F0" }}>No listings for this campus yet.</h3>
-              <p className="text-sm" style={{ color: "#64748B" }}>Try another university or list the first item.</p>
+              <h3 className="font-bold text-lg mb-2 text-foreground">No listings for this campus yet.</h3>
+              <p className="text-sm text-muted-foreground">Try another university or list the first item.</p>
             </div>
           )}
         </div>
@@ -784,19 +682,18 @@ export default function Hero() {
 
       {/* ───────────────────────── SAFETY TIPS ───────────────────────── */}
       <section
-        className="py-20"
+        className="py-20 bg-secondary/20"
         id="safety"
-        style={{ background: "rgba(22,23,30,0.6)", borderTop: "1px solid rgba(255,255,255,0.04)" }}
       >
         <div className="max-w-6xl mx-auto w-[92vw]">
           <div className="mb-10">
-            <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
+            <p className="text-xs uppercase tracking-widest font-semibold mb-2 text-muted-foreground">
               Safety tips
             </p>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight" style={{ color: "#F1F5F9" }}>
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
               Trade safely on campus
             </h2>
-            <p className="text-sm mt-2 max-w-md" style={{ color: "#94A3B8" }}>
+            <p className="text-sm mt-2 max-w-md text-muted-foreground">
               Simple steps that help buyers and sellers stay safe during meetups and payments.
             </p>
           </div>
@@ -809,11 +706,7 @@ export default function Hero() {
             ].map((tip, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-2xl transition-all duration-200 hover:-translate-y-1"
-                style={{
-                  background: "#16171E",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                }}
+                className="p-5 rounded-2xl bg-secondary shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
               >
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center mb-4"
@@ -821,8 +714,8 @@ export default function Hero() {
                 >
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
-                <h3 className="font-bold text-sm mb-1.5" style={{ color: "#E2E8F0" }}>{tip.title}</h3>
-                <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>{tip.desc}</p>
+                <h3 className="font-bold text-sm mb-1.5 text-foreground">{tip.title}</h3>
+                <p className="text-xs leading-relaxed text-muted-foreground">{tip.desc}</p>
               </div>
             ))}
           </div>
@@ -833,31 +726,26 @@ export default function Hero() {
       <section className="py-20" id="help">
         <div className="max-w-6xl mx-auto w-[92vw] grid md:grid-cols-2 gap-10 items-start">
           <div>
-            <p className="text-xs uppercase tracking-widest font-semibold mb-2" style={{ color: "#64748B" }}>
+            <p className="text-xs uppercase tracking-widest font-semibold mb-2 text-muted-foreground">
               Help center
             </p>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3" style={{ color: "#F1F5F9" }}>
+            <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-3 text-foreground">
               Need help? We've got you.
             </h2>
-            <p className="text-sm mb-7" style={{ color: "#94A3B8" }}>
+            <p className="text-sm mb-7 text-muted-foreground">
               Quick answers, support channels, and guides for buying and selling.
             </p>
             <div className="flex flex-wrap gap-3">
               <a
                 href="mailto:support.unimarketrwanda@gmail.com"
-                className="flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)]"
-                style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)", color: "#0D0E12" }}
+                className="flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)] text-[#0D0E12]"
+                style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
               >
                 <Mail className="w-4 h-4" /> Contact support
               </a>
               <a
                 href="mailto:support.unimarketrwanda@gmail.com?subject=Issue+Report"
-                className="flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5"
-                style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  color: "#94A3B8",
-                }}
+                className="flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 bg-secondary text-muted-foreground"
               >
                 <ExternalLink className="w-4 h-4" /> Report an issue
               </a>
@@ -865,11 +753,7 @@ export default function Hero() {
           </div>
 
           <div
-            className="p-6 rounded-3xl"
-            style={{
-              background: "#16171E",
-              border: "1px solid rgba(255,255,255,0.06)",
-            }}
+            className="p-6 rounded-3xl bg-secondary shadow-lg"
           >
             <div className="space-y-5">
               {[
@@ -880,11 +764,10 @@ export default function Hero() {
               ].map((faq, i) => (
                 <div
                   key={i}
-                  className="pb-5"
-                  style={{ borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none" }}
+                  className={`pb-5 ${i < 3 ? "border-b border-border/50" : ""}`}
                 >
-                  <h4 className="font-bold text-sm mb-1.5" style={{ color: "#E2E8F0" }}>{faq.q}</h4>
-                  <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>{faq.a}</p>
+                  <h4 className="font-bold text-sm mb-1.5 text-foreground">{faq.q}</h4>
+                  <p className="text-xs leading-relaxed text-muted-foreground">{faq.a}</p>
                 </div>
               ))}
             </div>
@@ -911,12 +794,11 @@ export default function Hero() {
             {/* Left text */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <span
-                  className="text-lg font-black tracking-tight"
-                  style={{ color: "#F1F5F9" }}
-                >
+                <h1
+                className="text-4xl md:text-6xl font-black tracking-tight leading-none mb-6 text-foreground"
+              >
                   UniMarket Rwanda
-                </span>
+                </h1>
                 <span
                   className="text-xs px-2.5 py-1 rounded-full font-semibold"
                   style={{ background: "rgba(234,179,8,0.1)", color: "#F59E0B", border: "1px solid rgba(234,179,8,0.2)" }}
@@ -924,7 +806,7 @@ export default function Hero() {
                   For Students, By Students
                 </span>
               </div>
-              <p className="text-sm" style={{ color: "#94A3B8" }}>
+              <p className="text-sm text-muted-foreground">
                 Stay updated with campus drops
               </p>
             </div>
@@ -932,8 +814,7 @@ export default function Hero() {
             {/* Newsletter form */}
             {newsletterStatus === "sent" ? (
               <div
-                className="flex items-center gap-3 px-6 py-3.5 rounded-2xl"
-                style={{ background: "rgba(74,222,128,0.08)", border: "1px solid rgba(74,222,128,0.2)", color: "#4ade80" }}
+                className="flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-emerald-500/10 text-emerald-500"
               >
                 <CheckCircle2 className="w-5 h-5" />
                 <span className="text-sm font-semibold">You're in! Watch for campus drops.</span>
@@ -944,21 +825,16 @@ export default function Hero() {
                 onSubmit={handleNewsletterSubmit}
               >
                 <div
-                  className="flex flex-1 md:w-64 items-center gap-2 px-4 rounded-2xl transition-all duration-200 focus-within:shadow-[0_0_0_2px_rgba(234,179,8,0.3)]"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
+                  className="flex flex-1 md:w-64 items-center gap-2 px-4 rounded-2xl transition-all duration-200 focus-within:ring-2 focus-within:ring-[#F59E0B]/30 bg-secondary"
                 >
-                  <Mail className="w-4 h-4 shrink-0" style={{ color: "#64748B" }} />
+                  <Mail className="w-4 h-4 shrink-0 text-muted-foreground" />
                   <input
                     type="email"
                     placeholder="Enter your email address"
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     required
-                    className="flex-1 bg-transparent py-3 text-sm outline-none placeholder:text-[#475569]"
-                    style={{ color: "#E2E8F0" }}
+                    className="flex-1 bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground text-foreground"
                   />
                 </div>
                 <button

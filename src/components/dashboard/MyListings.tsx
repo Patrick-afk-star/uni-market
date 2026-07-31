@@ -140,139 +140,139 @@ export function MyListings() {
     }
   };
 
+const DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+
   const getStatusBadge = (status: Listing['status']) => {
     switch (status) {
       case 'published':
-        return <Badge className="bg-green-500/20 text-green-400 border-0">Published</Badge>;
+        return <Badge className="bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 text-[10px] px-2 py-0.5">Published</Badge>;
       case 'draft':
-        return <Badge className="bg-yellow-500/20 text-yellow-400 border-0">Draft</Badge>;
+        return <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[10px] px-2 py-0.5">Draft</Badge>;
       case 'sold':
-        return <Badge className="bg-blue-500/20 text-blue-400 border-0">Sold</Badge>;
+        return <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 text-[10px] px-2 py-0.5">Sold</Badge>;
     }
   };
 
   return (
-    <div className="p-7 space-y-6">
+    <div className="p-4 md:p-7 space-y-6 pb-24 md:pb-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 ref={titleRef} className="text-2xl font-bold text-foreground">
+        <h1 ref={titleRef} className="text-xl md:text-2xl font-bold text-foreground">
           My Listings
         </h1>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 text-xs md:text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-green-500" />
             <span>{listings.filter((l) => l.status === 'published').length} Active</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-yellow-500" />
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
             <span>{listings.filter((l) => l.status === 'draft').length} Drafts</span>
           </div>
         </div>
       </div>
 
-      {/* Listings Grid */}
-      <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {listings.map((listing) => (
-          <div
-            key={listing.id}
-            onClick={() => navigate(`/dashboard/listing/${listing.id}`)}
-            className="listing-card bg-[#121212] rounded-2xl p-4 border border-white/[0.06] transition-colors cursor-pointer hover:border-white/[0.14]"
-          >
-            {/* Image */}
-            <div className="aspect-video rounded-xl bg-secondary overflow-hidden mb-4">
-              {listing.images && listing.images.length > 0 ? (
+      {/* Listings Grid - 2-Column Responsive Feed */}
+      <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+        {listings.map((listing) => {
+          const imgUrl = listing.images && listing.images.length > 0 && listing.images[0]?.image
+            ? resolveImageUrl(listing.images[0].image)
+            : DEFAULT_FALLBACK_IMAGE;
+
+          return (
+            <div
+              key={listing.id}
+              onClick={() => navigate(`/dashboard/listing/${listing.id}`)}
+              className="listing-card group bg-card rounded-xl border border-border/60 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer shadow-xs hover:shadow-md overflow-hidden flex flex-col justify-between"
+            >
+              {/* Image */}
+              <div className="relative aspect-square overflow-hidden bg-secondary">
                 <img
-                  src={resolveImageUrl(listing.images[0].image)}
-                  alt={listing.title}
-                  className="w-full h-full object-cover"
+                  src={imgUrl}
+                  alt={listing.title || "Product listing"}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
+                  }}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-muted-foreground text-sm">No image</span>
+                <div className="absolute top-2 left-2 z-10">
+                  {getStatusBadge(listing.status)}
                 </div>
-              )}
-            </div>
-
-            {/* Content */}
-            <div className="space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-semibold text-foreground line-clamp-1">{listing.title}</h3>
-                {getStatusBadge(listing.status)}
               </div>
 
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="text-lg font-bold text-primary">
-                  RWF {listing.price.toLocaleString()}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
-                  {listing.views}
-                </span>
-                <span className="flex items-center gap-1">
-                  <MessageSquare className="w-4 h-4" />
-                  {listing.messages}
-                </span>
-              </div>
+              {/* Body */}
+              <div className="p-3 space-y-2 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="font-semibold text-xs md:text-sm text-foreground line-clamp-2 leading-tight">
+                    {listing.title}
+                  </h3>
+                  <p className="text-sm md:text-base font-bold text-[#bb740a] mt-1">
+                    RWF {listing.price.toLocaleString()}
+                  </p>
+                </div>
 
-              {/* Actions */}
-              <div className="flex items-center justify-between pt-3 border-t border-white/[0.06]">
-                <span className="text-xs text-muted-foreground">
-                  {(() => {
-                    const rawDate = (listing as any).created_at || listing.createdAt;
-                    if (!rawDate) return 'Recently';
-                    const d = new Date(rawDate);
-                    if (isNaN(d.getTime())) return 'Recently';
-                    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-                  })()}
-                </span>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 cursor-pointer hover:bg-[#1a1a1a]"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-[#121212] border border-white/[0.06]">
-                    <DropdownMenuItem 
-                      onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/edit/${listing.id}`); }}
-                      className="cursor-pointer hover:bg-[#1a1a1a]"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={(e) => { e.stopPropagation(); handleToggleStatus(listing.id); }} 
-                      className="cursor-pointer hover:bg-[#1a1a1a]"
-                    >
-                      {listing.status === 'published' ? (
-                        <>
-                          <Pause className="w-4 h-4 mr-2" />
-                          Unpublish
-                        </>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4 mr-2" />
-                          Publish
-                        </>
-                      )}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={(e) => { e.stopPropagation(); handleDelete(listing.id); }}
-                      className="text-destructive cursor-pointer hover:bg-[#1a1a1a]"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {/* Metrics & Actions */}
+                <div className="pt-2 border-t border-border flex items-center justify-between text-muted-foreground text-[11px]">
+                  <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-0.5" title="Views">
+                      <Eye className="w-3 h-3 text-muted-foreground" />
+                      {listing.views}
+                    </span>
+                    <span className="flex items-center gap-0.5" title="Messages">
+                      <MessageSquare className="w-3 h-3 text-muted-foreground" />
+                      {listing.messages}
+                    </span>
+                  </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-lg cursor-pointer hover:bg-secondary"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreHorizontal className="w-4 h-4 text-foreground" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-popover border-border text-popover-foreground shadow-lg">
+                      <DropdownMenuItem
+                        onClick={(e) => { e.stopPropagation(); navigate(`/dashboard/edit/${listing.id}`); }}
+                        className="cursor-pointer hover:bg-secondary"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => { e.stopPropagation(); handleToggleStatus(listing.id); }}
+                        className="cursor-pointer hover:bg-secondary"
+                      >
+                        {listing.status === 'published' ? (
+                          <>
+                            <Pause className="w-4 h-4 mr-2" />
+                            Unpublish
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-4 h-4 mr-2" />
+                            Publish
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={(e) => { e.stopPropagation(); handleDelete(listing.id); }}
+                        className="text-destructive cursor-pointer hover:bg-secondary"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {isLoading ? (
