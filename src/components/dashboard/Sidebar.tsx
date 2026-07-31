@@ -79,11 +79,11 @@ export function Sidebar({
 
   return (
     <aside
-      className={`fixed left-0 top-0 bottom-0 w-[260px] bg-background border-r border-white/[0.06] flex flex-col z-[60] transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+      className={`fixed left-0 top-0 bottom-0 w-[260px] bg-background border-r border-border flex flex-col z-[60] transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
     >
       {/* Logo */}
-      <div className="px-5 py-3 border-b border-white/[0.06]">
+      <div className="px-5 py-3 border-b border-border">
         <div className="flex items-center gap-3">
           <img
             src="/favicon.png"
@@ -121,8 +121,8 @@ export function Sidebar({
                 if (setIsOpen) setIsOpen(false);
               }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group cursor-pointer ${isActive
-                  ? "bg-[#1a1a1a] text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-[#bb740a]/10"
+                  ? "bg-slate-200/80 dark:bg-zinc-800/80 text-foreground font-semibold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-slate-100 dark:hover:bg-zinc-800/50"
                 }`}
             >
               <Icon
@@ -181,14 +181,14 @@ export function Sidebar({
       </nav>
 
       {/* User Card & Logout */}
-      <div className="p-4 border-t border-white/[0.06] flex items-center gap-2">
-        <div className="flex-1 flex items-center gap-3 p-2.5 rounded-2xl bg-[#121212] border border-white/[0.03] min-w-0 shadow-[inset_0_1px_2px_rgba(255,255,255,0.02)]">
+      <div className="p-4 border-t border-border flex items-center gap-2">
+        <div className="flex-1 flex items-center gap-3 p-2.5 rounded-2xl bg-secondary border border-border min-w-0 shadow-[inset_0_1px_2px_rgba(255,255,255,0.02)]">
           <Avatar className="w-9 h-9 shrink-0">
             <AvatarImage
               src={user?.avatar_url}
               alt={user?.first_name || currentUser.name}
             />
-            <AvatarFallback className="bg-[#2a2a2a] text-[#a0a0a0]">
+            <AvatarFallback className="bg-secondary text-muted-foreground">
               <User className="w-4 h-4" />
             </AvatarFallback>
           </Avatar>
@@ -196,14 +196,14 @@ export function Sidebar({
             <p className="text-xs font-semibold text-foreground truncate">
               {user?.first_name || currentUser.name}
             </p>
-            <p className="text-[10px] text-[#959595] truncate">
+            <p className="text-[10px] text-muted-foreground truncate">
               {user?.email || currentUser.role}
             </p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="p-3 rounded-2xl bg-[#121212] border border-white/[0.03] hover:border-red-500/20 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 cursor-pointer shadow-lg flex items-center justify-center shrink-0 w-11 h-11"
+          className="p-3 rounded-2xl bg-secondary border border-border hover:border-red-500/20 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 cursor-pointer shadow-lg flex items-center justify-center shrink-0 w-11 h-11"
           title="Sign Out"
         >
           <LogOut className="w-6 h-6" />

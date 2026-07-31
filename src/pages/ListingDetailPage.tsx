@@ -78,11 +78,11 @@ export default function ListingDetailPage() {
     }
   };
 
+  const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+
   const resolveImageUrl = (url: string): string => {
-    if (!url) return "https://via.placeholder.com/600";
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      return url;
-    }
+    if (!url) return FALLBACK_IMAGE;
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
     const apiBase = getApiUrl("/");
     const cleanBase = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
     const cleanUrl = url.startsWith("/") ? url : `/${url}`;
@@ -159,7 +159,7 @@ export default function ListingDetailPage() {
   const isOwner = Boolean(user && listing?.seller_info && (user.id === listing.seller_info.id || user.pk === listing.seller_info.id));
 
   return (
-    <div className="flex flex-col md:block h-full">
+    <div className="flex flex-col md:block h-full bg-background text-foreground">
       <div className="max-w-6xl mx-auto py-6 px-4 md:py-8 md:px-6">
         {/* Back Navigation */}
         <button
@@ -189,16 +189,13 @@ export default function ListingDetailPage() {
         <div className="flex flex-col md:flex-row gap-8 lg:gap-12">
           {/* Left Column: Images */}
           <div className="w-full md:w-3/5 space-y-4">
-            <div className="aspect-[4/3] md:rounded-3xl bg-[#121212] overflow-hidden relative">
-              {listing.images && listing.images.length > 0 ? (
-                <img
-                  src={listing.images[activeImageIndex].image}
-                  alt={listing.title}
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">No images available</div>
-              )}
+            <div className="aspect-[4/3] md:rounded-3xl bg-secondary border border-border overflow-hidden relative">
+              <img
+                src={listing.images && listing.images.length > 0 ? resolveImageUrl(listing.images[activeImageIndex].image) : FALLBACK_IMAGE}
+                alt={listing.title}
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }}
+                className="w-full h-full object-contain"
+              />
               {listing.status === 'sold' && (
                 <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg uppercase tracking-wider">
                   Sold
@@ -208,15 +205,19 @@ export default function ListingDetailPage() {
 
             {/* Thumbnails */}
             {listing.images && listing.images.length > 1 && (
-              <div className="flex gap-3 px-4 md:px-0 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex gap-3 px-4 md:px-0 overflow-x-auto pb-2 scrollbar-none">
                 {listing.images.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setActiveImageIndex(idx)}
-                    className={`relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-[#121212] ${activeImageIndex === idx ? 'ring-2 ring-primary' : 'opacity-70 hover:opacity-100'
-                      } transition-all`}
+                    className={`relative w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-secondary border border-border ${activeImageIndex === idx ? 'ring-2 ring-primary' : 'opacity-60 hover:opacity-100'} transition-all`}
                   >
-                    <img src={resolveImageUrl(img.image)} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                    <img
+                      src={resolveImageUrl(img.image)}
+                      alt={`Thumbnail ${idx + 1}`}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = FALLBACK_IMAGE; }}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -247,24 +248,24 @@ export default function ListingDetailPage() {
               {listing.title}
             </h1>
 
-            <div className="text-3xl font-bold text-primary mb-6">
+            <div className="text-3xl font-bold text-amber-500 mb-6">
               RWF {listing.price?.toLocaleString()}
             </div>
 
             {/* Condition & Views */}
-            <div className="flex flex-wrap items-center gap-4 py-4 border-y border-white/[0.06] mb-6 text-sm">
+            <div className="flex flex-wrap items-center gap-4 py-4 border-y border-border mb-6 text-sm">
               <div className="flex flex-col">
                 <span className="text-muted-foreground mb-1">Condition</span>
                 <span className="font-semibold text-foreground">{listing.condition}</span>
               </div>
-              <div className="w-px h-8 bg-white/[0.06]" />
+              <div className="w-px h-8 bg-border" />
               <div className="flex flex-col">
                 <span className="text-muted-foreground mb-1">Views</span>
                 <span className="font-semibold text-foreground flex items-center gap-1">
                   <Eye className="w-4 h-4" /> {listing.views || 0}
                 </span>
               </div>
-              <div className="w-px h-8 bg-white/[0.06]" />
+              <div className="w-px h-8 bg-border" />
               <div className="flex flex-col">
                 <span className="text-muted-foreground mb-1">Messages</span>
                 <span className="font-semibold text-foreground flex items-center gap-1">
@@ -282,7 +283,7 @@ export default function ListingDetailPage() {
             </div>
 
             {/* Seller Info */}
-            <div className="bg-[#121212] border border-white/[0.06] rounded-2xl p-5 mb-8">
+            <div className="bg-card border border-border rounded-2xl p-5 mb-8">
               <h3 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider text-muted-foreground">About the Seller</h3>
               {(() => {
                 const sellerInfo = (listing as any).seller_info;
@@ -342,23 +343,22 @@ export default function ListingDetailPage() {
                 );
               })()}
             </div>
-
             {/* Action Buttons (Sticky on mobile) */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-md border-t border-white/[0.06] md:relative md:p-0 md:bg-transparent md:border-t-0 md:border-0 md:backdrop-blur-none z-10 flex gap-3">
+            <div className="fixed bottom-16 md:bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-border md:relative md:p-0 md:bg-transparent md:border-t-0 md:backdrop-blur-none z-10 flex gap-3">
               <Button
                 onClick={handleMessageSeller}
                 disabled={messagingLoading || listing?.status === 'sold'}
-                className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base transition-transform active:scale-[0.98] disabled:opacity-60"
+                className="flex-1 h-12 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-base transition-transform active:scale-[0.98] disabled:opacity-60"
               >
                 {messagingLoading ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Opening...</>
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Opening...</>
                 ) : (
                   'Message Seller'
                 )}
               </Button>
               <Button
                 variant="outline"
-                className="hidden md:flex h-12 w-12 rounded-xl items-center justify-center border-white/[0.12] hover:bg-secondary transition-colors"
+                className="hidden md:flex h-12 w-12 rounded-xl items-center justify-center border-border hover:bg-secondary transition-colors"
               >
                 <Heart className="w-5 h-5" />
               </Button>
@@ -369,12 +369,12 @@ export default function ListingDetailPage() {
 
       {/* Global Transaction Safety Card */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 pb-28 md:pb-12">
-        <div className="bg-[#0a0a0a] border border-white/[0.08] rounded-2xl p-6 relative overflow-hidden">
+        <div className="bg-card border border-border rounded-2xl p-6 relative overflow-hidden">
           {/* Decorative glow */}
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#177865]/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
           <div className="flex items-start gap-4 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-[#177865]/15 border border-[#177865]/25 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5 text-[#177865]" />
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-amber-500" />
             </div>
             <div>
               <h3 className="font-bold text-foreground text-base">Marketplace Safety Reminder</h3>
@@ -390,7 +390,7 @@ export default function ListingDetailPage() {
               { icon: '✅', title: 'Trust Verified Sellers', body: 'Look for the Verified Student badge. Verified sellers have had their student status confirmed by UniMarket.' },
               { icon: '📦', title: 'Check Item Condition', body: 'Test electronics, check book editions, and confirm item condition matches the listing before completing a deal.' },
             ].map((tip, i) => (
-              <div key={i} className="flex gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/[0.1] transition-colors">
+              <div key={i} className="flex gap-3 p-3 rounded-xl bg-secondary/50 border border-border hover:border-amber-500/20 transition-colors">
                 <span className="text-xl shrink-0 mt-0.5">{tip.icon}</span>
                 <div>
                   <p className="text-xs font-semibold text-foreground">{tip.title}</p>
@@ -399,9 +399,9 @@ export default function ListingDetailPage() {
               </div>
             ))}
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-white/[0.06]">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-4 border-t border-border">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-[#bb740a] shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
               <p className="text-xs text-muted-foreground">See something suspicious? Help keep our community safe.</p>
             </div>
             <button

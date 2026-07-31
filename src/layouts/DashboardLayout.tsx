@@ -130,10 +130,11 @@ export default function DashboardLayout() {
     setShowVerification(false);
     setPendingAction(null);
   };
-  console.log(isVerified)
+  const isHomePage = pathname === '/' || pathname === '/dashboard/browse' || pathname === '/dashboard';
+
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Grain Overlay */}
       <div className="grain-overlay" />
 
@@ -153,52 +154,54 @@ export default function DashboardLayout() {
       />
 
       {/* Main Content */}
-      <div className="md:ml-[260px] min-h-screen flex flex-col transition-all duration-300">
-        {/* Header */}
-        <Header
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onCreateClick={handleCreateClick}
-          isVerified={isVerified}
-          onMenuClick={() => setIsSidebarOpen(true)}
-          unreadCount={unreadCount}
-          unreadNotificationCount={unreadNotificationCount}
-        />
+      <div className="md:ml-[260px] flex-1 flex flex-col min-h-screen transition-all duration-300">
+        {/* Header - Render ONLY on Home / Browse */}
+        {isHomePage && (
+          <Header
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onCreateClick={handleCreateClick}
+            isVerified={isVerified}
+            onMenuClick={() => setIsSidebarOpen(true)}
+            unreadCount={unreadCount}
+            unreadNotificationCount={unreadNotificationCount}
+          />
+        )}
 
-        {/* Profile Completion Banner */}
-        {completionPercentage < 100 && !hideBanner && (
-          <div className="bg-[#bb740a]/10 border-b border-[#bb740a]/20 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in slide-in-from-top-2">
-            <div 
-              className="flex items-center gap-4 cursor-pointer" 
+        {/* Profile Completion Banner — visible only on home/browse/settings routes */}
+        {completionPercentage < 100 && !hideBanner && isHomePage && (
+          <div className="bg-amber-600/10 border-b border-amber-600/20 px-4 py-2.5 flex items-center justify-between gap-3">
+            <div
+              className="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
               onClick={() => navigate('/dashboard/settings', { state: { editMode: true, highlightRequired: true } })}
             >
-              <div className="w-10 h-10 rounded-full bg-[#bb740a]/20 flex items-center justify-center shrink-0">
-                <span className="text-[#bb740a] font-bold text-xs">{completionPercentage}%</span>
+              <div className="w-8 h-8 rounded-full bg-amber-600/20 flex items-center justify-center shrink-0">
+                <span className="text-amber-500 font-bold text-[10px]">{completionPercentage}%</span>
               </div>
-              <div>
-                <h4 className="text-sm font-semibold text-foreground">Complete your seller profile to build buyer trust!</h4>
-                <p className="text-xs text-muted-foreground mt-0.5">Your profile is currently {completionPercentage}% complete.</p>
+              <div className="min-w-0">
+                <h4 className="text-xs font-semibold text-foreground truncate">Complete your seller profile</h4>
+                <p className="text-[10px] text-muted-foreground">{completionPercentage}% complete — tap to finish</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 self-end sm:self-auto">
-              <button 
+            <div className="flex items-center gap-2 shrink-0">
+              <button
                 onClick={() => navigate('/dashboard/settings', { state: { editMode: true, highlightRequired: true } })}
-                className="px-4 py-2 bg-[#bb740a] text-white rounded-lg text-xs font-semibold hover:bg-[#bb740a]/90 transition-colors whitespace-nowrap shadow-sm shadow-[#bb740a]/20"
+                className="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-500 transition-colors shadow-sm"
               >
-                Complete Profile
+                Finish
               </button>
-              <button 
+              <button
                 onClick={() => setHideBanner(true)}
                 className="text-muted-foreground hover:text-foreground p-1 transition-colors"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         )}
 
         {/* Content Area */}
-        <main className="flex-1 overflow-auto scrollbar-thin pb-[72px] md:pb-0">
+        <main className="flex-1 flex flex-col min-h-0 overflow-y-auto scrollbar-thin pb-24 md:pb-0">
           {isUnverified && viewMode === 'sell' ? (
             <div className="flex flex-col items-center justify-center h-full p-8">
               <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
@@ -276,35 +279,38 @@ export default function DashboardLayout() {
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-t border-transparent pb-safe shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
-        <div className="flex items-center justify-around p-2">
+      {/* Mobile Bottom Navigation — Premium glass effect */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0B0F17]/90 backdrop-blur-xl border-t border-white/[0.07] pb-safe shadow-2xl">
+        <div className="flex items-center justify-around px-2 py-2">
           {[
-            { id: 'explore', label: 'Explore', icon: Search, path: '/dashboard/browse' },
-            { id: 'create', label: 'Create', icon: Plus, path: '/dashboard/create' },
+            { id: 'home', label: 'Home', icon: Search, path: '/dashboard/browse' },
+            { id: 'create', label: 'Sell', icon: Plus, path: '/dashboard/create' },
             { id: 'messages', label: 'Messages', icon: MessageSquare, path: '/dashboard/messages' },
             { id: 'profile', label: 'Profile', icon: User, path: '/dashboard/settings' },
           ].map((item) => {
             const Icon = item.icon;
-            const isActive = pathname.includes(item.path);
-            
+            const isActive = pathname === item.path || (item.id === 'home' && pathname.includes('/browse'));
+
             return (
               <button
                 key={item.id}
                 onClick={() => navigate(item.path)}
-                className={`flex flex-col items-center justify-center w-16 h-12 gap-1 rounded-xl transition-all duration-200 ${
-                  isActive ? 'text-[#bb740a]' : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.04]'
+                className={`flex flex-col items-center justify-center flex-1 py-1.5 gap-1 rounded-xl transition-all duration-200 ${
+                  isActive ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'
                 }`}
               >
                 <div className="relative">
-                  <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+                  {isActive && (
+                    <span className="absolute inset-0 -m-1.5 rounded-xl bg-amber-500/10" />
+                  )}
+                  <Icon className={`w-5 h-5 relative z-10 transition-transform ${isActive ? 'scale-110' : ''}`} />
                   {item.id === 'messages' && unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#bb740a] rounded-full text-white text-[8px] font-bold flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1.5 min-w-[14px] h-3.5 bg-amber-500 rounded-full text-white text-[8px] font-bold flex items-center justify-center px-0.5">
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className={`text-[9px] tracking-tight font-medium ${isActive ? 'text-amber-400' : ''}`}>{item.label}</span>
               </button>
             );
           })}
@@ -325,9 +331,9 @@ export default function DashboardLayout() {
         position="bottom-right"
         toastOptions={{
           style: {
-            background: '#0a0a0a',
-            border: '1px solid rgba(255,255,255,0.08)',
-            color: '#F6F7FB',
+            background: 'var(--popover)',
+            border: '1px solid var(--border)',
+            color: 'var(--popover-foreground)',
           },
         }}
       />

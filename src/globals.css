@@ -1,107 +1,98 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Default (dark) theme ────────────────────────────────────────────────── */
 :root {
-    --background: #ffffff;
-    --foreground: #171717;
-    --primary: #3b82f6;
-    --primary-foreground: #ffffff;
-    --secondary: #f3f4f6;
-    --secondary-foreground: #1f2937;
-    --muted: #9ca3af;
-    --muted-foreground: #6b7280;
-    --popover: #ffffff;
-    --popover-foreground: #171717;
-    --border: #e5e7eb;
+    /* Surfaces */
+    --background:          #0B0F17;
+    --foreground:          #e2e8f0;
+    --secondary:           #161D2A;
+    --secondary-foreground:#cbd5e1;
+    --muted:               #334155;
+    --muted-foreground:    #94a3b8;
+    --popover:             #161D2A;
+    --popover-foreground:  #e2e8f0;
+    --card:                #161D2A;
+    --card-foreground:     #e2e8f0;
+    --border:              #1e2a3a;
+
+    /* Amber / Gold primary accent */
+    --primary:             #D97706;
+    --primary-foreground:  #ffffff;
+
     --radius: 0.5rem;
 }
 
-@theme inline {
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
+/* ─── Light theme opt-in (.light class) ──────────────────────────────────── */
+.light {
+    --background:          #f8fafc;
+    --foreground:          #0f172a;
+    --secondary:           #f1f5f9;
+    --secondary-foreground:#1e293b;
+    --muted:               #e2e8f0;
+    --muted-foreground:    #64748b;
+    --popover:             #ffffff;
+    --popover-foreground:  #0f172a;
+    --card:                #ffffff;
+    --card-foreground:     #0f172a;
+    --border:              #e2e8f0;
+    --primary:             #D97706;
+    --primary-foreground:  #ffffff;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-        --primary: #3b82f6;
-        --primary-foreground: #0f172a;
-        --secondary: #1f2937;
-        --secondary-foreground: #f3f4f6;
-        --muted: #4b5563;
-        --muted-foreground: #9ca3af;
-        --popover: #1f2937;
-        --popover-foreground: #f3f4f6;
-        --border: #374151;
-    }
+/* ─── .dark explicit class (same as :root default here) ─────────────────── */
+.dark {
+    --background:          #0B0F17;
+    --foreground:          #e2e8f0;
+    --secondary:           #161D2A;
+    --secondary-foreground:#cbd5e1;
+    --muted:               #334155;
+    --muted-foreground:    #94a3b8;
+    --popover:             #161D2A;
+    --popover-foreground:  #e2e8f0;
+    --card:                #161D2A;
+    --card-foreground:     #e2e8f0;
+    --border:              #1e2a3a;
+    --primary:             #D97706;
+    --primary-foreground:  #ffffff;
+}
+
+@theme inline {
+    --color-background:         var(--background);
+    --color-foreground:         var(--foreground);
+    --color-secondary:          var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted:              var(--muted);
+    --color-muted-foreground:   var(--muted-foreground);
+    --color-popover:            var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-card:               var(--card);
+    --color-card-foreground:    var(--card-foreground);
+    --color-border:             var(--border);
+    --color-primary:            var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
 }
 
 body {
     background: var(--background);
     color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
 }
 
-/* Prevent browser autofill from overwriting input styles */
+/* ─── Browser autofill override ─────────────────────────────────────────── */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px white inset !important;
-    box-shadow: 0 0 0 30px white inset !important;
+    -webkit-box-shadow: 0 0 0 30px var(--background) inset !important;
+    box-shadow: 0 0 0 30px var(--background) inset !important;
+    -webkit-text-fill-color: var(--foreground) !important;
 }
 
-input:-webkit-autofill {
-    -webkit-text-fill-color: #121412 !important;
-}
-
-/* Dark mode autofill */
-@media (prefers-color-scheme: dark) {
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    input:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0 30px #121412 inset !important;
-        box-shadow: 0 0 0 30px #121412 inset !important;
-    }
-
-    input:-webkit-autofill {
-        -webkit-text-fill-color: #f4f2ee !important;
-    }
-}
-
-
-/* Prevent browser autofill from overwriting input styles */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px white inset !important;
-    box-shadow: 0 0 0 30px white inset !important;
-}
-
-input:-webkit-autofill {
-    -webkit-text-fill-color: #121412 !important;
-}
-
-/* Dark mode autofill */
-@media (prefers-color-scheme: dark) {
-    input:-webkit-autofill,
-    input:-webkit-autofill:hover,
-    input:-webkit-autofill:focus,
-    input:-webkit-autofill:active {
-        -webkit-box-shadow: 0 0 0 30px #121412 inset !important;
-        box-shadow: 0 0 0 30px #121412 inset !important;
-    }
-
-    input:-webkit-autofill {
-        -webkit-text-fill-color: #f4f2ee !important;
-    }
-}
-
-/* Grain overlay effect */
+/* ─── Grain overlay effect ───────────────────────────────────────────────── */
 .grain-overlay {
     position: fixed;
     top: 0;
@@ -114,7 +105,7 @@ input:-webkit-autofill {
     z-index: -1;
 }
 
-/* Scrollbar styling */
+/* ─── Scrollbar styling ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -137,10 +128,19 @@ input:-webkit-autofill {
     width: 6px;
 }
 
-/* Toaster styles */
+/* ─── Toaster styles ─────────────────────────────────────────────────────── */
 .toaster {
     --normal-bg: var(--popover);
     --normal-text: var(--popover-foreground);
     --normal-border: var(--border);
     --border-radius: var(--radius);
+}
+
+/* ─── Hide scrollbar but keep scroll (for horizontal nav tabs) ───────────── */
+.scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
 }

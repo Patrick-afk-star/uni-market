@@ -271,11 +271,11 @@ export default function SellerProfile() {
               <Share2 className="w-4 h-4" />
             </Button>
             {showShareTray && (
-              <div className="absolute top-12 right-0 bg-[#121212] border border-white/10 rounded-xl p-2 shadow-2xl w-48 z-50 animate-in slide-in-from-top-2">
-                <button onClick={handleShare} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-white/5 rounded-lg transition-colors">
+              <div className="absolute top-12 right-0 bg-popover border border-border text-popover-foreground rounded-xl p-2 shadow-2xl w-48 z-50 animate-in slide-in-from-top-2">
+                <button onClick={handleShare} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-secondary rounded-lg transition-colors">
                   <Copy className="w-4 h-4" /> Copy Link
                 </button>
-                <div className="h-px bg-white/10 my-1 mx-2" />
+                <div className="h-px bg-border my-1 mx-2" />
                 <button className="flex items-center gap-2 w-full px-3 py-2 text-sm text-foreground hover:bg-white/5 rounded-lg transition-colors">
                   <MessageCircle className="w-4 h-4 text-green-500" /> Share via WhatsApp
                 </button>
@@ -292,11 +292,11 @@ export default function SellerProfile() {
         
         {/* LEFT COLUMN: Profile Info & Stats */}
         <div className="lg:w-[350px] shrink-0 space-y-6">
-          <Card className="bg-[#0f0f0f] border-white/[0.08] p-6 rounded-3xl shadow-xl backdrop-blur-xl">
+          <Card className="bg-card border-border text-card-foreground p-6 rounded-3xl shadow-md">
             <div className="flex flex-col items-center text-center">
-              <Avatar className="w-32 h-32 ring-4 ring-[#0f0f0f] shadow-2xl mb-4 bg-background">
+              <Avatar className="w-32 h-32 ring-4 ring-background shadow-lg mb-4 bg-secondary">
                 <AvatarImage src={seller.avatar_url || ""} alt={seller.name} className="object-cover" />
-                <AvatarFallback className="bg-[#2a2a2a] text-[#a0a0a0] text-4xl font-bold">
+                <AvatarFallback className="bg-secondary text-muted-foreground text-4xl font-bold">
                   {initial}
                 </AvatarFallback>
               </Avatar>

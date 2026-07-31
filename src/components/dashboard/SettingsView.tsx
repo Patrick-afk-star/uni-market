@@ -494,7 +494,7 @@ export function SettingsView() {
       </div>
 
       {/* Horizontal Tabs */}
-      <div className="flex space-x-2 border-b border-white/[0.08] pb-0 overflow-x-auto scrollbar-hide">
+      <div className="flex space-x-2 border-b border-border pb-0 overflow-x-auto scrollbar-hide">
         {[
           { id: "profile", label: "Profile", icon: User },
           { id: "account", label: "Account", icon: Lock },
@@ -507,7 +507,7 @@ export function SettingsView() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`relative flex items-center gap-2 px-5 py-4 text-sm font-medium transition-colors whitespace-nowrap ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-white/[0.02] rounded-t-xl"}`}
+              className={`relative flex items-center gap-2 px-5 py-4 text-sm font-medium transition-colors whitespace-nowrap ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-t-xl"}`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
@@ -533,7 +533,7 @@ export function SettingsView() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="bg-[#0f0f0f] border border-white/[0.08] rounded-2xl p-6 md:p-8 shadow-2xl"
+            className="rounded-2xl bg-card border border-border text-card-foreground p-6 md:p-8 shadow-sm"
           >
 
             {/* ── PROFILE TAB ── */}
@@ -555,7 +555,7 @@ export function SettingsView() {
                       </div>
                       <Button
                         onClick={() => setIsEditMode(true)}
-                        className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-10 px-5 gap-2 font-semibold text-sm shadow-lg"
+                        className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-10 px-5 gap-2 font-semibold text-sm shadow-sm"
                       >
                         <Edit2 className="w-4 h-4" /> Edit Profile
                       </Button>
@@ -563,7 +563,7 @@ export function SettingsView() {
 
                     {/* Avatar + Name */}
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-                      <div className="w-24 h-24 rounded-full bg-secondary/50 flex items-center justify-center shrink-0 border-4 border-secondary shadow-lg overflow-hidden">
+                      <div className="w-24 h-24 rounded-full bg-secondary flex items-center justify-center shrink-0 border-2 border-border shadow-xs overflow-hidden">
                         {avatarPreview ? (
                           <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                         ) : (
@@ -578,17 +578,17 @@ export function SettingsView() {
                     </div>
 
                     {/* Profile Details Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4 border-t border-white/[0.06]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4 border-t border-border">
                       {phone_number && (
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Phone</p>
-                          <p className="text-foreground text-sm">{phone_number}</p>
+                          <p className="text-foreground text-sm font-medium">{phone_number}</p>
                         </div>
                       )}
                       {locationLabel && (
                         <div className="space-y-1">
                           <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Residence</p>
-                          <p className="text-foreground text-sm flex items-center gap-1.5">
+                          <p className="text-foreground text-sm font-medium flex items-center gap-1.5">
                             <MapPin className="w-3.5 h-3.5 text-[#bb740a]" /> {locationLabel}
                           </p>
                         </div>
@@ -598,7 +598,7 @@ export function SettingsView() {
                           <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Languages</p>
                           <div className="flex flex-wrap gap-2">
                             {languages.map(l => (
-                              <span key={l} className="text-xs bg-secondary px-2.5 py-1 rounded-full text-foreground border border-white/[0.06]">{l}</span>
+                              <span key={l} className="text-xs bg-secondary px-2.5 py-1 rounded-full text-foreground border border-border font-medium">{l}</span>
                             ))}
                           </div>
                         </div>

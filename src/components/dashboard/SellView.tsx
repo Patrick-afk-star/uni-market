@@ -41,6 +41,25 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
   const [description, setDescription] = useState('');
   const [isPublishing, setIsPublishing] = useState(false);
   const [initialData, setInitialData] = useState<any>(null);
+
+  const DESCRIPTION_MAX_LENGTH = 1000;
+
+  /** Block e, E, +, -, . from the price field */
+  const handlePriceKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
+  /** Sanitise paste/input and enforce the char cap on description */
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    if (value.length <= DESCRIPTION_MAX_LENGTH) {
+      setDescription(value);
+    } else {
+      setDescription(value.slice(0, DESCRIPTION_MAX_LENGTH));
+    }
+  };
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -227,9 +246,9 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
     title && price && selectedCategory && selectedCondition;
 
   return (
-    <div className="flex h-full">
+    <div className="flex-1 flex h-full min-h-0 overflow-y-auto">
       {/* Left: Composer */}
-      <div ref={composerRef} className="flex-1 max-w-2xl p-7 space-y-6 overflow-auto">
+      <div ref={composerRef} className="flex-1 max-w-2xl p-4 md:p-7 space-y-4 md:space-y-6 overflow-auto">
         {/* Title */}
         <h1 ref={titleRef} className="text-3xl font-bold text-foreground">
           <span className="word inline-block">{listingId ? 'Edit' : 'Create'}</span>{' '}
@@ -247,7 +266,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
                 onClick={() => handleCategorySelect(category.id)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === category.id
                     ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
-                    : 'bg-[#0f0f0f] text-primary-foreground hover:text-foreground border border-white/[0.06]'
+                    : 'bg-secondary text-muted-foreground hover:text-foreground border border-border'
                   }`}
               >
                 {category.name}
@@ -269,9 +288,9 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
           />
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-white/[0.14] rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-secondary/30 transition-all duration-200"
+            className="border-2 border-dashed border-border rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary/50 hover:bg-secondary/30 transition-all duration-200"
           >
-            <div className="bg-[#1a1a1a] w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
               <Upload className="w-5 h-5 text-muted-foreground" />
             </div>
             <div className="text-center">
@@ -309,7 +328,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., Calculus Early Transcendentals 8th Ed"
-            className="bg-[#0f0f0f] h-12 rounded-xl border border-white/[0.06] focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20"
+            className="text-foreground placeholder:text-muted-foreground h-12 rounded-xl border border-border focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20"
           />
         </div>
 
@@ -319,10 +338,12 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
             <Label className="text-sm font-medium text-foreground">Price (RWF)</Label>
             <Input
               type="number"
+              min={0}
               value={price}
-              onChange={(e) => setPrice(e.target.value)}
+              onChange={(e) => setPrice(e.target.value.replace(/[^0-9]/g, ''))}
+              onKeyDown={handlePriceKeyDown}
               placeholder="0"
-              className="h-12 rounded-xl bg-[#0f0f0f] border border-white/[0.06] focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20"
+              className="h-12 rounded-xl text-foreground placeholder:text-muted-foreground border border-border focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20"
             />
           </div>
           <div className="space-y-3">
@@ -334,7 +355,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
                   onClick={() => handleConditionSelect(condition.value)}
                   className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCondition === condition.value
                       ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
-                      : 'bg-[#0f0f0f] text-muted-foreground hover:text-foreground border border-white/[0.06]'
+                      : 'bg-secondary text-muted-foreground hover:text-foreground border border-border'
                     }`}
                 >
                   {condition.label}
@@ -346,15 +367,34 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
 
         {/* Description */}
         <div className="composer-panel space-y-3">
-          <Label className="text-sm font-medium text-foreground">Description (required)</Label>
-          <Textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the item, course code, or pickup notes..."
-            rows={5}
-            required
-            className="rounded-xl bg-[#0f0f0f] border border-white/[0.06] focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 resize-none"
-          />
+          <Label className="text-sm font-medium text-foreground">
+            Description <span className="text-muted-foreground font-normal">(required)</span>
+          </Label>
+          <div className="relative">
+            <Textarea
+              value={description}
+              onChange={handleDescriptionChange}
+              placeholder="Describe the item, course code, or pickup notes..."
+              rows={5}
+              required
+              maxLength={DESCRIPTION_MAX_LENGTH}
+              className="rounded-xl text-foreground placeholder:text-muted-foreground border border-border focus:border-[#bb740a] focus:ring-2 focus:ring-[#bb740a]/20 resize-none w-full pb-8"
+            />
+            {/* Character counter */}
+            <span
+              aria-live="polite"
+              aria-label={`${description.length} of ${DESCRIPTION_MAX_LENGTH} characters used`}
+              className={`absolute bottom-2.5 right-3 text-xs font-mono tabular-nums transition-colors pointer-events-none select-none ${
+                description.length >= DESCRIPTION_MAX_LENGTH * 0.9
+                  ? description.length >= DESCRIPTION_MAX_LENGTH
+                    ? 'text-red-500 font-semibold'
+                    : 'text-amber-500 font-medium'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              {description.length} / {DESCRIPTION_MAX_LENGTH}
+            </span>
+          </div>
         </div>
 
 
@@ -364,7 +404,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
             onClick={() => handlePublish('draft')}
             disabled={!isFormValid || isPublishing}
             variant="outline"
-            className="cursor-pointer flex-1 h-12 rounded-xl border-white/10 hover:bg-[#1a1a1a] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer flex-1 h-12 rounded-xl border-border bg-secondary hover:bg-secondary/80 text-foreground transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Save Draft
           </Button>
@@ -382,14 +422,14 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
       <div className="w-[420px] p-7 hidden lg:block">
         <div
           ref={previewRef}
-          className="sticky top-24 bg-[#0f0f0f] rounded-2xl p-5 card-shadow border border-[#121212]"
+          className="sticky top-24 bg-secondary rounded-2xl p-5 shadow-md border border-border"
         >
-          <p className="text-xs font-space font-medium text-muted-foreground uppercase tracking-wider mb-4">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
             Live Preview
           </p>
 
           {/* Preview Image */}
-          <div className="aspect-square rounded-xl bg-[#1a1a1a] overflow-hidden mb-4">
+          <div className="aspect-square rounded-xl bg-background overflow-hidden mb-4">
             {imagePreviews.length > 0 ? (
               <img
                 src={imagePreviews[0]}
@@ -424,7 +464,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
             </div>
 
             {/* Seller Row */}
-            <div className="flex items-center gap-3 py-3 border-y border-white/[0.06]">
+            <div className="flex items-center gap-3 py-3 border-y border-border">
               <Avatar className="w-10 h-10">
                 <AvatarImage src={user?.avatar_url} alt={user?.first_name || currentUser.name} />
                 <AvatarFallback />
@@ -442,7 +482,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
             {/* CTA Button */}
             <Button
               disabled
-              className="w-full h-11 rounded-xl bg-[#151515] text-muted-foreground cursor-not-allowed"
+              className="w-full h-11 rounded-xl bg-background text-muted-foreground cursor-not-allowed border border-border"
             >
               Message seller
             </Button>
