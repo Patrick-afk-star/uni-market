@@ -30,7 +30,7 @@ export default function DashboardLayout() {
     isPending,
     isUnverified,
   } = useVerification();
-  
+
   const { user, accessToken } = useAuth();
   const [hideBanner, setHideBanner] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -61,7 +61,7 @@ export default function DashboardLayout() {
       };
 
       fetchUnreadCounts();
-      
+
       const interval = setInterval(fetchUnreadCounts, 60000); // 1 minute interval
 
       return () => clearInterval(interval);
@@ -76,15 +76,14 @@ export default function DashboardLayout() {
     const profile = (user as any)?.profile_details || {};
     const studentProfile = (user as any)?.student_profile || {};
 
-    // Exactly 7 tracked fields (bio is explicitly excluded):
-    // 1. avatar_url  2. first_name  3. last_name  4. phone_number
-    // 5. province    6. district    7. campus
+    // Exactly 6 tracked fields (bio is explicitly excluded):
+    // 1. avatar_url  2. last_name  3. phone_number
+    // 4. province    5. district    6. campus
     const isNonEmptyString = (val: unknown): boolean =>
       typeof val === 'string' && val.trim() !== '';
 
     const fields = [
       isNonEmptyString(user.avatar_url),
-      isNonEmptyString(user.first_name),
       isNonEmptyString(user.last_name),
       isNonEmptyString(user.phone_number),
       isNonEmptyString(profile.province),
@@ -99,9 +98,12 @@ export default function DashboardLayout() {
   };
   const completionPercentage = calculateCompletion();
 
+  // Profile completion is only surfaced on the profile (settings) page
+  const isProfilePage = pathname === '/dashboard/settings';
+
   // Determine current view mode from pathname
   const getViewMode = (): ViewMode => {
-    if (pathname.includes('/create') || pathname.includes('/listings') || 
+    if (pathname.includes('/create') || pathname.includes('/listings') ||
         pathname.includes('/analytics') || pathname.includes('/payouts')) {
       return 'sell';
     }
@@ -140,7 +142,7 @@ export default function DashboardLayout() {
 
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 z-[55] md:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
         />
@@ -168,11 +170,11 @@ export default function DashboardLayout() {
           />
         )}
 
-        {/* Profile Completion Banner — visible only on home/browse/settings routes */}
-        {completionPercentage < 100 && !hideBanner && isHomePage && (
-          <div className="bg-amber-600/10 border-b border-amber-600/20 px-4 py-2.5 flex items-center justify-between gap-3">
+        {/* Profile Completion Banner (profile page only) */}
+        {isProfilePage && completionPercentage < 100 && !hideBanner && (
+          <div className="bg-[#bb740a]/10 border-b border-[#bb740a]/20 px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in slide-in-from-top-2">
             <div
-              className="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
+              className="flex items-center gap-4 cursor-pointer"
               onClick={() => navigate('/dashboard/settings', { state: { editMode: true, highlightRequired: true } })}
             >
               <div className="w-8 h-8 rounded-full bg-amber-600/20 flex items-center justify-center shrink-0">
@@ -183,16 +185,16 @@ export default function DashboardLayout() {
                 <p className="text-[10px] text-muted-foreground">{completionPercentage}% complete — tap to finish</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-3 self-end sm:self-auto">
               <button
                 onClick={() => navigate('/dashboard/settings', { state: { editMode: true, highlightRequired: true } })}
-                className="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-500 transition-colors shadow-sm"
+                className="cursor-pointer px-4 py-2 bg-[#bb740a] text-white rounded-lg text-xs font-semibold hover:bg-[#bb740a]/90 transition-colors whitespace-nowrap shadow-sm shadow-[#bb740a]/20"
               >
                 Finish
               </button>
               <button
                 onClick={() => setHideBanner(true)}
-                className="text-muted-foreground hover:text-foreground p-1 transition-colors"
+                className="cursor-pointer text-muted-foreground hover:text-foreground p-1 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
               </button>

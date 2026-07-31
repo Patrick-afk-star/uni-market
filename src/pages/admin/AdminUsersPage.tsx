@@ -42,6 +42,7 @@ export default function AdminUsersPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "ok" | "err" } | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
 
   useEffect(() => {
     const closeMenu = () => setOpenMenuId(null);
@@ -162,7 +163,7 @@ export default function AdminUsersPage() {
         </div>
         <button
           onClick={fetchUsers}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-muted-foreground hover:text-foreground transition-colors text-sm"
+          className="cursor-pointer flex items-center justify-center w-full sm:w-auto gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-muted-foreground hover:text-foreground transition-colors text-sm"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           Refresh
@@ -170,9 +171,9 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Filters + Search */}
-      <div className="flex flex-col sm:flex-row gap-3 justify-between">
+      <div className="flex flex-row gap-2 sm:gap-3 justify-between items-center">
         {/* Search */}
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
@@ -184,7 +185,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <span className="text-sm font-semibold text-muted-foreground hidden md:inline-block">Filter:</span>
 
           <div className="relative">
@@ -241,7 +242,10 @@ export default function AdminUsersPage() {
                 {users.map((u) => (
                   <tr
                     key={u.id}
-                    className="hover:bg-white/[0.02] transition-colors"
+                    onClick={() => {
+                      if (window.innerWidth < 640) setSelectedUser(u);
+                    }}
+                    className="hover:bg-white/[0.02] transition-colors sm:cursor-default cursor-pointer"
                   >
                     {/* Name */}
                     <td className="px-5 py-4">
@@ -289,7 +293,11 @@ export default function AdminUsersPage() {
                     <td className="px-5 py-4">
                       <div className="relative flex items-center justify-end gap-2">
                         <button
-                          className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-[#bb740a] hover:bg-[#bb740a]/10 transition-all"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedUser(u);
+                          }}
+                          className="cursor-pointer p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-[#bb740a] hover:bg-[#bb740a]/10 transition-all"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
@@ -300,7 +308,7 @@ export default function AdminUsersPage() {
                             e.stopPropagation();
                             setOpenMenuId(openMenuId === u.id ? null : u.id);
                           }}
-                          className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-white hover:bg-white/[0.1] transition-all"
+                          className="cursor-pointer p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-white hover:bg-white/[0.1] transition-all"
                         >
                           <MoreVertical className="w-4 h-4" />
                         </button>
@@ -316,7 +324,7 @@ export default function AdminUsersPage() {
                             <button
                               onClick={() => { toggleActive(u); setOpenMenuId(null); }}
                               disabled={actionLoading === u.id}
-                              className={`w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors disabled:opacity-40 ${u.is_active !== false ? "text-red-400 hover:bg-red-500/10" : "text-green-400 hover:bg-green-500/10"}`}
+                              className={`cursor-pointer w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors disabled:opacity-40 ${u.is_active !== false ? "text-red-400 hover:bg-red-500/10" : "text-green-400 hover:bg-green-500/10"}`}
                             >
                               {actionLoading === u.id ? <Loader2 className="w-4 h-4 animate-spin" /> : (u.is_active !== false ? <XCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />)}
                               {u.is_active !== false ? "Deactivate" : "Activate"}
@@ -354,6 +362,60 @@ export default function AdminUsersPage() {
             >
               <ChevronRight className="w-4 h-4" />
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* User Details Modal */}
+      {selectedUser && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#121212] border border-white/[0.08] rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08]">
+              <h2 className="text-lg font-bold text-foreground">User Details</h2>
+              <button
+                onClick={() => setSelectedUser(null)}
+                className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-white/[0.04]"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4 text-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-[#bb740a]/10 border border-[#bb740a]/20 flex items-center justify-center shrink-0">
+                  <User className="w-8 h-8 text-[#bb740a]" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">
+                    {selectedUser.first_name} {selectedUser.last_name}
+                  </h3>
+                  <p className="text-muted-foreground">{selectedUser.email}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                  <p className="text-xs text-muted-foreground mb-1">Status</p>
+                  {selectedUser.is_active !== false ? (
+                    <span className="inline-flex items-center gap-1.5 text-green-400 font-semibold">
+                      <CheckCircle2 className="w-4 h-4" /> Active
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-red-400 font-semibold">
+                      <XCircle className="w-4 h-4" /> Inactive
+                    </span>
+                  )}
+                </div>
+                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                  <p className="text-xs text-muted-foreground mb-1">Joined</p>
+                  <div className="flex items-center gap-1.5 text-foreground font-semibold">
+                    <Calendar className="w-4 h-4 text-muted-foreground" />
+                    {selectedUser.date_joined
+                      ? new Date(selectedUser.date_joined).toLocaleDateString()
+                      : "—"}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

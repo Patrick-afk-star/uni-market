@@ -292,7 +292,7 @@ export function SettingsView() {
       if (currentSocialLinks !== initialSocialLinks) {
         formData.append("social_links", currentSocialLinks);
       }
-      
+
       if (selectedCampus && selectedCampus !== (initialProfile?.student_profile?.campus || "")) {
          formData.append("campus_id", selectedCampus);
       }
@@ -313,6 +313,8 @@ export function SettingsView() {
       updateUser({
         first_name: fullName,
         last_name: lastName,
+        phone_number: responseData.phone_number || user?.phone_number,
+        avatar_url: responseData.avatar_url || user?.avatar_url,
         // @ts-ignore
         profile_details: {
           province: responseData.province,
@@ -321,6 +323,8 @@ export function SettingsView() {
           socialLinks: responseData.social_links || socialLinks,
           contactPrefs
         },
+        // @ts-ignore
+        student_profile: responseData.student_profile,
         privacy_settings: privacySettings,
       });
 
@@ -505,9 +509,10 @@ export function SettingsView() {
           const Icon = tab.icon;
           return (
             <button
+
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`relative flex items-center gap-2 px-5 py-4 text-sm font-medium transition-colors whitespace-nowrap ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-t-xl"}`}
+              className={`cursor-pointer relative flex items-center gap-2 px-5 py-4 text-sm font-medium transition-colors whitespace-nowrap ${isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-white/[0.02] rounded-t-xl"}`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
