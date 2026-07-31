@@ -227,7 +227,6 @@ export default function AdminCategoriesPage() {
               <thead>
                 <tr className="border-b border-white/[0.06] text-xs text-muted-foreground uppercase tracking-wider">
                   <th className="px-5 py-3.5 text-left font-semibold">Category</th>
-                  <th className="px-5 py-3.5 text-left font-semibold hidden md:table-cell">Slug</th>
                   <th className="px-5 py-3.5 text-left font-semibold hidden lg:table-cell">Description</th>
                   <th className="px-5 py-3.5 text-right font-semibold">Actions</th>
                 </tr>
@@ -257,17 +256,6 @@ export default function AdminCategoriesPage() {
                             )}
                           </div>
                         </div>
-                      </td>
-
-                      {/* Slug */}
-                      <td className="px-5 py-4 hidden md:table-cell">
-                        {c.slug ? (
-                          <span className="text-xs text-muted-foreground font-mono bg-white/[0.03] px-2 py-0.5 rounded-md border border-white/[0.06]">
-                            /{c.slug}
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
                       </td>
 
                       {/* Description */}
@@ -326,7 +314,6 @@ export default function AdminCategoriesPage() {
             <div className="space-y-4">
               {[
                 { label: "Name *", key: "name", placeholder: "e.g. Electronics" },
-                { label: "Slug", key: "slug", placeholder: "auto-generated from name" },
                 { label: "Icon (emoji or text)", key: "icon", placeholder: "e.g. 💻" },
                 { label: "Description", key: "description", placeholder: "Short description…" },
               ].map(({ label, key, placeholder }) => (

@@ -360,7 +360,7 @@ export function Messages({
             <h1 className="text-xl font-bold text-foreground">Messages</h1>
             <button
               onClick={() => setShowArchived((p) => !p)}
-              className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${showArchived
+              className={`cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${showArchived
                 ? 'bg-primary/20 text-primary'
                 : 'bg-[#1a1a1a] text-muted-foreground hover:text-foreground'
                 }`}

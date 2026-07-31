@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ interface SellViewProps {
 
 export function SellView({ listingId, onPublish }: SellViewProps) {
   const { accessToken, user } = useAuth();
+  const navigate = useNavigate();
   const [apiCategories, setApiCategories] = useState<ApiCategory[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
@@ -172,6 +174,20 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
   const handlePublish = async (status: 'published' | 'draft') => {
     if (!isFormValid) return;
 
+    if (status === 'published' && !hasCampus) {
+      toast.warning('Add your campus to publish', {
+        description: 'You need a campus on your profile before publishing a listing.',
+        action: {
+          label: 'Complete Profile',
+          onClick: () =>
+            navigate('/dashboard/settings', {
+              state: { editMode: true, highlightRequired: true },
+            }),
+        },
+      });
+      return;
+    }
+
     setIsPublishing(true);
 
     try {
@@ -244,6 +260,11 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
 
   const isFormValid =
     title && price && selectedCategory && selectedCondition;
+
+  // A campus is required before a listing can go live to buyers.
+  const studentProfile = (user as any)?.student_profile || {};
+  const hasCampus =
+    typeof studentProfile.campus === 'string' && studentProfile.campus.trim() !== '';
 
   return (
     <div className="flex-1 flex h-full min-h-0 overflow-y-auto">

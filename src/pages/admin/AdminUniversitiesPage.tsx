@@ -221,8 +221,7 @@ export default function AdminUniversitiesPage() {
               <thead>
                 <tr className="border-b border-white/[0.06] text-xs text-muted-foreground uppercase tracking-wider">
                   <th className="px-5 py-3.5 text-left font-semibold">Name</th>
-                  <th className="px-5 py-3.5 text-left font-semibold hidden md:table-cell">Location</th>
-                  <th className="px-5 py-3.5 text-left font-semibold hidden lg:table-cell">Website</th>
+                  <th className="px-5 py-3.5 text-left font-semibold">Abbreviation</th>
                   <th className="px-5 py-3.5 text-right font-semibold">Actions</th>
                 </tr>
               </thead>
@@ -242,30 +241,13 @@ export default function AdminUniversitiesPage() {
                           <p className="font-semibold text-foreground truncate">
                             {u.name}
                           </p>
-                          <span className="text-xs text-muted-foreground font-bold">{u.abreviation}</span>
                         </div>
                       </div>
                     </td>
 
-                    {/* Location */}
-                    <td className="px-5 py-4 hidden md:table-cell text-muted-foreground text-sm">
-                      {u.location ? u.location : "—"}
-                    </td>
-
-                    {/* Website */}
-                    <td className="px-5 py-4 hidden lg:table-cell">
-                      {u.website ? (
-                        <a
-                          href={u.website}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-indigo-400 hover:underline text-xs truncate max-w-[200px] inline-block align-bottom"
-                        >
-                          {u.website}
-                        </a>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
+                    {/* Abbreviation */}
+                    <td className="px-5 py-4 text-muted-foreground text-sm font-bold">
+                      {u.abreviation}
                     </td>
 
                     {/* Actions */}
