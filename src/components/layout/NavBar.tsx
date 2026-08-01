@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon, ArrowRight } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   return (
     <header className="sticky top-0 z-20 bg-[#f4f5f2]/90 backdrop-blur-lg border-b border-[rgba(18,20,18,0.12)] dark:bg-[#0d0f0e]/90 dark:border-white/10">
@@ -11,10 +13,10 @@ export default function Navbar() {
         <div className="flex items-center justify-between gap-4 py-4.5">
           {/* Brand */}
           <div className="flex items-center gap-3 min-w-0">
-            <img 
-              src="/favicon.png" 
-              alt="UniMarket logo" 
-              className="w-12 h-12 shrink-0 rounded-2xl object-cover shadow-[0_10px_24px_rgba(15,107,79,0.25)]" 
+            <img
+              src="/favicon.png"
+              alt="UniMarket logo"
+              className="w-12 h-12 shrink-0 rounded-2xl object-cover shadow-[0_10px_24px_rgba(15,107,79,0.25)]"
             />
             <div className="min-w-0">
               <div className="font-bold text-lg truncate">UniMarket Rwanda</div>
@@ -41,23 +43,31 @@ export default function Navbar() {
           </nav>
 
           {/* Actions */}
-          <div className="hidden lg:flex gap-2.5">
+          <div className="hidden lg:flex items-center gap-2.5">
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="cursor-pointer p-2 text-[#5f5b52] dark:text-[#b7b1a6] hover:text-[#121412] dark:hover:text-[#f4f2ee] transition-colors rounded-full focus:outline-none"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <Link
               to="/login"
-              className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm cursor-pointer transition-transform duration-200 hover:-translate-y-px block"
+              className="flex items-center gap-2 bg-[#bb720c] text-white rounded-full px-5 py-2.5 font-semibold text-sm cursor-pointer transition-transform duration-200 "
             >
-              Sign in
-            </Link>
-            <Link
-              to="/signup"
-              className="bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm cursor-pointer transition-transform duration-200 hover:-translate-y-px block"
-            >
-              Sign up
+              Sign in <ArrowRight size={16} />
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <div className="lg:hidden flex items-center shrink-0">
+          {/* Mobile Menu Toggle & Theme */}
+          <div className="lg:hidden flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="p-2 text-[#5f5b52] dark:text-[#b7b1a6] focus:outline-none"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 -mr-2 text-[#5f5b52] dark:text-[#b7b1a6] focus:outline-none"
@@ -76,8 +86,9 @@ export default function Navbar() {
               <a href="#featured" onClick={() => setIsMenuOpen(false)} className="text-[#5f5b52] dark:text-[#b7b1a6] hover:text-[#121412] dark:hover:text-[#f4f2ee] text-sm">Featured</a>
             </nav>
             <div className="flex flex-col gap-2.5 mt-2">
-              <Link to="/login" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-transparent text-[#5f5b52] dark:text-[#b7b1a6] border border-[rgba(18,20,18,0.12)] dark:border-white/10 rounded-full px-4.5 py-2.75 font-semibold text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5">Sign in</Link>
-              <Link to="/signup" onClick={() => setIsMenuOpen(false)} className="w-full text-center bg-[#d8a24a] dark:bg-[#e4b363] text-[#121412] border border-transparent rounded-full px-4.5 py-2.75 font-semibold text-sm transition-colors hover:brightness-110">Sign up</Link>
+              <Link to="/login" onClick={() => setIsMenuOpen(false)} className="w-full flex items-center justify-center gap-2 bg-[#bb720c] text-white rounded-full px-4.5 py-2.75 font-semibold text-sm transition-colors hover:brightness-110">
+                Sign in <ArrowRight size={16} />
+              </Link>
             </div>
           </div>
         )}
