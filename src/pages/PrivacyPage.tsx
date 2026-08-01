@@ -52,15 +52,15 @@ export default function PrivacyPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0b0c0b] text-[#f4f2ee] font-sans overflow-x-hidden selection:bg-[#bb740a]/30 selection:text-white pb-20">
+    <div className="min-h-screen bg-white dark:bg-[#0b0c0b] text-gray-900 dark:text-[#f4f2ee] font-sans overflow-x-hidden selection:bg-[#bb740a]/30 selection:text-gray-900 dark:selection:text-white pb-20 transition-colors duration-300">
       {/* Grain Overlay */}
-      <div className="grain-overlay opacity-30 pointer-events-none fixed inset-0 z-50" />
+      <div className="grain-overlay opacity-30 pointer-events-none fixed inset-0 z-50 dark:block hidden" />
 
       <div className="max-w-4xl mx-auto px-6 pt-10">
         <Button
           onClick={() => navigate(-1)}
           variant="ghost"
-          className="rounded-xl border border-white/[0.06] bg-white/[0.01] hover:bg-white/[0.05] text-[#b7b1a6] hover:text-[#f4f2ee] gap-2 mb-8 h-10 px-4 transition-all duration-200"
+          className="rounded-xl border border-gray-200 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.01] hover:bg-gray-100 dark:hover:bg-white/[0.05] text-gray-600 dark:text-[#b7b1a6] hover:text-gray-900 dark:hover:text-[#f4f2ee] gap-2 mb-8 h-10 px-4 transition-all duration-200"
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </Button>
@@ -70,14 +70,14 @@ export default function PrivacyPage() {
             <span className="p-2.5 rounded-2xl bg-[#bb740a]/10 border border-[#bb740a]/20 text-[#bb740a]">
               <ShieldCheck className="w-6 h-6" />
             </span>
-            <span className="text-xs uppercase tracking-widest text-[#b7b1a6] font-bold">Legal Portal</span>
+            <span className="text-xs uppercase tracking-widest text-gray-500 dark:text-[#b7b1a6] font-bold">Legal Portal</span>
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-white via-[#f4f2ee] to-[#b7b1a6] bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-gray-900 via-gray-700 to-gray-500 dark:from-white dark:via-[#f4f2ee] dark:to-[#b7b1a6] bg-clip-text text-transparent">
             Privacy Policy
           </h1>
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#b7b1a6]/80 font-medium">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-500 dark:text-[#b7b1a6]/80 font-medium">
             <span><strong>Effective Date:</strong> July 7, 2026</span>
             <span className="w-1.5 h-1.5 rounded-full bg-[#bb740a]/60" />
             <span><strong>Last Updated:</strong> July 7, 2026</span>
@@ -86,7 +86,7 @@ export default function PrivacyPage() {
           </div>
         </div>
 
-        <p className="text-sm leading-relaxed text-[#b7b1a6] mt-6 border-b border-white/[0.06] pb-8">
+        <p className="text-sm leading-relaxed text-gray-600 dark:text-[#b7b1a6] mt-6 border-b border-gray-200 dark:border-white/[0.06] pb-8">
           Your privacy is important to us. This Privacy Policy explains how UniMarket Rwanda collects, uses, stores,
           protects, and shares your personal information when you use our website at{" "}
           <a href="https://www.uni-marketrwanda.online" className="text-[#bb740a] hover:underline font-semibold">
@@ -104,17 +104,17 @@ export default function PrivacyPage() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
-              className="p-6 rounded-2xl bg-[#0f0f0f] border border-white/[0.08] hover:border-[#bb740a]/40 transition-all duration-300 shadow-xl group"
+              className="p-6 rounded-2xl bg-white dark:bg-[#0f0f0f] border border-gray-200 dark:border-white/[0.08] hover:border-[#bb740a]/40 dark:hover:border-[#bb740a]/40 transition-all duration-300 shadow-sm dark:shadow-xl group"
             >
               <div className="flex items-start gap-4">
-                <div className="w-8 h-8 rounded-xl bg-white/[0.02] border border-white/[0.06] flex items-center justify-center text-xs font-bold text-[#bb740a] group-hover:bg-[#bb740a]/10 transition-colors shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.06] flex items-center justify-center text-xs font-bold text-[#bb740a] group-hover:bg-[#bb740a]/10 transition-colors shrink-0">
                   {section.num}
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-bold text-base text-[#f4f2ee] tracking-tight group-hover:text-white">
+                  <h3 className="font-bold text-base text-gray-900 dark:text-[#f4f2ee] tracking-tight group-hover:text-black dark:group-hover:text-white">
                     {section.title}
                   </h3>
-                  <p className="text-xs leading-relaxed text-[#b7b1a6]">{section.content}</p>
+                  <p className="text-xs leading-relaxed text-gray-600 dark:text-[#b7b1a6]">{section.content}</p>
                 </div>
               </div>
             </motion.div>
@@ -125,22 +125,22 @@ export default function PrivacyPage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: sections.length * 0.05 }}
-            className="p-6 rounded-2xl bg-[#bb740a]/5 border border-[#bb740a]/20 hover:border-[#bb740a]/40 transition-all duration-300 shadow-xl group relative overflow-hidden"
+            className="p-6 rounded-2xl bg-[#bb740a]/5 border border-[#bb740a]/20 hover:border-[#bb740a]/40 transition-all duration-300 shadow-sm dark:shadow-xl group relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#bb740a]/10 rounded-full blur-3xl pointer-events-none" />
             <div className="flex items-start gap-4 relative z-10">
-              <div className="w-8 h-8 rounded-xl bg-[#bb740a]/20 border border-[#bb740a]/30 flex items-center justify-center text-xs font-bold text-[#bb740a] shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-[#bb740a]/10 dark:bg-[#bb740a]/20 border border-[#bb740a]/20 dark:border-[#bb740a]/30 flex items-center justify-center text-xs font-bold text-[#bb740a] shrink-0">
                 10
               </div>
               <div className="space-y-2">
-                <h3 className="font-bold text-base text-[#f4f2ee] tracking-tight flex items-center gap-2">
+                <h3 className="font-bold text-base text-gray-900 dark:text-[#f4f2ee] tracking-tight flex items-center gap-2">
                   <HelpCircle className="w-4 h-4 text-[#bb740a]" /> Contact Us
                 </h3>
-                <p className="text-xs leading-relaxed text-[#b7b1a6] pb-4">
+                <p className="text-xs leading-relaxed text-gray-600 dark:text-[#b7b1a6] pb-4">
                   If you have any inquiries regarding this Privacy Policy, please contact our privacy compliance inbox:
                 </p>
-                <div className="border-t border-white/[0.06] pt-4 text-xs font-medium">
-                  <span className="text-muted-foreground block text-[10px] uppercase tracking-wider mb-1">Official Inbox</span>
+                <div className="border-t border-gray-200 dark:border-white/[0.06] pt-4 text-xs font-medium">
+                  <span className="text-gray-400 dark:text-muted-foreground block text-[10px] uppercase tracking-wider mb-1">Official Inbox</span>
                   <a href="mailto:support.unimarketrwanda@gmail.com" className="text-[#bb740a] hover:underline">
                     support.unimarketrwanda@gmail.com
                   </a>

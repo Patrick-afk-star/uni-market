@@ -38,13 +38,13 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 
 const CATEGORY_COLORS: Record<string, { bg: string; text: string; glow: string }> = {
   Electronics: { bg: "rgba(99,102,241,0.12)", text: "#818cf8", glow: "rgba(99,102,241,0.3)" },
-  Furniture:   { bg: "rgba(234,179,8,0.1)",   text: "#f59e0b", glow: "rgba(234,179,8,0.3)"  },
-  Textbooks:   { bg: "rgba(34,197,94,0.1)",   text: "#4ade80", glow: "rgba(34,197,94,0.3)"  },
-  Clothing:    { bg: "rgba(236,72,153,0.1)",  text: "#f472b6", glow: "rgba(236,72,153,0.3)" },
-  Stationery:  { bg: "rgba(6,182,212,0.1)",   text: "#22d3ee", glow: "rgba(6,182,212,0.3)"  },
-  Bicycles:    { bg: "rgba(249,115,22,0.1)",  text: "#fb923c", glow: "rgba(249,115,22,0.3)" },
-  Kitchen:     { bg: "rgba(16,185,129,0.1)",  text: "#34d399", glow: "rgba(16,185,129,0.3)" },
-  Sports:      { bg: "rgba(239,68,68,0.1)",   text: "#f87171", glow: "rgba(239,68,68,0.3)"  },
+  Furniture: { bg: "rgba(234,179,8,0.1)", text: "#f59e0b", glow: "rgba(234,179,8,0.3)" },
+  Textbooks: { bg: "rgba(34,197,94,0.1)", text: "#4ade80", glow: "rgba(34,197,94,0.3)" },
+  Clothing: { bg: "rgba(236,72,153,0.1)", text: "#f472b6", glow: "rgba(236,72,153,0.3)" },
+  Stationery: { bg: "rgba(6,182,212,0.1)", text: "#22d3ee", glow: "rgba(6,182,212,0.3)" },
+  Bicycles: { bg: "rgba(249,115,22,0.1)", text: "#fb923c", glow: "rgba(249,115,22,0.3)" },
+  Kitchen: { bg: "rgba(16,185,129,0.1)", text: "#34d399", glow: "rgba(16,185,129,0.3)" },
+  Sports: { bg: "rgba(239,68,68,0.1)", text: "#f87171", glow: "rgba(239,68,68,0.3)" },
 };
 
 interface University {
@@ -170,9 +170,9 @@ export default function Hero() {
           ? `${item.price.toLocaleString()} RWF`
           : `${parseFloat(item.price || "0").toLocaleString()} RWF`,
       rating: 4.8,
-      location: { 
-        university: item.location?.university || university, 
-        campus: item.location?.campus || `${district} Campus` 
+      location: {
+        university: item.location?.university || university,
+        campus: item.location?.campus || `${district} Campus`
       },
       university,
       image,
@@ -233,7 +233,7 @@ export default function Hero() {
     const uAbbr = (selectedUni.abreviation || "").toLowerCase();
     const uId = (selectedUni.id || "").toLowerCase();
     return pUni.includes(uName) || uName.includes(pUni) || pUni.includes(uAbbr) || uAbbr.includes(pUni) || pUni.includes(uId) ||
-           pLocUni.includes(uName) || uName.includes(pLocUni) || pLocUni.includes(uAbbr) || uAbbr.includes(pLocUni) || pLocUni.includes(uId);
+      pLocUni.includes(uName) || uName.includes(pLocUni) || pLocUni.includes(uAbbr) || uAbbr.includes(pLocUni) || pLocUni.includes(uId);
   }).slice(0, 12);
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
@@ -334,8 +334,8 @@ export default function Hero() {
                 </div>
                 <button
                   type="submit"
-                  className="shrink-0 px-6 py-3 rounded-2xl font-semibold text-sm text-[#0D0E12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(234,179,8,0.4)]"
-                  style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                  className="cursor-pointer text-white shrink-0 px-6 py-3 rounded-2xl font-semibold text-sm text-[#0D0E12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(234,179,8,0.4)]"
+                  style={{ background: "#bb7208" }}
                 >
                   Search
                 </button>
@@ -583,8 +583,8 @@ export default function Hero() {
               </p>
             </div>
             <button
-              className="text-sm font-semibold px-6 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)] text-[#0D0E12]"
-              style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+              className="cursor-pointer text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)] text-[#0D0E12]"
+              style={{ background: "#bb7208" }}
             >
               See more
             </button>
@@ -651,8 +651,8 @@ export default function Hero() {
                       <button
                         type="button"
                         onClick={() => handleItemClick(product.id)}
-                        className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(234,179,8,0.4)] text-[#0D0E12]"
-                        style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                        className="cursor-pointer text-white w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(234,179,8,0.4)] text-[#0D0E12]"
+                        style={{ background: "#bb7208" }}
                       >
                         <ShoppingCart size={13} /> Buy
                       </button>
@@ -738,8 +738,8 @@ export default function Hero() {
             <div className="flex flex-wrap gap-3">
               <a
                 href="mailto:support.unimarketrwanda@gmail.com"
-                className="flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)] text-[#0D0E12]"
-                style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                className="text-white flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.3)] text-[#0D0E12]"
+                style={{ background: "#bb7208" }}
               >
                 <Mail className="w-4 h-4" /> Contact support
               </a>
@@ -777,10 +777,7 @@ export default function Hero() {
 
       {/* ───────────────────────── FOOTER / COMPLIANCE ZONE ───────────────────────── */}
       <footer
-        style={{
-          background: "#0A0B0F",
-          borderTop: "1px solid rgba(255,255,255,0.05)",
-        }}
+        className="bg-background border-t border-border"
       >
         {/* Newsletter section */}
         <div className="max-w-6xl mx-auto w-[92vw] py-14">
@@ -795,8 +792,8 @@ export default function Hero() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <h1
-                className="text-4xl md:text-6xl font-black tracking-tight leading-none mb-6 text-foreground"
-              >
+                  className="text-4xl md:text-6xl font-black tracking-tight leading-none mb-6 text-foreground"
+                >
                   UniMarket Rwanda
                 </h1>
                 <span
@@ -840,8 +837,8 @@ export default function Hero() {
                 <button
                   type="submit"
                   disabled={newsletterStatus === "sending"}
-                  className="shrink-0 px-6 py-3 rounded-2xl text-sm font-bold text-[#0D0E12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.4)] disabled:opacity-60"
-                  style={{ background: "linear-gradient(135deg,#F59E0B,#D97706)" }}
+                  className="cursor-pointer text-white shrink-0 px-6 py-3 rounded-2xl text-sm font-bold text-[#0D0E12] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(234,179,8,0.4)] disabled:opacity-60"
+                  style={{ background: "#bb7208" }}
                 >
                   {newsletterStatus === "sending" ? "Sending…" : "Subscribe"}
                 </button>
