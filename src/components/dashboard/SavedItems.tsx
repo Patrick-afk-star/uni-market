@@ -103,13 +103,13 @@ export function SavedItems() {
 
   const handleRemove = async (id: string) => {
     if (!accessToken) return;
-    
+
     // Find the item to restore on failure
     const removedItem = savedProducts.find((p) => p.id === id);
 
     // Optimistic remove
     setSavedProducts((prev) => prev.filter((p) => p.id !== id));
-    
+
     try {
       const res = await fetch(getApiUrl(`/api/v1/listing/saved/${id}`), {
         method: "DELETE",
@@ -208,7 +208,7 @@ export function SavedItems() {
             Browse listings and click the heart icon to save items you&apos;re
             interested in.
           </p>
-          <Button className="mt-6 bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button className="cursor-pointer mt-6 bg-primary hover:bg-primary/90 text-primary-foreground">
             Browse Listings
           </Button>
         </div>

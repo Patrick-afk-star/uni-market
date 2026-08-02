@@ -103,11 +103,11 @@ export function MyListings() {
 
   const handleToggleStatus = async (id: string) => {
     if (!accessToken) return;
-    
+
     // Find the listing to determine its current status
     const listing = listings.find((l) => l.id === id);
     if (!listing) return;
-    
+
     const newStatus = listing.status === 'published' ? 'draft' : 'published';
 
     // Optimistic UI update
@@ -140,7 +140,7 @@ export function MyListings() {
     }
   };
 
-const DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
+  const DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80";
 
   const getStatusBadge = (status: Listing['status']) => {
     switch (status) {
@@ -286,7 +286,7 @@ const DEFAULT_FALLBACK_IMAGE = "https://images.unsplash.com/photo-1505740420928-
           <p className="text-sm text-muted-foreground max-w-sm mb-6">
             Start selling by creating your first listing. It only takes a few minutes!
           </p>
-          <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button onClick={() => navigate('/dashboard/create')} className="cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground">
             Create Listing
           </Button>
         </div>

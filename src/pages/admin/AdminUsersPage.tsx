@@ -163,7 +163,7 @@ export default function AdminUsersPage() {
         </div>
         <button
           onClick={fetchUsers}
-          className="cursor-pointer flex items-center justify-center w-full sm:w-auto gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-muted-foreground hover:text-foreground transition-colors text-sm"
+          className="bg-[#ba740e] text-white cursor-pointer flex items-center justify-center w-full sm:w-auto gap-2 px-4 py-2 rounded-xl dark:bg-white/[0.04] border border-white/[0.06] dark:text-muted-foreground hover:text-white transition-colors text-sm"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           Refresh
@@ -391,7 +391,7 @@ export default function AdminUsersPage() {
                   <p className="text-muted-foreground">{selectedUser.email}</p>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 mt-6">
                 <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
                   <p className="text-xs text-muted-foreground mb-1">Status</p>

@@ -186,9 +186,9 @@ export function SettingsView() {
             setSocialLinks(prev => ({ ...prev, ...data.social_links }));
           }
           if (data.student_profile) {
-             setSelectedUniversityId(data.student_profile.university?.id || "");
-             setSelectedUniversityName(data.student_profile.university?.name || "");
-             setSelectedCampus(data.student_profile.campus || "");
+            setSelectedUniversityId(data.student_profile.university?.id || "");
+            setSelectedUniversityName(data.student_profile.university?.name || "");
+            setSelectedCampus(data.student_profile.campus || "");
           }
         }
       } catch (err) {
@@ -225,19 +225,19 @@ export function SettingsView() {
   // Fetch campuses when university changes
   useEffect(() => {
     if (!selectedUniversityId) {
-       setCampuses([]);
-       return;
+      setCampuses([]);
+      return;
     }
     const fetchCampuses = async () => {
-       try {
-         const response = await fetch(getApiUrl(`/api/v1/universities/${selectedUniversityId}/campus`));
-         if (response.ok) {
-           const data = await response.json();
-           setCampuses(data);
-         }
-       } catch (err) {
-         console.error("Failed to load campuses:", err);
-       }
+      try {
+        const response = await fetch(getApiUrl(`/api/v1/universities/${selectedUniversityId}/campus`));
+        if (response.ok) {
+          const data = await response.json();
+          setCampuses(data);
+        }
+      } catch (err) {
+        console.error("Failed to load campuses:", err);
+      }
     };
     fetchCampuses();
   }, [selectedUniversityId]);
@@ -294,7 +294,7 @@ export function SettingsView() {
       }
 
       if (selectedCampus && selectedCampus !== (initialProfile?.student_profile?.campus || "")) {
-         formData.append("campus_id", selectedCampus);
+        formData.append("campus_id", selectedCampus);
       }
 
       const res = await fetch(getApiUrl("/api/v1/profiles/me"), {
@@ -560,7 +560,7 @@ export function SettingsView() {
                       </div>
                       <Button
                         onClick={() => setIsEditMode(true)}
-                        className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-10 px-5 gap-2 font-semibold text-sm shadow-sm"
+                        className="cursor-pointer bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-10 px-5 gap-2 font-semibold text-sm shadow-sm"
                       >
                         <Edit2 className="w-4 h-4" /> Edit Profile
                       </Button>
@@ -645,7 +645,7 @@ export function SettingsView() {
                         type="button"
                         variant="outline"
                         onClick={() => setIsEditMode(false)}
-                        className="rounded-xl h-10 px-5 border-white/[0.1] hover:bg-white/[0.05] text-sm"
+                        className="cursor-pointer rounded-xl h-10 px-5 border-white/[0.1] hover:bg-white/[0.05] text-sm"
                       >
                         Cancel
                       </Button>
@@ -701,19 +701,19 @@ export function SettingsView() {
                           </div>
                           <div className="space-y-2 sm:col-span-1">
                             <label className="text-sm font-semibold text-muted-foreground flex justify-between">
-                                Campus
-                                {highlightRequired && !selectedCampus && <span className="text-xs text-red-400 font-semibold">Required</span>}
+                              Campus
+                              {highlightRequired && !selectedCampus && <span className="text-xs text-red-400 font-semibold">Required</span>}
                             </label>
                             <select
-                                value={selectedCampus}
-                                onChange={(e) => setSelectedCampus(e.target.value)}
-                                disabled={campuses.length === 0}
-                                className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                              >
-                                <option value="" className="bg-[#0f0f0f]">Select Campus...</option>
-                                {campuses.map(c => (
-                                  <option key={c.id} value={c.id} className="bg-[#0f0f0f]">{c.name}</option>
-                                ))}
+                              value={selectedCampus}
+                              onChange={(e) => setSelectedCampus(e.target.value)}
+                              disabled={campuses.length === 0}
+                              className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              <option value="" className="bg-[#0f0f0f]">Select Campus...</option>
+                              {campuses.map(c => (
+                                <option key={c.id} value={c.id} className="bg-[#0f0f0f]">{c.name}</option>
+                              ))}
                             </select>
                           </div>
                         </div>
@@ -825,10 +825,10 @@ export function SettingsView() {
                         By using this platform, you agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#bb740a] hover:underline font-semibold">UniMarket Rwanda Terms of Service</a>.
                       </div>
                       <div className="flex justify-end gap-3 w-full sm:w-auto">
-                        <Button type="button" variant="outline" onClick={() => setIsEditMode(false)} className="rounded-xl px-6 h-12 border-white/[0.1] hover:bg-white/[0.05]">
+                        <Button type="button" variant="outline" onClick={() => setIsEditMode(false)} className="cursor-pointer rounded-xl px-6 h-12 border-white/[0.1] hover:bg-white/[0.05]">
                           Cancel
                         </Button>
-                        <Button type="submit" disabled={isSavingProfile} className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl px-8 h-12 text-sm font-semibold transition-all shadow-lg hover:shadow-[#bb740a]/20">
+                        <Button type="submit" disabled={isSavingProfile} className="cursor-pointer bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl px-8 h-12 text-sm font-semibold transition-all shadow-lg hover:shadow-[#bb740a]/20">
                           {isSavingProfile ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Changes</>}
                         </Button>
                       </div>
@@ -958,7 +958,7 @@ export function SettingsView() {
                   })}
                 </div>
                 <div className="flex justify-end pt-2">
-                  <Button onClick={handleSavePrivacy} disabled={isSavingPrivacy} className="bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 px-8 font-semibold shadow-lg">
+                  <Button onClick={handleSavePrivacy} disabled={isSavingPrivacy} className="cursor-pointer bg-[#bb740a] hover:bg-[#bb740a]/90 text-white rounded-xl h-11 px-8 font-semibold shadow-lg">
                     {isSavingPrivacy ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Preferences</>}
                   </Button>
                 </div>

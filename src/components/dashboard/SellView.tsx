@@ -93,7 +93,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
           setDescription(fetchedDesc);
           setSelectedCategory(fetchedCat);
           setSelectedCondition(fetchedCond);
-          
+
           if (data.images && Array.isArray(data.images)) {
             setImagePreviews(data.images.map((img: any) => img.image));
           }
@@ -192,7 +192,7 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
 
     try {
       const formData = new FormData();
-      
+
       if (!listingId || title !== initialData?.title) {
         formData.append('title', title);
       }
@@ -285,9 +285,9 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === category.id
-                    ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
-                    : 'bg-secondary text-muted-foreground hover:text-foreground border border-border'
+                className={`cursor-pointer px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCategory === category.id
+                  ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
+                  : 'bg-secondary text-muted-foreground hover:text-foreground border border-border'
                   }`}
               >
                 {category.name}
@@ -374,9 +374,9 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
                 <button
                   key={condition.value}
                   onClick={() => handleConditionSelect(condition.value)}
-                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCondition === condition.value
-                      ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
-                      : 'bg-secondary text-muted-foreground hover:text-foreground border border-border'
+                  className={`cursor-pointer px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${selectedCondition === condition.value
+                    ? 'bg-transparent border border-[#bb740a] text-[#bb740a]'
+                    : 'bg-secondary text-muted-foreground hover:text-foreground border border-border'
                     }`}
                 >
                   {condition.label}
@@ -405,13 +405,12 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
             <span
               aria-live="polite"
               aria-label={`${description.length} of ${DESCRIPTION_MAX_LENGTH} characters used`}
-              className={`absolute bottom-2.5 right-3 text-xs font-mono tabular-nums transition-colors pointer-events-none select-none ${
-                description.length >= DESCRIPTION_MAX_LENGTH * 0.9
-                  ? description.length >= DESCRIPTION_MAX_LENGTH
-                    ? 'text-red-500 font-semibold'
-                    : 'text-amber-500 font-medium'
-                  : 'text-muted-foreground'
-              }`}
+              className={`absolute bottom-2.5 right-3 text-xs font-mono tabular-nums transition-colors pointer-events-none select-none ${description.length >= DESCRIPTION_MAX_LENGTH * 0.9
+                ? description.length >= DESCRIPTION_MAX_LENGTH
+                  ? 'text-red-500 font-semibold'
+                  : 'text-amber-500 font-medium'
+                : 'text-muted-foreground'
+                }`}
             >
               {description.length} / {DESCRIPTION_MAX_LENGTH}
             </span>

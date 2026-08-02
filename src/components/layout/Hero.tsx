@@ -822,7 +822,7 @@ export default function Hero() {
                 onSubmit={handleNewsletterSubmit}
               >
                 <div
-                  className="flex flex-1 md:w-64 items-center gap-2 px-4 rounded-2xl transition-all duration-200 focus-within:ring-2 focus-within:ring-[#F59E0B]/30 bg-secondary"
+                  className="ring-2 ring-[#F59E0B]/30 bg-secondary flex flex-1 md:w-64 items-center gap-2 px-4 rounded-2xl transition-all duration-200 focus-within:ring-2 focus-within:ring-[#F59E0B]/30 bg-secondary"
                 >
                   <Mail className="w-4 h-4 shrink-0 text-muted-foreground" />
                   <input

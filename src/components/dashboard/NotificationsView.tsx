@@ -23,7 +23,7 @@ export function NotificationsView() {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      
+
       if (res.ok) {
         const data = await res.json();
         setNotifications(data);
@@ -122,7 +122,7 @@ export function NotificationsView() {
   const hasUnread = notifications.some((n) => !n.is_read);
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6 animate-in fade-in duration-500">
+    <div className="max-w-6xl p-3 md:p-8 space-y-6 animate-in fade-in duration-500">
       {/* Header Row */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -133,7 +133,7 @@ export function NotificationsView() {
         </div>
         <Button
           disabled
-          className="shrink-0 bg-[#bb740a]/50 text-white/50 font-medium px-4 py-2 rounded-xl flex items-center gap-2 shadow-none cursor-not-allowed"
+          className="bg-[#bb740a] shrink-0 dark:bg-[#bb740a]/50 dark:text-white/50 font-medium px-4 py-2 rounded-xl flex items-center gap-2 shadow-none cursor-not-allowed"
         >
           <Settings className="w-4 h-4" />
           Configure Preferences
@@ -142,22 +142,21 @@ export function NotificationsView() {
 
       {/* Tabs & Actions */}
       <div className="flex items-center gap-4">
-        <div className="flex bg-[#1a1a1a] p-1 rounded-xl w-fit">
+        <div className="flex gap-2 bg-[#efebe8] dark:bg-[#1a1a1a] p-1 rounded-xl w-fit">
           {(["Recent", "All"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                activeTab === tab
-                  ? "bg-[#2a2a2a] text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-[#2a2a2a]/50"
-              }`}
+              className={`cursor-pointer px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === tab
+                ? "bg-[#fbfaf8] dark:bg-[#2a2a2a] text-foreground shadow-sm"
+                : "text-muted-foreground"
+                }`}
             >
               {tab}
             </button>
           ))}
         </div>
-        
+
         {hasUnread && (
           <button
             onClick={handleMarkAllAsRead}
@@ -179,16 +178,14 @@ export function NotificationsView() {
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className={`p-4 md:p-5 rounded-2xl border transition-all duration-200 flex gap-4 group ${
-                !notification.is_read
-                  ? "bg-[#1a1a1a] border-[#bb740a]/30 shadow-[0_4px_24px_-8px_rgba(187,116,10,0.15)]"
-                  : "bg-[#121212] border-white/[0.06] hover:border-white/[0.12]"
-              }`}
+              className={`p-4 md:p-5 rounded-2xl border transition-all duration-200 flex gap-4 group ${!notification.is_read
+                ? "bg-[#1a1a1a] border-[#bb740a]/30 shadow-[0_4px_24px_-8px_rgba(187,116,10,0.15)]"
+                : "bg-[#121212] border-white/[0.06] hover:border-white/[0.12]"
+                }`}
             >
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                  !notification.is_read ? "bg-[#bb740a]/10" : "bg-white/[0.04]"
-                }`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${!notification.is_read ? "bg-[#bb740a]/10" : "bg-white/[0.04]"
+                  }`}
               >
                 {getIcon(notification.type)}
               </div>
@@ -205,7 +202,7 @@ export function NotificationsView() {
                   {notification.message}
                 </p>
               </div>
-              
+
               <div className="flex items-center self-center shrink-0 ml-2 gap-2">
                 {!notification.is_read && (
                   <button
@@ -233,7 +230,7 @@ export function NotificationsView() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-20 px-4 rounded-2xl bg-[#121212] border border-white/[0.06] text-center min-h-[260px]">
+        <div className="flex flex-col items-center justify-center py-20 px-4 rounded-2xl bg-[#f1f5f9] border border-white/[0.06] text-center min-h-[260px]">
           <Bell className="w-10 h-10 text-muted-foreground/40 mb-4" strokeWidth={1.5} />
           <h3 className="text-base font-semibold text-foreground/80 mb-2">
             No {activeTab.toLowerCase()} notifications found
