@@ -258,7 +258,7 @@ export default function SellerProfile() {
       </button>
 
       {/* Banner / Cover */}
-      <div className="w-full h-48 md:h-64 rounded-t-3xl bg-gradient-to-r from-[#0a0a0a] via-[#1a1a1a] to-[#2a2a2a] relative overflow-hidden">
+      <div className="w-full h-48 md:h-64 rounded-t-3xl bg-gradient-to-r from-secondary via-muted to-secondary relative overflow-hidden border-b border-border">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
         <div className="absolute top-4 right-4 z-10">
           <div className="relative">
@@ -303,7 +303,7 @@ export default function SellerProfile() {
               <h1 className="text-2xl font-bold text-foreground tracking-tight">{seller.name}</h1>
               
               {/* Rating Block */}
-              <div className="flex items-center gap-1.5 mt-2 cursor-pointer hover:bg-white/5 px-3 py-1.5 rounded-full transition-colors">
+              <div className="flex items-center gap-1.5 mt-2 cursor-pointer hover:bg-secondary px-3 py-1.5 rounded-full transition-colors">
                 <Star className="w-4 h-4 fill-[#bb740a] text-[#bb740a]" />
                 <span className="font-semibold text-foreground text-sm">4.9</span>
                 <span className="text-muted-foreground text-sm">(32 Reviews)</span>
@@ -353,7 +353,7 @@ export default function SellerProfile() {
 
               {/* Self-View Profile Completion Meter */}
               {isSelf && (
-                <div className="w-full mt-6 pt-6 border-t border-white/[0.06] text-left">
+                <div className="w-full mt-6 pt-6 border-t border-border text-left">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-xs font-semibold text-foreground uppercase tracking-wider">Profile Completion</span>
                     <span className="text-xs font-bold text-[#bb740a]">{completionPercent}%</span>
@@ -375,7 +375,7 @@ export default function SellerProfile() {
           </Card>
 
           {/* Details Card */}
-          <Card className="bg-[#0f0f0f] border-white/[0.08] p-6 rounded-3xl shadow-xl">
+          <Card className="bg-card border-border p-6 rounded-3xl shadow-md">
             <h3 className="font-bold text-foreground mb-4">About & Contact</h3>
             <div className="space-y-4">
               
@@ -412,7 +412,7 @@ export default function SellerProfile() {
                     <p className="font-medium text-foreground">Languages</p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {seller.languages.map((lang, i) => (
-                        <span key={i} className="text-xs text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-full border border-white/5">
+                        <span key={i} className="text-xs text-muted-foreground bg-secondary px-2 py-0.5 rounded-full border border-border">
                           {lang}
                         </span>
                       ))}
@@ -423,13 +423,13 @@ export default function SellerProfile() {
 
               {/* Contact Preferences */}
               {seller.contactPrefs && seller.contactPrefs.length > 0 && (
-                <div className="flex items-start gap-3 text-sm pt-4 border-t border-white/[0.06]">
+                <div className="flex items-start gap-3 text-sm pt-4 border-t border-border">
                   <Phone className="w-5 h-5 text-muted-foreground shrink-0" />
                   <div>
                     <p className="font-medium text-foreground">Prefers to be contacted via</p>
                     <div className="flex flex-wrap gap-2 mt-2">
                       {seller.contactPrefs.map((pref, i) => (
-                        <span key={i} className="flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary px-2.5 py-1 rounded-lg border border-white/[0.08]">
+                        <span key={i} className="flex items-center gap-1.5 text-xs font-medium text-foreground bg-secondary px-2.5 py-1 rounded-lg border border-border">
                           {getContactIcon(pref)} {pref}
                         </span>
                       ))}
@@ -440,7 +440,7 @@ export default function SellerProfile() {
 
               {/* Social Links */}
               {seller.socialLinks && Object.values(seller.socialLinks).some(v => v) && (
-                <div className="flex items-center gap-2 pt-4 border-t border-white/[0.06]">
+                <div className="flex items-center gap-2 pt-4 border-t border-border">
                   {Object.entries(seller.socialLinks).filter(([_, url]) => url).map(([platform, url], i) => {
                     const validUrl = url.startsWith('http') ? url : `https://${url}`;
                     return (
@@ -477,10 +477,10 @@ export default function SellerProfile() {
                 <div
                   key={product.id}
                   onClick={() => navigate(`/dashboard/listing/${product.id}`)}
-                  className="group bg-[#0f0f0f] rounded-2xl p-3 border border-white/[0.06] hover:border-white/[0.14] shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col h-full"
+                  className="group bg-card rounded-2xl p-3 border border-border hover:border-border/80 shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col h-full"
                 >
                   {/* Image */}
-                  <div className="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden mb-3 bg-[#1a1a1a]">
+                  <div className="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden mb-3 bg-secondary">
                     <img
                       src={product.image}
                       alt={product.title}
@@ -498,7 +498,7 @@ export default function SellerProfile() {
                     <h4 className="font-semibold text-sm text-foreground line-clamp-2 group-hover:text-[#bb740a] transition-colors leading-snug">
                       {product.title}
                     </h4>
-                    <div className="mt-auto pt-2 flex items-baseline justify-between gap-2 border-t border-white/[0.04]">
+                    <div className="mt-auto pt-2 flex items-baseline justify-between gap-2 border-t border-border">
                       <span className="text-base font-bold text-foreground">
                         RWF {product.price.toLocaleString()}
                       </span>
@@ -508,7 +508,7 @@ export default function SellerProfile() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 bg-[#0f0f0f] border border-dashed border-white/[0.08] rounded-3xl">
+            <div className="text-center py-16 bg-card border border-dashed border-border rounded-3xl">
               <Package className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
               <p className="text-foreground font-semibold mb-1">No active listings</p>
               <p className="text-muted-foreground text-sm max-w-[250px] mx-auto">

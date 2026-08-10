@@ -140,8 +140,8 @@ export default function AdminUsersPage() {
       {toast && (
         <div
           className={`fixed top-5 right-5 z-[9999] flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl border animate-in slide-in-from-top-2 ${toast.type === "ok"
-            ? "bg-[#0a0a0a] border-green-500/30 text-green-400"
-            : "bg-[#0a0a0a] border-red-500/30 text-red-400"
+            ? "bg-card border-green-500/30 text-green-500"
+            : "bg-card border-red-500/30 text-red-500"
             }`}
         >
           {toast.type === "ok" ? (
@@ -163,7 +163,7 @@ export default function AdminUsersPage() {
         </div>
         <button
           onClick={fetchUsers}
-          className="bg-[#ba740e] text-white cursor-pointer flex items-center justify-center w-full sm:w-auto gap-2 px-4 py-2 rounded-xl dark:bg-white/[0.04] border border-white/[0.06] dark:text-muted-foreground hover:text-white transition-colors text-sm"
+          className="bg-[#ba740e] text-white cursor-pointer flex items-center justify-center w-full sm:w-auto gap-2 px-4 py-2 rounded-xl border border-border/40 hover:bg-[#ba740e]/95 transition-colors text-sm"
         >
           <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           Refresh
@@ -180,7 +180,7 @@ export default function AdminUsersPage() {
             placeholder="Search by name or email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
+            className="w-full pl-9 pr-4 py-2 rounded-xl bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
           />
         </div>
 
@@ -192,10 +192,10 @@ export default function AdminUsersPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-              className="px-4 py-2 pr-8 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground appearance-none outline-none focus:border-[#bb740a]/40 transition-colors cursor-pointer"
+              className="px-4 py-2 pr-8 rounded-xl bg-secondary border border-border text-sm text-foreground appearance-none outline-none focus:border-[#bb740a]/40 transition-colors cursor-pointer"
             >
               {filters.map(f => (
-                <option key={f.value} value={f.value} style={{ background: "#0d0d0d" }}>
+                <option key={f.value} value={f.value} className="bg-card text-foreground">
                   {f.label === "All" ? "Status" : f.label}
                 </option>
               ))}
@@ -206,7 +206,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-white/[0.06] overflow-hidden bg-[#0d0d0d]">
+      <div className="rounded-2xl border border-border overflow-hidden bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 animate-spin text-[#bb740a]" />
@@ -297,7 +297,7 @@ export default function AdminUsersPage() {
                             e.stopPropagation();
                             setSelectedUser(u);
                           }}
-                          className="cursor-pointer p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-[#bb740a] hover:bg-[#bb740a]/10 transition-all"
+                          className="cursor-pointer p-1.5 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-[#bb740a] hover:bg-[#bb740a]/10 transition-all"
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
@@ -308,17 +308,17 @@ export default function AdminUsersPage() {
                             e.stopPropagation();
                             setOpenMenuId(openMenuId === u.id ? null : u.id);
                           }}
-                          className="cursor-pointer p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-white hover:bg-white/[0.1] transition-all"
+                          className="cursor-pointer p-1.5 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-all"
                         >
                           <MoreVertical className="w-4 h-4" />
                         </button>
 
                         {openMenuId === u.id && (
                           <div
-                            className="absolute right-0 top-full mt-2 w-40 bg-[#121212] rounded-xl shadow-2xl border border-white/[0.08] z-10 overflow-hidden animate-in fade-in slide-in-from-top-2 text-left"
+                            className="absolute right-0 top-full mt-2 w-40 bg-popover rounded-xl shadow-2xl border border-border z-10 overflow-hidden animate-in fade-in slide-in-from-top-2 text-left"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground border-b border-white/[0.08]">
+                            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground border-b border-border">
                               Actions
                             </div>
                             <button
@@ -351,14 +351,14 @@ export default function AdminUsersPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors"
+              className="p-2 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors"
+              className="p-2 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -369,12 +369,12 @@ export default function AdminUsersPage() {
       {/* User Details Modal */}
       {selectedUser && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-[#121212] border border-white/[0.08] rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08]">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
               <h2 className="text-lg font-bold text-foreground">User Details</h2>
               <button
                 onClick={() => setSelectedUser(null)}
-                className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-white/[0.04]"
+                className="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -393,7 +393,7 @@ export default function AdminUsersPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <div className="p-4 rounded-xl bg-secondary/40 border border-border">
                   <p className="text-xs text-muted-foreground mb-1">Status</p>
                   {selectedUser.is_active !== false ? (
                     <span className="inline-flex items-center gap-1.5 text-green-400 font-semibold">
@@ -405,7 +405,7 @@ export default function AdminUsersPage() {
                     </span>
                   )}
                 </div>
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                <div className="p-4 rounded-xl bg-secondary/40 border border-border">
                   <p className="text-xs text-muted-foreground mb-1">Joined</p>
                   <div className="flex items-center gap-1.5 text-foreground font-semibold">
                     <Calendar className="w-4 h-4 text-muted-foreground" />

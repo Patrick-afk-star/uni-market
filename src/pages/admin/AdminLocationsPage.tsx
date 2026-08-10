@@ -174,7 +174,7 @@ export default function AdminLocationsPage() {
     city: "bg-indigo-500/10 border-indigo-500/20 text-indigo-400",
     district: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
     neighborhood: "bg-pink-500/10 border-pink-500/20 text-pink-400",
-    other: "bg-white/[0.05] border-white/[0.08] text-muted-foreground",
+    other: "bg-secondary border-border text-muted-foreground",
   };
 
   return (
@@ -184,8 +184,8 @@ export default function AdminLocationsPage() {
         <div
           className={`fixed top-5 right-5 z-[9999] flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl border animate-in slide-in-from-top-2 ${
             toast.type === "ok"
-              ? "bg-[#0a0a0a] border-green-500/30 text-green-400"
-              : "bg-[#0a0a0a] border-red-500/30 text-red-400"
+              ? "bg-card border-green-500/30 text-green-500"
+              : "bg-card border-red-500/30 text-red-500"
           }`}
         >
           {toast.type === "ok" ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <XCircle className="w-4 h-4 shrink-0" />}
@@ -204,7 +204,7 @@ export default function AdminLocationsPage() {
         <div className="flex gap-2">
           <button
             onClick={fetchLocations}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-muted-foreground hover:text-foreground transition-colors text-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors text-sm"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
@@ -227,7 +227,7 @@ export default function AdminLocationsPage() {
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border capitalize ${
                 typeFilter === t
                   ? "bg-[#bb740a] border-[#bb740a] text-white"
-                  : "bg-white/[0.03] border-white/[0.06] text-muted-foreground hover:text-foreground"
+                  : "bg-secondary border-border text-muted-foreground hover:text-foreground"
               }`}
             >
               {t}
@@ -269,7 +269,7 @@ export default function AdminLocationsPage() {
               return (
                 <div
                   key={loc.id}
-                  className="rounded-2xl border border-white/[0.06] bg-[#0d0d0d] p-5 flex flex-col gap-3 hover:border-white/[0.1] transition-all group"
+                  className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-3 hover:border-border/80 transition-all group"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#bb740a]/10 border border-[#bb740a]/20 flex items-center justify-center shrink-0">
@@ -281,16 +281,16 @@ export default function AdminLocationsPage() {
                           e.stopPropagation();
                           setOpenMenuId(openMenuId === loc.id ? null : loc.id);
                         }}
-                        className="p-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] text-muted-foreground hover:text-white hover:bg-white/[0.1] transition-all"
+                        className="p-1.5 rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/80 transition-all"
                       >
                         <MoreVertical className="w-4 h-4" />
                       </button>
                       {openMenuId === loc.id && (
                         <div
-                          className="absolute right-0 top-full mt-2 w-36 bg-[#121212] rounded-xl shadow-2xl border border-white/[0.08] z-10 overflow-hidden animate-in fade-in slide-in-from-top-2"
+                          className="absolute right-0 top-full mt-2 w-36 bg-popover rounded-xl shadow-2xl border border-border z-10 overflow-hidden animate-in fade-in slide-in-from-top-2"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <div className="px-3 py-2 text-xs font-semibold text-muted-foreground border-b border-white/[0.08]">
+                          <div className="px-3 py-2 text-xs font-semibold text-muted-foreground border-b border-border">
                             Actions
                           </div>
                           <button
@@ -298,7 +298,7 @@ export default function AdminLocationsPage() {
                               openEdit(loc);
                               setOpenMenuId(null);
                             }}
-                            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-white/[0.04] transition-colors"
+                            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-secondary transition-colors"
                           >
                             <Pencil className="w-4 h-4" /> Edit
                           </button>
@@ -308,7 +308,7 @@ export default function AdminLocationsPage() {
                               setOpenMenuId(null);
                             }}
                             disabled={deleting === loc.id}
-                            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-white/[0.04] transition-colors disabled:opacity-40"
+                            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-secondary transition-colors disabled:opacity-40"
                           >
                             {deleting === loc.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -351,7 +351,7 @@ export default function AdminLocationsPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-[#0d0d0d] border border-white/[0.08] p-6 space-y-5 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl bg-card border border-border p-6 space-y-5 shadow-2xl">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-foreground text-lg">
                 {editing ? "Edit Location" : "Add Location"}
@@ -368,7 +368,7 @@ export default function AdminLocationsPage() {
                   placeholder="e.g. UR Gikondo Campus"
                   value={form.name}
                   onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl bg-background border border-input text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-ring transition-colors"
                 />
               </div>
               <div>
@@ -377,10 +377,10 @@ export default function AdminLocationsPage() {
                   <select
                     value={form.type}
                     onChange={(e) => setForm((p) => ({ ...p, type: e.target.value }))}
-                    className="w-full px-4 py-2.5 pr-9 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground outline-none appearance-none focus:border-[#bb740a]/40 transition-colors cursor-pointer"
+                    className="w-full px-4 py-2.5 pr-9 rounded-xl bg-secondary border border-border text-sm text-foreground outline-none appearance-none focus:border-[#bb740a]/40 transition-colors cursor-pointer"
                   >
                     {LOCATION_TYPES.map((t) => (
-                      <option key={t} value={t} style={{ background: "#0d0d0d" }}>
+                      <option key={t} value={t} className="bg-card text-foreground">
                         {t.charAt(0).toUpperCase() + t.slice(1)}
                       </option>
                     ))}
@@ -400,13 +400,13 @@ export default function AdminLocationsPage() {
                     placeholder={placeholder}
                     value={form[key as keyof FormState]}
                     onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
+                    className="w-full px-4 py-2.5 rounded-xl bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
                   />
                 </div>
               ))}
             </div>
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-sm text-muted-foreground hover:text-foreground">
+              <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded-xl bg-secondary border border-border text-sm text-muted-foreground hover:text-foreground">
                 Cancel
               </button>
               <button
