@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Clock, Eye, MessageSquare, Heart, AlertCircle, Flag, Loader2, Edit, Trash2, Pause, Play, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, Clock, Heart, AlertCircle, Flag, Loader2, Edit, Trash2, Pause, Play, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -252,25 +252,11 @@ export default function ListingDetailPage() {
               RWF {listing.price?.toLocaleString()}
             </div>
 
-            {/* Condition & Views */}
+            {/* Condition */}
             <div className="flex flex-wrap items-center gap-4 py-4 border-y border-border mb-6 text-sm">
               <div className="flex flex-col">
                 <span className="text-muted-foreground mb-1">Condition</span>
                 <span className="font-semibold text-foreground">{listing.condition}</span>
-              </div>
-              <div className="w-px h-8 bg-border" />
-              <div className="flex flex-col">
-                <span className="text-muted-foreground mb-1">Views</span>
-                <span className="font-semibold text-foreground flex items-center gap-1">
-                  <Eye className="w-4 h-4" /> {listing.views || 0}
-                </span>
-              </div>
-              <div className="w-px h-8 bg-border" />
-              <div className="flex flex-col">
-                <span className="text-muted-foreground mb-1">Messages</span>
-                <span className="font-semibold text-foreground flex items-center gap-1">
-                  <MessageSquare className="w-4 h-4" /> {listing.messages || 0}
-                </span>
               </div>
             </div>
 
@@ -290,6 +276,7 @@ export default function ListingDetailPage() {
                 const finalName = sellerInfo?.name || sellerProfile?.name || sellerProfile?.display_name || sellerProfile?.first_name || 'Student Seller';
                 const isVerified = sellerInfo?.is_seller_verified || sellerProfile?.is_verified || sellerProfile?.is_seller_verified || false;
                 const avatar = sellerInfo?.avatar_url || sellerProfile?.avatar_url || '';
+                const initial = finalName ? finalName.charAt(0).toUpperCase() : 'S';
                 const sellerId = sellerInfo?.id || sellerProfile?.id;
 
                 return (
@@ -297,8 +284,10 @@ export default function ListingDetailPage() {
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <Avatar className="w-12 h-12">
-                          <AvatarImage src={avatar} />
-                          <AvatarFallback />
+                          <AvatarImage src={avatar ? resolveImageUrl(avatar) : ''} alt={finalName} className="object-cover" />
+                          <AvatarFallback className="bg-secondary text-foreground text-sm font-semibold">
+                            {initial}
+                          </AvatarFallback>
                         </Avatar>
                         {isVerified && (
                           <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-[#177865] flex items-center justify-center" title="Verified Seller">

@@ -362,7 +362,7 @@ export function Messages({
               onClick={() => setShowArchived((p) => !p)}
               className={`cursor-pointer text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${showArchived
                 ? 'bg-primary/20 text-primary'
-                : 'bg-[#1a1a1a] text-muted-foreground hover:text-foreground'
+                : 'bg-secondary text-muted-foreground hover:text-foreground'
                 }`}
             >
               {showArchived ? 'Active' : 'Archived'}
@@ -374,20 +374,20 @@ export function Messages({
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-10 rounded-xl bg-[#121212] border-[#121212] focus:border-[#22debc]/40 focus:ring-[#22debc]/20"
+              className="pl-10 h-10 rounded-xl bg-background border-border focus:border-primary/40 focus:ring-primary/20 text-foreground"
             />
           </div>
         </div>
 
         {/* Conversation List */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden bg-[#0a0a0a] flex flex-col h-[calc(100vh-3.4rem)] min-h-0">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden bg-background flex flex-col h-[calc(100vh-3.4rem)] min-h-0">
           {inboxLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="w-6 h-6 text-primary animate-spin" />
             </div>
           ) : filteredConversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[#1a1a1a] flex items-center justify-center mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-4">
                 <MessageSquare className="w-7 h-7 text-muted-foreground" />
               </div>
               <p className="text-sm text-muted-foreground">
@@ -647,7 +647,7 @@ export function Messages({
                               <span className="text-xs text-[#a0a0a0]">Delete this message?</span>
                               <button
                                 onClick={() => setConfirmDeleteId(null)}
-                                className="text-xs px-2.5 py-1 rounded-lg bg-[#1a1a1a] text-muted-foreground hover:text-foreground transition-colors"
+                                className="text-xs px-2.5 py-1 rounded-lg bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                               >
                                 Cancel
                               </button>
@@ -667,7 +667,7 @@ export function Messages({
                             {!msg.is_mine && showAvatar && (
                               <Avatar className="w-7 h-7 flex-shrink-0">
                                 <AvatarImage src={resolveAvatar(msg.sender.avatar)} />
-                                <AvatarFallback className="text-[10px] bg-[#1a1a1a]">
+                                <AvatarFallback className="text-[10px] bg-secondary text-foreground">
                                   {`${msg.sender.first_name?.[0] ?? ''}${msg.sender.last_name?.[0] ?? ''
                                     }`.toUpperCase()}
                                 </AvatarFallback>
@@ -779,7 +779,7 @@ export function Messages({
             <h3 className="text-lg font-semibold text-foreground mb-2">
               Select a conversation
             </h3>
-            <p className="text-sm text-[#8f8f8f]">
+            <p className="text-sm text-muted-foreground">
               Choose a conversation from the list to start messaging
             </p>
           </div>

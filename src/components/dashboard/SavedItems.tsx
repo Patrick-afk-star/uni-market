@@ -146,7 +146,7 @@ export function SavedItems() {
           <div
             key={product.id}
             onClick={() => navigate(`/dashboard/listing/${(product as any).listingId}`)}
-            className="saved-card group bg-[#0f0f0f] rounded-2xl p-3 transition-all duration-300 border border-white/[0.06] cursor-pointer hover:border-white/[0.14]"
+            className="saved-card group bg-card rounded-2xl p-3 transition-all duration-300 border border-border cursor-pointer hover:border-border/80 shadow-sm hover:shadow-md"
           >
             {/* Image */}
             <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-3">
@@ -158,7 +158,7 @@ export function SavedItems() {
               {/* Remove Button */}
               <button
                 onClick={(e) => { e.stopPropagation(); handleRemove(product.id); }}
-                className="cursor-pointer absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className="cursor-pointer absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -176,13 +176,13 @@ export function SavedItems() {
                 </span>
                 <Badge
                   variant="secondary"
-                  className="w-fit text-[10px] md:text-xs bg-[#1a1a1a] text-[#898989] px-1.5 py-0"
+                  className="w-fit text-[10px] md:text-xs bg-secondary text-muted-foreground px-1.5 py-0"
                 >
                   {product.condition}
                 </Badge>
               </div>
 
-              <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-[#898989]">
+              <div className="flex items-center gap-1.5 text-[10px] md:text-xs text-muted-foreground">
                 <MapPin className="w-3 h-3 shrink-0" />
                 <span className="truncate">{product.location.campus}</span>
               </div>
@@ -204,7 +204,7 @@ export function SavedItems() {
           <h3 className="text-lg font-semibold text-foreground mb-2">
             No saved items
           </h3>
-          <p className="text-sm text-[#676767] max-w-sm">
+          <p className="text-sm text-muted-foreground max-w-sm">
             Browse listings and click the heart icon to save items you&apos;re
             interested in.
           </p>

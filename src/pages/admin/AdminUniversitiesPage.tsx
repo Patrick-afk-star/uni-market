@@ -154,8 +154,8 @@ export default function AdminUniversitiesPage() {
       {toast && (
         <div
           className={`fixed top-5 right-5 z-[9999] flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl border animate-in slide-in-from-top-2 ${toast.type === "ok"
-              ? "bg-[#0a0a0a] border-green-500/30 text-green-400"
-              : "bg-[#0a0a0a] border-red-500/30 text-red-400"
+              ? "bg-card border-green-500/30 text-green-500"
+              : "bg-card border-red-500/30 text-red-500"
             }`}
         >
           {toast.type === "ok" ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <XCircle className="w-4 h-4 shrink-0" />}
@@ -174,7 +174,7 @@ export default function AdminUniversitiesPage() {
         <div className="flex gap-2">
           <button
             onClick={fetchUniversities}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-muted-foreground hover:text-foreground transition-colors text-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-colors text-sm"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
           </button>
@@ -195,12 +195,12 @@ export default function AdminUniversitiesPage() {
           placeholder="Search universities…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
+          className="w-full pl-9 pr-4 py-2 rounded-xl bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
         />
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-white/[0.06] overflow-hidden bg-[#0d0d0d]">
+      <div className="rounded-2xl border border-border overflow-hidden bg-card">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 animate-spin text-[#bb740a]" />
@@ -284,7 +284,7 @@ export default function AdminUniversitiesPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-[#0d0d0d] border border-white/[0.08] p-6 space-y-5 shadow-2xl">
+          <div className="w-full max-w-md rounded-2xl bg-card border border-border p-6 space-y-5 shadow-2xl">
             <div className="flex items-center justify-between">
               <h2 className="font-bold text-foreground text-lg">
                 {editing ? "Edit University" : "Add University"}
@@ -314,7 +314,7 @@ export default function AdminUniversitiesPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, [key]: e.target.value }))
                     }
-                    className="w-full px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
+                    className="w-full px-4 py-2.5 rounded-xl bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-[#bb740a]/40 transition-colors"
                   />
                 </div>
               ))}
@@ -322,7 +322,7 @@ export default function AdminUniversitiesPage() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="px-4 py-2 rounded-xl bg-secondary border border-border text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Cancel
               </button>
