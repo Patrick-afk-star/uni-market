@@ -260,14 +260,6 @@ export default function ListingDetailPage() {
               </div>
             </div>
 
-            {/* Description */}
-            <div className="mb-8 space-y-3">
-              <h3 className="text-lg font-semibold text-foreground">Description</h3>
-              <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                {listing.description}
-              </p>
-            </div>
-
             {/* Seller Info */}
             <div className="bg-card border border-border rounded-2xl p-5 mb-8">
               <h3 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider text-muted-foreground">About the Seller</h3>
@@ -331,6 +323,14 @@ export default function ListingDetailPage() {
                   </div>
                 );
               })()}
+            </div>
+
+            {/* Description */}
+            <div className="mb-8 space-y-3">
+              <h3 className="text-lg font-semibold text-foreground">Description</h3>
+              <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                {listing.description}
+              </p>
             </div>
             {/* Action Buttons (Sticky on mobile) */}
             <div className="fixed bottom-16 md:bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-border md:relative md:p-0 md:bg-transparent md:border-t-0 md:backdrop-blur-none z-10 flex gap-3">

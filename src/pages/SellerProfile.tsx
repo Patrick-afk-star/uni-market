@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { 
   ArrowLeft, MessageCircle, Loader2, AlertCircle, GraduationCap, 
-  Package, MapPin, Share2, Clock, Link as LinkIcon, Star, ShieldCheck, 
-  Mail, Phone, MessageSquare, Instagram, Facebook, Twitter, Github, Linkedin, Copy, ChevronRight
+  Package, MapPin, Share2, Clock, Link as LinkIcon, ShieldCheck, 
+  Mail, Phone, MessageSquare, Instagram, Facebook, Twitter, Github, Linkedin, Copy
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
@@ -302,13 +302,6 @@ export default function SellerProfile() {
               </Avatar>
               <h1 className="text-2xl font-bold text-foreground tracking-tight">{seller.name}</h1>
               
-              {/* Rating Block */}
-              <div className="flex items-center gap-1.5 mt-2 cursor-pointer hover:bg-secondary px-3 py-1.5 rounded-full transition-colors">
-                <Star className="w-4 h-4 fill-[#bb740a] text-[#bb740a]" />
-                <span className="font-semibold text-foreground text-sm">4.9</span>
-                <span className="text-muted-foreground text-sm">(32 Reviews)</span>
-                <ChevronRight className="w-3 h-3 text-muted-foreground ml-1" />
-              </div>
 
               {/* Status & Tenure */}
               <div className="flex flex-col items-center gap-1 mt-4 text-sm">

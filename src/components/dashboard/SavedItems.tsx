@@ -101,18 +101,19 @@ export function SavedItems() {
     };
   }, [accessToken]);
 
-  const handleRemove = async (id: string) => {
+  const handleRemove = async (savedId: string, listingId: string) => {
     if (!accessToken) return;
 
     // Find the item to restore on failure
-    const removedItem = savedProducts.find((p) => p.id === id);
+    const removedItem = savedProducts.find((p) => p.id === savedId);
 
     // Optimistic remove
-    setSavedProducts((prev) => prev.filter((p) => p.id !== id));
+    setSavedProducts((prev) => prev.filter((p) => p.id !== savedId));
 
     try {
-      const res = await fetch(getApiUrl(`/api/v1/listing/saved/${id}`), {
-        method: "DELETE",
+      // Use the same toggle endpoint the rest of the app uses
+      const res = await fetch(getApiUrl(`/api/v1/listing/${listingId}/save`), {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -122,7 +123,7 @@ export function SavedItems() {
       }
       toast.success("Item removed from saved list");
     } catch (err) {
-      toast.error("Failed to remove saved item. It might reappear on refresh.");
+      toast.error("Failed to remove saved item.");
       // Rollback
       if (removedItem) {
         setSavedProducts((prev) => [...prev, removedItem]);
@@ -157,7 +158,7 @@ export function SavedItems() {
               />
               {/* Remove Button */}
               <button
-                onClick={(e) => { e.stopPropagation(); handleRemove(product.id); }}
+                onClick={(e) => { e.stopPropagation(); handleRemove(product.id, (product as any).listingId); }}
                 className="cursor-pointer absolute top-2 right-2 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105"
               >
                 <Trash2 className="w-4 h-4" />

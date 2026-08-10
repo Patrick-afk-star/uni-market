@@ -276,26 +276,11 @@ export default function Hero() {
           style={{ background: "radial-gradient(circle, rgba(99,102,241,0.22), transparent 70%)" }}
         />
 
-        <div className="relative z-10 max-w-6xl mx-auto w-[92vw]">
+        <div className="relative z-10 w-full max-w-screen-xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             {/* LEFT — editorial copy + search */}
             <div>
-              {/* Trust badge */}
-              <div
-                className="inline-flex items-center gap-2 text-xs px-4 py-1.5 rounded-full font-semibold mb-6"
-                style={{
-                  background: "rgba(234,179,8,0.08)",
-                  border: "1px solid rgba(234,179,8,0.2)",
-                  color: "#F59E0B",
-                }}
-              >
-                <span
-                  className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] animate-pulse"
-                />
-                Trusted by 18,000+ students across Rwanda
-              </div>
 
-              {/* Headline */}
               <h1
                 className="font-black text-5xl sm:text-6xl md:text-7xl leading-[1.05] tracking-tight mb-5 text-foreground"
               >
