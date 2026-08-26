@@ -74,11 +74,7 @@ export default function AdminUsersPage() {
         page_size: String(PAGE_SIZE),
       });
       if (debouncedSearch.trim()) {
-        if (debouncedSearch.includes("@")) {
-          params.set("email", debouncedSearch.trim());
-        } else {
-          params.set("first_name", debouncedSearch.trim());
-        }
+        params.set("search", debouncedSearch.trim());
       }
       if (statusFilter !== "all") params.set("filter", statusFilter);
 
