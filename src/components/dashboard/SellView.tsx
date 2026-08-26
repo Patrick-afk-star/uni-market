@@ -332,9 +332,10 @@ export function SellView({ listingId, onPublish }: SellViewProps) {
                   />
                   <button
                     onClick={() => removeImage(index)}
-                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-black/60 text-white hover:bg-red-600 flex items-center justify-center shadow-sm backdrop-blur-sm transition-colors z-10 cursor-pointer"
+                    aria-label="Remove image"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
