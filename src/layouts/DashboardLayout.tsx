@@ -282,7 +282,7 @@ export default function DashboardLayout() {
       </div>
 
       {/* Mobile Bottom Navigation — Premium glass effect */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0B0F17]/90 backdrop-blur-xl border-t border-white/[0.07] pb-safe shadow-2xl">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0B0F17]/90 backdrop-blur-xl border-t border-gray-200 dark:border-white/[0.07] pb-safe shadow-2xl">
         <div className="flex items-center justify-around px-2 py-2">
           {[
             { id: 'home', label: 'Home', icon: Search, path: '/dashboard/browse' },
@@ -298,7 +298,7 @@ export default function DashboardLayout() {
                 key={item.id}
                 onClick={() => navigate(item.path)}
                 className={`flex flex-col items-center justify-center flex-1 py-1.5 gap-1 rounded-xl transition-all duration-200 ${
-                  isActive ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'
+                  isActive ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-slate-500 hover:text-gray-900 dark:hover:text-slate-300'
                 }`}
               >
                 <div className="relative">
@@ -312,7 +312,7 @@ export default function DashboardLayout() {
                     </span>
                   )}
                 </div>
-                <span className={`text-[9px] tracking-tight font-medium ${isActive ? 'text-amber-400' : ''}`}>{item.label}</span>
+                <span className={`text-[9px] tracking-tight font-medium ${isActive ? 'text-amber-600 dark:text-amber-400' : ''}`}>{item.label}</span>
               </button>
             );
           })}
