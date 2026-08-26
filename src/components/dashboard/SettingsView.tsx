@@ -710,9 +710,9 @@ export function SettingsView() {
                               disabled={campuses.length === 0}
                               className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                             >
-                              <option value="" className="bg-[#0f0f0f]">Select Campus...</option>
+                              <option value="" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Select Campus...</option>
                               {campuses.map(c => (
-                                <option key={c.id} value={c.id} className="bg-[#0f0f0f]">{c.name}</option>
+                                <option key={c.id} value={c.id} className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">{c.name}</option>
                               ))}
                             </select>
                           </div>
@@ -751,9 +751,9 @@ export function SettingsView() {
                                 onChange={(e) => handleProvinceChange(e.target.value)}
                                 className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors"
                               >
-                                <option value="" className="bg-[#0f0f0f]">Select Province...</option>
+                                <option value="" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Select Province...</option>
                                 {locations.map(p => (
-                                  <option key={p.id} value={p.id} className="bg-[#0f0f0f]">{p.name}</option>
+                                  <option key={p.id} value={p.id} className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">{p.name}</option>
                                 ))}
                               </select>
                             </div>
@@ -768,9 +768,9 @@ export function SettingsView() {
                                 disabled={!provinceIdForSelect}
                                 className="w-full h-11 rounded-xl border border-white/[0.08] bg-secondary/20 px-3 text-foreground focus:outline-none focus:ring-1 focus:ring-[#bb740a] focus:border-[#bb740a] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                               >
-                                <option value="" className="bg-[#0f0f0f]">Select District...</option>
+                                <option value="" className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">Select District...</option>
                                 {provinceIdForSelect && locations.find(l => l.id === provinceIdForSelect)?.districts.map(d => (
-                                  <option key={d.id} value={d.id} className="bg-[#0f0f0f]">{d.name}</option>
+                                  <option key={d.id} value={d.id} className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white">{d.name}</option>
                                 ))}
                               </select>
                             </div>
