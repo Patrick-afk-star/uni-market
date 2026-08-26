@@ -36,6 +36,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -49,6 +50,11 @@ export default function AdminUsersPage() {
     document.addEventListener("click", closeMenu);
     return () => document.removeEventListener("click", closeMenu);
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const PAGE_SIZE = 20;
 
@@ -66,7 +72,13 @@ export default function AdminUsersPage() {
         page: String(page),
         page_size: String(PAGE_SIZE),
       });
-      if (search.trim()) params.set("search", search.trim());
+      if (debouncedSearch.trim()) {
+        if (debouncedSearch.includes("@")) {
+          params.set("email", debouncedSearch.trim());
+        } else {
+          params.set("first_name", debouncedSearch.trim());
+        }
+      }
       if (statusFilter !== "all") params.set("filter", statusFilter);
 
       const res = await fetch(
@@ -89,7 +101,7 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [accessToken, page, search, statusFilter]);
+  }, [accessToken, page, debouncedSearch, statusFilter]);
 
   useEffect(() => {
     fetchUsers();
@@ -98,7 +110,7 @@ export default function AdminUsersPage() {
   // Debounce search — reset page when query changes
   useEffect(() => {
     setPage(1);
-  }, [search, statusFilter]);
+  }, [debouncedSearch, statusFilter]);
 
 
 
