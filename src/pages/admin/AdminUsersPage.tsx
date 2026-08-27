@@ -115,22 +115,18 @@ export default function AdminUsersPage() {
     if (!accessToken) return;
     setActionLoading(u.id);
     try {
-      const isDeactivating = u.is_active;
-      const endpoint = isDeactivating
-        ? "/api/v1/auth/account/deactivate"
-        : `/api/v1/profiles/${u.id}/toggle-active/`;
-      const method = isDeactivating ? "POST" : "PATCH";
-      const body = isDeactivating ? { user_id: u.user_id } : { is_active: true };
-
       const res = await fetch(
-        getApiUrl(endpoint),
+        getApiUrl("/api/v1/auth/account/deactivate"),
         {
-          method,
+          method: "POST",
           headers: {
             Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(body),
+          body: JSON.stringify({
+            user_id: u.user_id,
+            is_active: !u.is_active,
+          }),
         }
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
